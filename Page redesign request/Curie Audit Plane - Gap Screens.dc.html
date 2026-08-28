@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0b0d10; overflow-x:auto; }
+  * { box-sizing:border-box; }
+  a { color:#6aa8ff; text-decoration:none; }
+  a:hover { color:#9cc5ff; }
+  @keyframes livepulse { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+  @keyframes shimmer { 0% { opacity:.35; } 50% { opacity:.7; } 100% { opacity:.35; } }
+</style>
+</helmet>
+<div style="display:grid; grid-template-columns:minmax(240px,264px) minmax(880px,1fr); min-width:1180px; min-height:100vh; background:#0b0d10; color:#e6ebf0; font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:14px; line-height:1.45;">
+
+  <aside style="border-right:1px solid #1c222a; background:#0e1116; padding:24px 16px;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.18em; color:#5d6a78; text-transform:uppercase;">Curie Audit Plane</div>
+    <div style="margin-top:8px; font-size:17px; font-weight:600;">Gap screens</div>
+    <div style="margin-top:8px; font-size:12px; color:#66727f;">Screens the console needs but doesn't have yet. Each one names its assumption.</div>
+    <div style="margin-top:22px; display:flex; flex-direction:column; gap:3px;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+        <div onClick="{{ n.select }}" style="padding:10px 12px; border-radius:8px; cursor:pointer; border:1px solid {{ n.border }}; background:{{ n.bg }};" style-hover="background:#151b22;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4d5866;">{{ n.num }}</span>
+            <span style="font-size:12.5px; color:{{ n.color }};">{{ n.label }}</span>
+          </div>
+          <div style="margin-top:3px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#565f6c;">{{ n.route }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:22px; padding-top:16px; border-top:1px solid #1c222a; display:flex; flex-direction:column; gap:6px;">
+      <a href="Curie Audit Plane.dc.html" style="font-size:12px;">→ Console</a>
+      <a href="Curie Audit Plane - Component States.dc.html" style="font-size:12px;">→ Component states</a>
+    </div>
+  </aside>
+
+  <main style="min-width:0; padding:34px 40px 80px;">
+    <header style="max-width:1080px;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">{{ screen.kicker }}</div>
+      <div style="margin-top:10px; font-size:26px; font-weight:600; letter-spacing:-0.022em;">{{ screen.title }}</div>
+      <div style="margin-top:10px; max-width:720px; font-size:13.5px; color:#8b96a4;">{{ screen.blurb }}</div>
+      <div style="margin-top:14px; padding:10px 13px; border-left:none; border:1px dashed #2a323c; border-radius:8px; display:flex; gap:10px; align-items:baseline;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.12em; color:#f0b64b;">ASSUMPTION</span>
+        <span style="font-size:12.5px; color:#8b96a4;">{{ screen.assumption }}</span>
+      </div>
+    </header>
+
+    <sc-if value="{{ showIndex }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:30px; max-width:1180px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+            <div onClick="{{ f.toggle }}" style="padding:5px 11px; border-radius:6px; cursor:pointer; border:1px solid {{ f.border }}; background:{{ f.bg }}; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:{{ f.color }};">{{ f.label }}</div>
+          </sc-for>
+          <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">{{ indexCount }}</div>
+        </div>
+        <div style="margin-top:16px; border:1px solid #1e242c; border-radius:12px; background:#0e1116; overflow-x:auto;">
+          <div style="display:grid; grid-template-columns:100px minmax(150px,1fr) 96px 116px 100px 96px 88px 56px; gap:14px; min-width:900px; padding:12px 18px; border-bottom:1px solid #1c222a; background:#11151b; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.1em; color:#5d6a78; text-transform:uppercase;">
+            <div>Transaction</div><div>Purpose</div><div>Started</div><div>Lifecycle</div><div>Verification</div><div>Guardrail</div><div>Action</div><div>Gaps</div>
+          </div>
+          <sc-for list="{{ indexRows }}" as="r" hint-placeholder-count="6">
+            <div style="display:grid; grid-template-columns:100px minmax(150px,1fr) 96px 116px 100px 96px 88px 56px; gap:14px; min-width:900px; padding:14px 18px; border-bottom:1px solid #171d24; align-items:center; cursor:pointer;" style-hover="background:#141a21;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#cfd8e2;">{{ r.id }}</div>
+              <div style="font-size:12.5px; color:#9aa6b4;">{{ r.purpose }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#66727f;">{{ r.started }}</div>
+              <div style="display:flex; align-items:center; gap:7px; font-size:12px; color:#cfd8e2;">
+                <span style="width:6px; height:6px; border-radius:50%; background:{{ r.lifeDot }}; animation:{{ r.lifeAnim }};"></span>{{ r.lifecycle }}
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; color:{{ r.verifColor }};">{{ r.verification }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; color:{{ r.guardColor }};">{{ r.guardrail }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:0.06em; color:{{ r.actionColor }};">{{ r.action }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:{{ r.gapColor }};">{{ r.gaps }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:12px; font-size:12px; color:#66727f;">Sort defaults to newest first. Rows with a broken chain or a failed guardrail sort to the top when the “Needs attention” filter is on.</div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ showReview }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:30px; max-width:1180px; display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:16px; align-items:start;">
+        <div style="border:1px solid #1e242c; border-radius:12px; background:#0e1116; overflow:hidden;">
+          <div style="padding:16px 20px; border-bottom:1px solid #1c222a; display:flex; align-items:baseline; gap:12px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Model output · encounter-summary.v2</div>
+            <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">9 fields · validation passed</div>
+          </div>
+          <sc-for list="{{ outputFields }}" as="f" hint-placeholder-count="5">
+            <div style="padding:14px 20px; border-bottom:1px solid #171d24;">
+              <div style="display:flex; align-items:baseline; gap:10px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f; width:150px; flex:none;">{{ f.key }}</div>
+                <div style="font-size:13px; color:#e6ebf0;">{{ f.value }}</div>
+                <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:2px 6px; border-radius:5px; background:{{ f.provBg }}; color:{{ f.provColor }};">{{ f.prov }}</div>
+              </div>
+              <div style="margin-top:5px; margin-left:160px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#565f6c;">{{ f.trace }}</div>
+            </div>
+          </sc-for>
+          <div style="padding:18px 20px; background:#0c0f13;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Sign-off</div>
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+              <sc-for list="{{ actions }}" as="a" hint-placeholder-count="3">
+                <div onClick="{{ a.pick }}" style="padding:9px 16px; border-radius:8px; cursor:pointer; border:1px solid {{ a.border }}; background:{{ a.bg }}; font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:0.06em; color:{{ a.color }};">{{ a.label }}</div>
+              </sc-for>
+            </div>
+            <div style="margin-top:14px; font-size:12px; color:{{ reasonHintColor }};">{{ reasonHint }}</div>
+            <textarea placeholder="Reason for the record" style="margin-top:8px; width:100%; min-height:74px; resize:vertical; padding:11px 12px; border:1px solid #232b34; border-radius:8px; background:#0a0c0f; color:#cfd8e2; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;"></textarea>
+            <div onClick="{{ toggleAttest }}" style="margin-top:12px; display:flex; align-items:center; gap:10px; cursor:pointer;">
+              <div style="width:16px; height:16px; border-radius:4px; border:1px solid {{ attestBorder }}; background:{{ attestBg }}; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#0b0d10;">{{ attestMark }}</div>
+              <div style="font-size:12.5px; color:#9aa6b4;">I reviewed the evidence above and attest this decision as the responsible clinician.</div>
+            </div>
+            <div style="margin-top:16px; display:flex; align-items:center; gap:12px;">
+              <div onClick="{{ submit }}" style="padding:10px 18px; border-radius:8px; cursor:{{ submitCursor }}; border:1px solid {{ submitBorder }}; background:{{ submitBg }}; color:{{ submitColor }}; font-size:12.5px; font-weight:500; opacity:{{ submitOpacity }};">{{ submitLabel }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#565f6c;">{{ submitNote }}</div>
+            </div>
+          </div>
+        </div>
+        <div style="border:1px solid #1e242c; border-radius:12px; background:#0e1116; padding:18px 18px 20px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Evidence used</div>
+          <div style="margin-top:14px; display:flex; flex-direction:column; gap:10px;">
+            <sc-for list="{{ evidence }}" as="e" hint-placeholder-count="4">
+              <div style="padding:11px 12px; border:1px solid #1e242c; border-radius:9px; background:#11151b;">
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#cfd8e2;">{{ e.title }}</span>
+                  <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#5d6a78;">{{ e.kind }}</span>
+                </div>
+                <div style="margin-top:5px; font-size:11.5px; color:#8b96a4;">{{ e.detail }}</div>
+                <div style="margin-top:5px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#565f6c;">{{ e.digest }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:16px; padding-top:14px; border-top:1px solid #1c222a; font-size:12px; color:#66727f;">Sign-off writes a <span style="font-family:'IBM Plex Mono',monospace; color:#9aa6b4;">human.action_recorded</span> event and seals the chain. It cannot be edited afterwards, only superseded.</div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ showVerify }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:30px; max-width:1180px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px;">
+          <sc-for list="{{ verifyTiles }}" as="t" hint-placeholder-count="4">
+            <div style="padding:14px 15px 15px; border:1px solid #1e242c; border-top:2px solid {{ t.accent }}; border-radius:10px; background:#11151b;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">{{ t.label }}</div>
+              <div style="margin-top:9px; font-size:19px; font-weight:600; letter-spacing:-0.015em; color:{{ t.accent }};">{{ t.value }}</div>
+              <div style="margin-top:7px; font-size:11.5px; color:#6d7887;">{{ t.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:22px; border:1px solid #1e242c; border-radius:12px; background:#0e1116; overflow:hidden;">
+          <div style="padding:14px 18px; border-bottom:1px solid #1c222a; display:flex; align-items:baseline; gap:12px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Chain walk</div>
+            <div style="font-size:12px; color:#66727f;">Each link recomputed from the stored payload digest.</div>
+            <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">sha256</div>
+          </div>
+          <sc-for list="{{ chainRows }}" as="c" hint-placeholder-count="7">
+            <div style="display:grid; grid-template-columns:44px 152px 190px 20px 190px minmax(0,1fr); gap:12px; padding:11px 18px; border-bottom:1px solid #171d24; align-items:center; background:{{ c.bg }};">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#4d5866; text-align:right;">{{ c.seq }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#cfd8e2;">{{ c.type }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">{{ c.prev }}</div>
+              <div style="text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#3c4653;">→</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:{{ c.hashColor }};">{{ c.hash }}</div>
+              <div style="display:flex; align-items:center; gap:9px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:2px 6px; border-radius:5px; background:{{ c.badgeBg }}; color:{{ c.badgeColor }};">{{ c.badge }}</span>
+                <span style="font-size:11.5px; color:#6d7887;">{{ c.note }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+          <sc-for list="{{ exportButtons }}" as="b" hint-placeholder-count="3">
+            <div style="padding:8px 14px; border:1px solid #2b3947; border-radius:7px; background:#151b22; color:#cfd8e2; font-size:12.5px; cursor:pointer;" style-hover="background:#1b232c; border-color:#3a4c5e; color:#fff;">{{ b.label }}</div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ showStates }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:30px; max-width:1180px; display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:14px;">
+        <sc-for list="{{ systemStates }}" as="s" hint-placeholder-count="6">
+          <div style="border:1px solid #1e242c; border-radius:12px; background:#0e1116; overflow:hidden;">
+            <div style="padding:13px 16px; border-bottom:1px solid #1c222a; display:flex; align-items:baseline; gap:10px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#e6ebf0;">{{ s.name }}</div>
+              <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:2px 6px; border-radius:5px; background:{{ s.tagBg }}; color:{{ s.tagColor }};">{{ s.tag }}</div>
+            </div>
+            <div style="padding:20px 16px; min-height:168px; display:flex; flex-direction:column; justify-content:center; gap:10px;">
+              <sc-if value="{{ s.skeleton }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <sc-for list="{{ s.skeleton }}" as="k" hint-placeholder-count="4">
+                    <div style="height:{{ k.h }}; width:{{ k.w }}; border-radius:6px; background:#1a212a; animation:shimmer 1.4s ease-in-out infinite;"></div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <sc-if value="{{ s.icon }}" hint-placeholder-val="{{ true }}">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:22px; color:{{ s.iconColor }};">{{ s.icon }}</div>
+              </sc-if>
+              <sc-if value="{{ s.headline }}" hint-placeholder-val="{{ true }}">
+                <div style="font-size:14px; font-weight:600; color:#e6ebf0;">{{ s.headline }}</div>
+              </sc-if>
+              <sc-if value="{{ s.body }}" hint-placeholder-val="{{ true }}">
+                <div style="font-size:12.5px; color:#8b96a4;">{{ s.body }}</div>
+              </sc-if>
+              <sc-if value="{{ s.cta }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:4px; display:inline-flex; align-self:flex-start; padding:7px 13px; border:1px solid #2b3947; border-radius:7px; background:#151b22; color:#cfd8e2; font-size:12px; cursor:pointer;" style-hover="background:#1b232c; color:#fff;">{{ s.cta }}</div>
+              </sc-if>
+            </div>
+            <div style="padding:12px 16px; border-top:1px solid #171d24; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#565f6c;">{{ s.trigger }}</div>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ showCoverage }}" hint-placeholder-val="{{ true }}">
+      <section style="margin-top:30px; max-width:1180px;">
+        <div style="border:1px solid #1e242c; border-radius:12px; background:#0e1116; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:230px 132px 120px minmax(0,1fr) 116px; gap:14px; padding:12px 18px; border-bottom:1px solid #1c222a; background:#11151b; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.1em; color:#5d6a78; text-transform:uppercase;">
+            <div>event_type</div><div>Stage</div><div>Dot</div><div>Treatment needed</div><div>Console today</div>
+          </div>
+          <sc-for list="{{ coverage }}" as="c" hint-placeholder-count="12">
+            <div style="display:grid; grid-template-columns:230px 132px 120px minmax(0,1fr) 116px; gap:14px; padding:12px 18px; border-bottom:1px solid #171d24; align-items:center;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#cfd8e2;">{{ c.type }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">{{ c.stage }}</div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:{{ c.dot }};"></span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#565f6c;">{{ c.dotName }}</span>
+              </div>
+              <div style="font-size:12px; color:#8b96a4;">{{ c.treatment }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:2px 7px; border-radius:5px; background:{{ c.stateBg }}; color:{{ c.stateColor }}; justify-self:start;">{{ c.state }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px; padding:14px 16px; border:1px dashed #2a323c; border-radius:10px; max-width:760px;">
+          <div style="font-size:13px; font-weight:600;">Unknown event types</div>
+          <div style="margin-top:6px; font-size:12.5px; color:#8b96a4;">A producer at a newer schema version will emit types this UI has never seen. Render them with the neutral dot, the raw event_type in mono, the stage chip from the payload, and the JSON pane — never drop them from the timeline.</div>
+        </div>
+      </section>
+    </sc-if>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1320,&quot;height&quot;:900}}">
+const C = { ok:'#58d68a', warn:'#f0b64b', bad:'#f2705f', live:'#6aa8ff', mute:'#7d8896' };
+
+const SCREENS = [
+  { id:'index', num:'01', label:'Transactions index', route:'/transactions', kicker:'Missing route',
+    title:'Transactions index', blurb:'The console only exposes transactions through a 264px rail, which caps the list at a handful of runs and hides the fields an auditor filters on. A real index answers “which runs need me” before any single run is opened.',
+    assumption:'There is no list route today — the rail is the only entry point. If a /transactions page already exists, treat this as the column and filter set it should carry.' },
+  { id:'review', num:'02', label:'Review & sign-off', route:'/transactions/:id/review', kicker:'Missing flow',
+    title:'Review & sign-off', blurb:'human.action_recorded is displayed but never produced. Two of five sample runs sit at “Waiting for review” with no surface to accept, modify or reject, so the pipeline records a decision it gives no way to make.',
+    assumption:'Sign-off is a write path with an attestation requirement, and the reviewer must see the evidence that produced each field before deciding.' },
+  { id:'verify', num:'03', label:'Verification report', route:'/transactions/:id/verify', kicker:'Under-surfaced',
+    title:'Verification report', blurb:'Chain integrity currently reduces to one badge — INTACT, OPEN or BROKEN. When it is broken, the auditor needs the link that failed, the recomputed digest, and something exportable to hand to a regulator.',
+    assumption:'Hashes are recomputable client-side from stored payload digests. If verification happens server-side, this screen renders its response rather than computing it.' },
+  { id:'states', num:'04', label:'System states', route:'all routes', kicker:'Unhandled states',
+    title:'Loading, empty, error, permission', blurb:'Every surface currently assumes data has arrived and the viewer is allowed to see it. Six states need a defined treatment before this is safe to ship in a clinical setting.',
+    assumption:'Events arrive over a stream that can drop, and PHI scope is enforced per viewer role. Both assumptions come from the ui.access_recorded payload shape.' },
+  { id:'coverage', num:'05', label:'Event type coverage', route:'timeline + inspector', kicker:'Coverage gap',
+    title:'Event type coverage', blurb:'The timeline styles events by stage, but several event types carry meaning the row does not express — a retrieval that returned nothing, a guardrail that redacted output, a superseded decision.',
+    assumption:'This list is derived from the event types present in the sample transactions. The real schema enum is the source of truth — send it and I will fill in the rest.' }
+];
+
+class Component extends DCLogic {
+  state = { screen:'index', filters:{ 'Needs attention':true }, action:null, attest:false, submitted:false };
+
+  renderVals() {
+    const sid = this.state.screen;
+    const screen = SCREENS.find(s => s.id === sid);
+
+    const nav = SCREENS.map(s => {
+      const on = s.id === sid;
+      return { num:s.num, label:s.label, route:s.route,
+        bg: on ? '#161d25' : 'transparent', border: on ? '#2b3947' : 'transparent',
+        color: on ? '#e6ebf0' : '#9aa6b4',
+        select: () => this.setState({ screen:s.id }) };
+    });
+
+    const filterLabels = ['Needs attention','Running','Waiting for review','Completed','Chain broken'];
+    const filters = filterLabels.map(label => {
+      const on = !!this.state.filters[label];
+      return { label, bg: on ? 'rgba(106,168,255,.14)' : 'transparent', border: on ? '#6aa8ff' : '#232b34',
+        color: on ? '#9cc5ff' : '#66727f',
+        toggle: () => this.setState(s => ({ filters: Object.assign({}, s.filters, { [label]: !s.filters[label] }) })) };
+    });
+
+    const rows = [
+      ['8edf619a','synthetic-encounter-summary','18:09:17Z','Running','INCOMPLETE',C.warn,'NOT EVAL',C.mute,'—',C.mute,'5',C.warn,C.live,true],
+      ['c043db8e','synthetic-medication-review','15:09:02Z','Waiting for review','FAILED',C.bad,'BLOCKED',C.bad,'—',C.mute,'3',C.bad,C.bad,false],
+      ['71c41fcc','synthetic-encounter-summary','17:09:17Z','Waiting for review','INCOMPLETE',C.warn,'PASS',C.ok,'—',C.mute,'2',C.warn,C.warn,false],
+      ['f58c1eb0','synthetic-encounter-summary','16:09:17Z','Completed','VERIFIED',C.ok,'PASS',C.ok,'ACCEPT',C.ok,'0',C.ok,C.ok,false],
+      ['37d79370','synthetic-encounter-summary','14:09:17Z','Completed','VERIFIED',C.ok,'PASS',C.ok,'MODIFY',C.warn,'0',C.ok,C.ok,false],
+      ['a91b7c34','synthetic-discharge-summary','13:41:55Z','Completed','VERIFIED',C.ok,'FLAGGED',C.warn,'REJECT',C.bad,'0',C.ok,C.ok,false]
+    ].map(r => ({
+      id:r[0], purpose:r[1], started:r[2], lifecycle:r[3],
+      verification:r[4], verifColor:r[5], guardrail:r[6], guardColor:r[7],
+      action:r[8], actionColor:r[9], gaps:r[10], gapColor:r[11],
+      lifeDot:r[12], lifeAnim: r[13] ? 'livepulse 1.6s ease-in-out infinite' : 'none'
+    }));
+
+    const outputFields = [
+      ['chief_complaint','Elevated blood pressure at routine follow-up','TRACED', C.ok, 'from cond-htn-TEST-00001 · sha256:1abf2574'],
+      ['current_medications','Lisinopril 10mg daily','TRACED', C.ok, 'from med-lisinopril-TEST-00001 · sha256:1abf2574'],
+      ['assessment','Hypertension, controlled on current therapy','RETRIEVAL', C.live, 'grounded in chunk htn-bp-targets · clinical-knowledge.v1'],
+      ['bp_target','Below 130/80 mmHg','RETRIEVAL', C.live, 'grounded in chunk htn-bp-targets · clinical-knowledge.v1'],
+      ['follow_up','Recheck in 3 months','UNGROUNDED', C.warn, 'no input resource or retrieval chunk maps to this field']
+    ].map(f => ({ key:f[0], value:f[1], prov:f[2], provColor:f[3],
+      provBg: f[3] === C.ok ? 'rgba(88,214,138,.12)' : (f[3] === C.live ? 'rgba(106,168,255,.14)' : 'rgba(240,182,75,.12)'),
+      trace:f[4] }));
+
+    const chosen = this.state.action;
+    const actions = [
+      ['ACCEPT', C.ok], ['MODIFY', C.warn], ['REJECT', C.bad]
+    ].map(([label, tone]) => {
+      const on = chosen === label;
+      return { label, color: on ? '#0b0d10' : tone, bg: on ? tone : 'transparent', border: on ? tone : '#2b3947',
+        pick: () => this.setState({ action: label, submitted:false }) };
+    });
+
+    const needsReason = chosen === 'MODIFY' || chosen === 'REJECT';
+    const ready = !!chosen && this.state.attest;
+
+    const evidence = [
+      ['fhir_inputs','manifest','7 resources · patient, encounter, condition, medication','sha256:1abf2574'],
+      ['context window','manifest','1,842 tokens · 7 resources ordered','sha256:0c5026b9'],
+      ['htn-bp-targets','retrieval chunk','clinical-knowledge.v1 · similarity 0.91','sha256:1151218d'],
+      ['knowledge.lookup','tool call','v1.0.0 · 41ms · returned 1 chunk','sha256:8fcf7de2'],
+      ['guardrail run','policy','clinical-safety.v3 · 12 checks · 0 failed','sha256:aa30bd51']
+    ].map(e => ({ title:e[0], kind:e[1], detail:e[2], digest:e[3] }));
+
+    const verifyTiles = [
+      { label:'Links verified', value:'11 / 20', accent:C.bad, note:'Recompute stopped at the first mismatch' },
+      { label:'First break', value:'seq 12', accent:C.bad, note:'guardrail.evaluated · stored hash ≠ recomputed' },
+      { label:'Digest algorithm', value:'sha256', accent:C.mute, note:'Producer 0.1.0 · schema 1.0.0' },
+      { label:'Sealed', value:'Not sealed', accent:C.warn, note:'No integrity.proof_sealed event on record' }
+    ];
+
+    const chainRows = [
+      ['9','ui.access_recorded','a3f9…11c4','7d1e…88ba', 'MATCH', C.ok, 'Recomputed digest equals stored hash', false],
+      ['10','ui.access_recorded','7d1e…88ba','2c04…f31d', 'MATCH', C.ok, 'Recomputed digest equals stored hash', false],
+      ['11','model.completed','2c04…f31d','9b77…40ae', 'MATCH', C.ok, 'Payload digest sha256:7d9a11ce confirmed', false],
+      ['12','guardrail.evaluated','9b77…40ae','5f21…c8d2', 'MISMATCH', C.bad, 'Stored hash does not derive from previous_event_hash', true],
+      ['13','output.structured','5f21…c8d2','—', 'UNVERIFIABLE', C.warn, 'Downstream of a broken link', false],
+      ['14','human.action_recorded','—','—', 'MISSING', C.warn, 'No event recorded for this stage', false],
+      ['15','integrity.proof_sealed','—','—', 'MISSING', C.warn, 'Chain never sealed', false]
+    ].map(r => ({ seq:r[0], type:r[1], prev:r[2], hash:r[3], badge:r[4], badgeColor:r[5], note:r[6],
+      hashColor: r[5] === C.bad ? C.bad : '#9aa6b4',
+      badgeBg: r[5] === C.ok ? 'rgba(88,214,138,.12)' : (r[5] === C.bad ? 'rgba(242,112,95,.14)' : 'rgba(240,182,75,.12)'),
+      bg: r[7] ? 'rgba(242,112,95,.05)' : 'transparent' }));
+
+    const systemStates = [
+      { name:'Loading', tag:'SKELETON', tagBg:'#1a212a', tagColor:'#8b96a4',
+        skeleton:[{h:'14px',w:'55%'},{h:'46px',w:'100%'},{h:'11px',w:'70%'},{h:'11px',w:'40%'}],
+        trigger:'first paint · before the event stream resolves' },
+      { name:'No transactions', tag:'EMPTY', tagBg:'#1a212a', tagColor:'#8b96a4',
+        icon:'∅', iconColor:'#4d5866', headline:'No transactions recorded',
+        body:'The recorder is connected but has produced nothing yet. Run a synthetic transaction to confirm the pipeline end to end.',
+        cta:'Run synthetic transaction', trigger:'transactions.length === 0 · recorder reachable' },
+      { name:'Recorder unreachable', tag:'ERROR', tagBg:'rgba(242,112,95,.14)', tagColor:'#f2705f',
+        icon:'!', iconColor:'#f2705f', headline:'Cannot reach the audit plane',
+        body:'The console is showing the last snapshot it received. Nothing here is guaranteed current — do not verify a record from this view.',
+        cta:'Retry connection', trigger:'transport error · surfaced as a banner, never a silent stale view' },
+      { name:'Permission denied', tag:'SCOPE', tagBg:'rgba(240,182,75,.12)', tagColor:'#f0b64b',
+        icon:'⊘', iconColor:'#f0b64b', headline:'Payloads outside your scope',
+        body:'Your role can read the event chain and verify integrity, but not payload metadata containing PHI. Digests and hashes stay visible; values are withheld.',
+        cta:'Request PHI scope', trigger:'viewer_role lacks phi.read · per-field, not per-page' },
+      { name:'Stream disconnected', tag:'DEGRADED', tagBg:'rgba(240,182,75,.12)', tagColor:'#f0b64b',
+        icon:'⟳', iconColor:'#f0b64b', headline:'Live updates paused',
+        body:'Reconnecting. A running transaction will stop advancing until the stream resumes; the LIVE badge drops to STALE with the time of the last event.',
+        cta:'Reconnect now', trigger:'socket close on a Running transaction' },
+      { name:'Transaction not found', tag:'404', tagBg:'#1a212a', tagColor:'#8b96a4',
+        icon:'?', iconColor:'#4d5866', headline:'No such transaction',
+        body:'The id in the URL does not exist, or it was written by a producer this console cannot read. Deep links from an audit report land here.',
+        cta:'Back to transactions', trigger:'bad or expired deep link' }
+    ];
+
+    const coverage = [
+      ['transaction.started','transaction',C.ok,'ok','Chain origin — show previous_event_hash as all zeros explicitly','styled'],
+      ['input.manifest.created','fhir_inputs',C.ok,'ok','Expand resource_ids inline; 7 ids is more useful than a count','partial'],
+      ['transformation.applied','transformations',C.ok,'ok','Show operation_name in the row; three applied transforms currently read identical','partial'],
+      ['context.manifest.created','context',C.ok,'ok','Token count and resource count belong in the row','partial'],
+      ['retrieval.completed','retrieval_tools',C.ok,'ok','count: 0 must read as an empty retrieval, not a success','missing'],
+      ['tool.called','retrieval_tools',C.ok,'ok','Pair with its completion; an unpaired call is an open tool','missing'],
+      ['tool.completed','retrieval_tools',C.ok,'ok','Surface latency and whether the result was used downstream','partial'],
+      ['model.invoked','model',C.live,'live','Model id, version and temperature belong in the row','missing'],
+      ['model.completed','model',C.live,'live','finish_reason other than stop needs a warning treatment','missing'],
+      ['output.structured','structured_output',C.ok,'ok','Validation failure must read red, not green','missing'],
+      ['guardrail.evaluated','guardrails',C.bad,'bad','Distinguish pass / flagged / blocked / redacted — one dot cannot carry four outcomes','partial'],
+      ['human.action_recorded','human_action',C.live,'live','ACCEPT / MODIFY / REJECT each need their own colour and the reason text','missing'],
+      ['integrity.proof_sealed','integrity_proof',C.ok,'ok','Terminal event — visually close the timeline','missing'],
+      ['ui.access_recorded','access_audit',C.ok,'ok','Grouped today. Needs viewer identity and role on expand','partial']
+    ].map(c => ({ type:c[0], stage:c[1], dot:c[2], dotName:c[3], treatment:c[4], state:c[5].toUpperCase(),
+      stateBg: c[5] === 'styled' ? 'rgba(88,214,138,.12)' : (c[5] === 'partial' ? 'rgba(240,182,75,.12)' : 'rgba(242,112,95,.14)'),
+      stateColor: c[5] === 'styled' ? C.ok : (c[5] === 'partial' ? C.warn : C.bad) }));
+
+    return {
+      nav, screen,
+      showIndex: sid === 'index', showReview: sid === 'review', showVerify: sid === 'verify',
+      showStates: sid === 'states', showCoverage: sid === 'coverage',
+      filters, indexCount: '6 of 148 transactions', indexRows: rows,
+      outputFields, actions, evidence,
+      reasonHint: needsReason ? 'Required for ' + chosen + '. Recorded in the event payload and shown to anyone auditing this decision.' : 'Optional for ACCEPT. Recorded in the event payload either way.',
+      reasonHintColor: needsReason ? '#f0b64b' : '#66727f',
+      toggleAttest: () => this.setState(s => ({ attest: !s.attest })),
+      attestMark: this.state.attest ? '✓' : '',
+      attestBg: this.state.attest ? C.ok : 'transparent',
+      attestBorder: this.state.attest ? C.ok : '#2b3947',
+      submitLabel: this.state.submitted ? 'Recorded · human.action_recorded' : (chosen ? 'Sign as attending · ' + chosen : 'Select a decision'),
+      submitBg: this.state.submitted ? 'rgba(88,214,138,.12)' : (ready ? '#1b232c' : '#101419'),
+      submitBorder: this.state.submitted ? '#2c4436' : (ready ? '#3a4c5e' : '#20272f'),
+      submitColor: this.state.submitted ? C.ok : (ready ? '#ffffff' : '#5d6a78'),
+      submitOpacity: ready || this.state.submitted ? 1 : 0.6,
+      submitCursor: ready ? 'pointer' : 'not-allowed',
+      submitNote: this.state.submitted ? 'Chain sealed · seq 14 written' : (chosen ? (this.state.attest ? 'Writes one event and seals the chain' : 'Attestation required') : 'Accept, modify or reject above'),
+      submit: () => { if (ready) this.setState({ submitted:true }); },
+      verifyTiles, chainRows,
+      exportButtons: [{ label:'Download proof bundle (JSON)' }, { label:'Export chain walk (CSV)' }, { label:'Copy first-break reference' }],
+      systemStates, coverage
+    };
+  }
+}
+
+</script>
+</body>
+</html>

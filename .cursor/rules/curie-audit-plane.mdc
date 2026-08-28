@@ -1,0 +1,17 @@
+---
+description: "Project rules for Curie Audit Plane clinical AI provenance work"
+alwaysApply: true
+---
+
+# Curie Audit Plane project rules
+
+- Read `CONTEXT.md`, `docs/PRD.md`, and `docs/architecture.md` before changing behavior.
+- Keep the first release to one synthetic FHIR-to-LLM transaction ending in human ACCEPT/MODIFY/REJECT disposition.
+- Integrate with `curie-fhir` first; treat `curie-prediction-pipeline` and `curie-gateway` as later adapters.
+- Preserve data/proof separation: protected clinical payloads stay outside the immutable audit store.
+- Use structured rationale, evidence references, uncertainty, assumptions, and missing-data fields. The audit contract contains no hidden chain-of-thought.
+- Use the PRD’s transaction, event, guardrail, verification, and human-action statuses in API responses and UI labels.
+- Make the audit console expose timeline, tables, formatted/raw JSON, linked records, verification scope, and accessible text alternatives.
+- Label Sankey edges as recorded artifact flow and define their metric; never imply causal influence from visual width.
+- For code, follow the project’s TDD, security-review, and focused-verification workflow in `AGENTS.md`.
+- For browser or running-app verification, use only the enabled IronBee DevTools workflow in `.cursor/rules/ironbee-devtools-use.mdc`.

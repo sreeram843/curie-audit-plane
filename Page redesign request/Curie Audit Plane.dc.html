@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0b0d10; overflow-x:auto; }
+  * { box-sizing:border-box; }
+  a { color:#6aa8ff; text-decoration:none; }
+  a:hover { color:#9cc5ff; }
+  ::-webkit-scrollbar { width:9px; height:9px; }
+  ::-webkit-scrollbar-thumb { background:#232b34; border-radius:9px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  @keyframes livepulse { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+</style>
+</helmet>
+<div style="display:grid; grid-template-columns:minmax(240px,272px) minmax(520px,1fr) minmax(360px,412px); min-width:1180px; height:100vh; background:#0b0d10; color:#e6ebf0; font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:14px; line-height:1.45; letter-spacing:-0.005em;">
+
+  <aside style="border-right:1px solid #1c222a; display:flex; flex-direction:column; min-height:0; background:#0e1116;">
+    <div style="padding:20px 18px 16px; border-bottom:1px solid #1c222a;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.18em; color:#5d6a78; text-transform:uppercase;">Clinical AI flight recorder</div>
+      <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+        <div style="width:9px; height:9px; border-radius:50%; background:#58d68a; box-shadow:0 0 0 3px rgba(88,214,138,.14);"></div>
+        <div style="font-size:17px; font-weight:600;">Curie Audit Plane</div>
+      </div>
+      <button type="button" onClick="{{ runSynthetic }}" style="margin-top:16px; width:100%; padding:9px 12px; border:1px solid #2b3947; border-radius:7px; background:#151b22; color:#cfd8e2; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px; font-weight:500; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;" style-hover="background:#1b232c; border-color:#3a4c5e; color:#fff;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:13px;">+</span>
+        <span>Run synthetic transaction</span>
+      </button>
+    </div>
+    <div style="padding:14px 18px 8px; display:flex; align-items:baseline; justify-content:space-between;">
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">Transactions</div>
+      <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#4d5866;">{{ txCount }}</div>
+    </div>
+    <div style="flex:1; min-height:0; overflow-y:auto; padding:0 10px 16px;">
+      <sc-for list="{{ txList }}" as="t" hint-placeholder-count="5">
+        <div onClick="{{ t.select }}" style="padding:11px 12px; border-radius:8px; cursor:pointer; margin-bottom:2px; border:1px solid transparent; background:{{ t.rowBg }}; border-color:{{ t.rowBorder }};" style-hover="background:#151b22;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:6px; height:6px; border-radius:50%; flex:none; background:{{ t.dot }}; animation:{{ t.dotAnim }};"></div>
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:{{ t.idColor }};">{{ t.shortId }}</div>
+            <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4d5866;">{{ t.eventCount }} ev</div>
+          </div>
+          <div style="margin-top:5px; font-size:12px; color:{{ t.subColor }};">{{ t.subject }}</div>
+          <div style="margin-top:3px; display:flex; align-items:center; gap:6px; font-size:11px; color:{{ t.stateColor }};">
+            <span>{{ t.lifecycle }}</span>
+            <sc-if value="{{ t.flag }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:1px 5px; border-radius:4px; background:rgba(242,112,95,.14); color:#f2705f;">{{ t.flag }}</span>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:12px 18px; border-top:1px solid #1c222a; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#48525f; display:flex; justify-content:space-between;">
+      <span>schema 1.0.0</span>
+      <span>producer 0.1.0</span>
+    </div>
+  </aside>
+
+  <main style="min-width:0; min-height:0; overflow-y:auto;">
+    <header style="padding:22px 28px 18px; border-bottom:1px solid #1c222a; position:sticky; top:0; background:rgba(11,13,16,.94); backdrop-filter:blur(8px); z-index:5;">
+      <div style="display:flex; align-items:flex-start; gap:16px; flex-wrap:wrap;">
+        <div style="min-width:0;">
+          <div style="font-size:22px; font-weight:600; letter-spacing:-0.02em;">{{ tx.purpose }}</div>
+          <div style="margin-top:6px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#6d7887;">{{ tx.subject }} · {{ tx.id }}</div>
+        </div>
+        <div style="margin-left:auto; text-align:right;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">Hash chain</div>
+          <div style="margin-top:6px; display:flex; align-items:center; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8b96a4;">
+            <span>{{ tx.chainFrom }}</span>
+            <span style="color:#3c4653;">→</span>
+            <span style="color:#cfd8e2;">{{ tx.chainTo }}</span>
+            <span style="padding:2px 7px; border-radius:5px; font-size:10px; letter-spacing:0.06em; background:{{ tx.chainBg }}; color:{{ tx.chainColor }};">{{ tx.chainLabel }}</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section style="padding:22px 28px 4px;">
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px;">
+        <sc-for list="{{ tiles }}" as="tile" hint-placeholder-count="6">
+          <div style="padding:14px 15px 15px; border:1px solid #1e242c; border-radius:10px; background:#11151b; border-top:2px solid {{ tile.accent }};">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">{{ tile.label }}</div>
+            <div style="margin-top:9px; display:flex; align-items:center; gap:9px;">
+              <div style="font-size:19px; font-weight:600; letter-spacing:-0.015em; color:{{ tile.accent }};">{{ tile.value }}</div>
+              <sc-if value="{{ tile.badge }}" hint-placeholder-val="{{ true }}">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:2px 6px; border-radius:5px; background:{{ tile.badgeBg }}; color:{{ tile.accent }};">{{ tile.badge }}</span>
+              </sc-if>
+            </div>
+            <div style="margin-top:7px; font-size:11.5px; color:#6d7887;">{{ tile.note }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <sc-if value="{{ showFlow }}" hint-placeholder-val="{{ true }}">
+      <section style="padding:26px 28px 4px;">
+        <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:12px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">Recorded artifact flow</div>
+          <div style="font-size:11.5px; color:#4d5866;">Artifact counts per stage. Click a stage to filter the timeline.</div>
+          <sc-if value="{{ stageFilter }}" hint-placeholder-val="{{ true }}">
+            <button type="button" onClick="{{ clearStage }}" style="margin-left:auto; padding:3px 9px; border:1px solid #2b3947; border-radius:5px; background:transparent; color:#9aa6b4; font-family:'IBM Plex Mono',monospace; font-size:10px; cursor:pointer;" style-hover="color:#fff; border-color:#3a4c5e;">Reset filter · {{ stageFilter }}</button>
+          </sc-if>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(9,minmax(0,1fr)); gap:6px; align-items:end;">
+          <sc-for list="{{ stages }}" as="s" hint-placeholder-count="9">
+            <div onClick="{{ s.select }}" style="cursor:pointer; padding-bottom:2px;">
+              <div style="height:{{ s.barHeight }}; border-radius:4px 4px 0 0; background:{{ s.barColor }}; border:1px solid {{ s.barBorder }}; border-bottom:none;"></div>
+              <div style="height:2px; background:{{ s.railColor }};"></div>
+              <div style="margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:13px; color:{{ s.countColor }};">{{ s.count }}</div>
+              <div style="margin-top:3px; font-size:10.5px; line-height:1.3; color:{{ s.labelColor }};">{{ s.label }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:18px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#4d5866;">
+          <span>Width does not imply causal influence.</span>
+          <span style="margin-left:auto;">access log {{ accessCount }}</span>
+          <span>gaps {{ tx.missing }}</span>
+        </div>
+      </section>
+    </sc-if>
+
+    <section style="padding:26px 28px 32px;">
+      <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:14px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">Event timeline</div>
+        <div style="font-size:11.5px; color:#4d5866;">{{ timelineNote }}</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+          <div onClick="{{ r.activate }}" style="display:grid; grid-template-columns:46px 14px minmax(0,1fr) auto; align-items:center; gap:12px; padding:9px 12px; border-radius:8px; cursor:pointer; border:1px solid {{ r.border }}; background:{{ r.bg }};" style-hover="background:#151b22;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#4d5866; text-align:right;">{{ r.seqLabel }}</div>
+            <div style="display:flex; justify-content:center;">
+              <div style="width:8px; height:8px; border-radius:50%; background:{{ r.dot }};"></div>
+            </div>
+            <div style="min-width:0;">
+              <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:{{ r.typeColor }};">{{ r.type }}</span>
+                <sc-if value="{{ r.groupBadge }}" hint-placeholder-val="{{ true }}">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.06em; padding:2px 6px; border-radius:5px; background:#1a212a; color:#8b96a4;">{{ r.groupBadge }}</span>
+                </sc-if>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.08em; padding:2px 6px; border-radius:5px; background:#141a21; color:#66727f;">{{ r.stage }}</span>
+              </div>
+              <div style="margin-top:3px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#565f6c;">{{ r.sub }}</div>
+            </div>
+            <div style="text-align:right; font-family:'IBM Plex Mono',monospace; font-size:11px; color:{{ r.timeColor }};">{{ r.time }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ missingRows }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-top:18px; padding:14px 16px; border:1px dashed #2a323c; border-radius:10px;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Not recorded</div>
+          <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
+            <sc-for list="{{ missingRows }}" as="m" hint-placeholder-count="4">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7d8896; padding:4px 9px; border-radius:6px; background:#12171d;">{{ m.label }}</div>
+            </sc-for>
+          </div>
+          <div style="margin-top:10px; font-size:11.5px; color:#6d7887;">{{ missingNote }}</div>
+        </div>
+      </sc-if>
+    </section>
+  </main>
+
+  <aside style="border-left:1px solid #1c222a; display:flex; flex-direction:column; min-height:0; background:#0e1116;">
+    <div style="padding:20px 20px 14px; border-bottom:1px solid #1c222a;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">Event inspector</div>
+        <div style="display:flex; border:1px solid #232b34; border-radius:6px; overflow:hidden;">
+          <button type="button" onClick="{{ setFormatted }}" style="padding:3px 10px; border:none; background:{{ fmtBg }}; color:{{ fmtColor }}; font-family:'IBM Plex Mono',monospace; font-size:10px; cursor:pointer;">Formatted</button>
+          <button type="button" onClick="{{ setRaw }}" style="padding:3px 10px; border:none; background:{{ rawBg }}; color:{{ rawColor }}; font-family:'IBM Plex Mono',monospace; font-size:10px; cursor:pointer;">Raw</button>
+        </div>
+      </div>
+      <div style="margin-top:12px; font-family:'IBM Plex Mono',monospace; font-size:13.5px; color:#e6ebf0;">{{ sel.type }}</div>
+      <div style="margin-top:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#6d7887;">
+        <span style="padding:2px 6px; border-radius:5px; background:{{ sel.statusBg }}; color:{{ sel.statusColor }}; letter-spacing:0.08em;">{{ sel.status }}</span>
+        <span>seq {{ sel.seq }}</span>
+        <span>{{ sel.service }}</span>
+      </div>
+    </div>
+    <div style="flex:1; min-height:0; overflow-y:auto;">
+      <div style="padding:16px 20px 6px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Dimensions</div>
+        <div style="margin-top:10px; display:flex; flex-direction:column;">
+          <sc-for list="{{ sel.dims }}" as="d" hint-placeholder-count="5">
+            <div style="display:grid; grid-template-columns:104px minmax(0,1fr); gap:10px; padding:7px 0; border-bottom:1px solid #171d24;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">{{ d.key }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#cfd8e2; word-break:break-all;">{{ d.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding:18px 20px 24px;">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Event JSON</div>
+          <button type="button" onClick="{{ copyJson }}" style="padding:3px 9px; border:1px solid #232b34; border-radius:5px; background:transparent; color:#8b96a4; font-family:'IBM Plex Mono',monospace; font-size:10px; cursor:pointer;" style-hover="color:#fff; border-color:#3a4c5e;">{{ copyLabel }}</button>
+        </div>
+        <pre style="margin:10px 0 0; padding:14px; border:1px solid #1e242c; border-radius:9px; background:#0a0c0f; font-family:'IBM Plex Mono',monospace; font-size:11px; line-height:1.6; color:#b9c4d0; white-space:pre-wrap; word-break:break-all;">{{ jsonText }}</pre>
+        <div style="margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:10px; color:#48525f;">{{ sel.digestNote }}</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showStageFlow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+const C = { green:'#58d68a', amber:'#f0b64b', red:'#f2705f', blue:'#6aa8ff', mute:'#7d8896', dim:'#4d5866' };
+const STAGES = [
+  ['fhir_inputs','FHIR inputs'], ['transformations','Transformations'], ['context','Context'],
+  ['retrieval_tools','Retrieval tools'], ['model','Model'], ['structured_output','Structured output'],
+  ['guardrails','Guardrails'], ['human_action','Human action'], ['integrity_proof','Integrity proof']
+];
+
+function ev(seq, at, type, service, stage, ref, meta, status) {
+  return { seq, at, type, service, stage, ref: ref || null, meta: meta || {}, status: status || 'Recorded' };
+}
+
+function baseRun(t0) {
+  const s = (ms) => new Date(t0 + ms).toISOString();
+  return [
+    ev(0, s(0), 'transaction.started', 'curie-audit-plane', 'transaction', null, { purpose:'synthetic-encounter-summary', subject_ref:'Patient/TEST-00001', source_system:'curie-fhir-fixture' }),
+    ev(1, s(4), 'input.manifest.created', 'curie-audit-plane', 'fhir_inputs', 'sha256:1abf2574', { item_count:7, resource_ids:['TEST-00001','enc-TEST-00001','cond-htn-TEST-00001','med-lisinopril-TEST-00001'], source_system:'curie-fhir-fixture' }),
+    ev(2, s(12), 'transformation.applied', 'curie-audit-plane', 'transformations', 'sha256:910e7971', { operation_name:'filter_resource_types', code_version:'filter.v1', parameters_digest:'876dd1c4', output_digest:'910e7971b92df4d0e0047245a303a83076d4d17fa82582961f5f8f0c4b460bba' }),
+    ev(3, s(13), 'transformation.applied', 'curie-audit-plane', 'transformations', 'sha256:0c5026b9', { operation_name:'normalize_codes', code_version:'normalize.v1', parameters_digest:'99457ad9', output_digest:'0c5026b90078d2184a93a27e41f40e3986b783c89e3851d587bfb408fd097324' }),
+    ev(4, s(14), 'transformation.applied', 'curie-audit-plane', 'transformations', 'sha256:0c5026b9', { operation_name:'order_context_window', code_version:'order.v1', parameters_digest:'6a462304', output_digest:'0c5026b90078d2184a93a27e41f40e3986b783c89e3851d587bfb408fd097324' }),
+    ev(5, s(22), 'context.manifest.created', 'curie-audit-plane', 'context', 'sha256:0c5026b9', { window_tokens:1842, resource_count:7 }),
+    ev(6, s(24), 'retrieval.completed', 'curie-audit-plane', 'retrieval_tools', 'sha256:1151218d', { corpus_id:'clinical-knowledge', corpus_version:'clinical-knowledge.v1', count:2, chunk_ids:['htn-bp-targets','lisinopril-monitoring'] }),
+    ev(7, s(25), 'tool.called', 'curie-audit-plane', 'retrieval_tools', 'sha256:8fcf7de2', { tool_id:'knowledge.lookup', tool_version:'1.0.0', sanitized_arguments:{ chunk_id:'htn-bp-targets' } }),
+    ev(8, s(26), 'tool.completed', 'curie-audit-plane', 'retrieval_tools', 'sha256:8fcf7de2', { tool_id:'knowledge.lookup', latency_ms:41, result_digest:'839078ab0a79cf1e13ba1' })
+  ];
+}
+
+function accessRun(startSeq, t0, n) {
+  const gaps = [8019, 5135, 2602, 8656, 4590, 102182, 71442, 236141, 10384, 132267, 15751, 55921, 122093, 7168, 1445];
+  const out = []; let t = t0;
+  for (let i = 0; i < n; i++) {
+    t += gaps[i % gaps.length];
+    out.push(ev(startSeq + i, new Date(t).toISOString(), 'ui.access_recorded', 'audit-console', 'access_audit', null, { viewer_role:'auditor', view:'transaction_detail', transaction_scope:'read' }));
+  }
+  return out;
+}
+
+function tailRun(startSeq, t0, opts) {
+  const s = (ms) => new Date(t0 + ms).toISOString();
+  const out = [
+    ev(startSeq, s(300), 'model.invoked', 'curie-inference', 'model', 'sha256:4b1c8d02', { model_id:'curie-clin-1', model_version:'2026.07', temperature:0, prompt_digest:'4b1c8d0233ae' }),
+    ev(startSeq + 1, s(2400), 'model.completed', 'curie-inference', 'model', 'sha256:7d9a11ce', { output_tokens:512, latency_ms:2104, finish_reason:'stop' }),
+    ev(startSeq + 2, s(2500), 'output.structured', 'curie-audit-plane', 'structured_output', 'sha256:c2e40f77', { schema:'encounter-summary.v2', field_count:9, validation:'passed' }),
+    ev(startSeq + 3, s(2600), 'guardrail.evaluated', 'curie-guardrails', 'guardrails', 'sha256:aa30bd51', { policy_set:'clinical-safety.v3', checks:12, failed:opts.guardFailed || 0, flagged:opts.guardFlagged || 0 }, opts.guardStatus || 'Recorded'),
+    ev(startSeq + 4, s(9000), 'human.action_recorded', 'audit-console', 'human_action', 'sha256:e01f2b93', { action:opts.action, reviewer_role:'attending', comment_present:opts.action === 'MODIFY' }, opts.action ? 'Recorded' : 'Missing'),
+    ev(startSeq + 5, s(9100), 'integrity.proof_sealed', 'curie-audit-plane', 'integrity_proof', 'sha256:'+opts.seal, { chain_length:opts.chainLength, merkle_root:opts.seal+'9f42ab', anchored:true })
+  ];
+  return opts.stopAfterGuardrail ? out.slice(0, 4) : out;
+}
+
+const T0 = Date.parse('2026-08-27T18:09:17.932Z');
+
+function buildTransactions() {
+  const list = [];
+
+  list.push({
+    id:'8edf619a-644c-461d-a288-b03653ed9241', shortId:'8edf619a', subject:'Patient/TEST-00001',
+    purpose:'synthetic-encounter-summary', lifecycle:'Running', verification:'Incomplete',
+    guardrail:'Not evaluated', evidence:null, action:null, chainFrom:'0000000000000000…', chainTo:'538a0d512a406ff2…',
+    chainLabel:'OPEN', events: baseRun(T0).concat(accessRun(9, T0 + 8000, 15))
+  });
+
+  const t2 = T0 - 3600e3;
+  list.push({
+    id:'71c41fcc-2b47-4f1e-9c88-1d0a55e7c210', shortId:'71c41fcc', subject:'Patient/TEST-00001',
+    purpose:'synthetic-encounter-summary', lifecycle:'Waiting for review', verification:'Incomplete',
+    chainFrom:'538a0d512a406ff2…', chainTo:'a71c2f90b4de8817…', chainLabel:'INTACT',
+    events: baseRun(t2).concat(tailRun(9, t2, { action:null, seal:'a71c2f90', chainLength:14, stopAfterGuardrail:true }), accessRun(13, t2 + 12000, 6))
+  });
+
+  const t3 = T0 - 7200e3;
+  list.push({
+    id:'f58c1eb0-9a53-4c2e-b1a7-6f0e2d448c31', shortId:'f58c1eb0', subject:'Patient/TEST-00001',
+    purpose:'synthetic-encounter-summary', lifecycle:'Completed', verification:'Verified',
+    chainFrom:'c9f0a3311d7b4402…', chainTo:'f58c1eb0771a2d64…', chainLabel:'INTACT',
+    events: baseRun(t3).concat(tailRun(9, t3, { action:'ACCEPT', seal:'f58c1eb0', chainLength:19 }), accessRun(15, t3 + 20000, 4))
+  });
+
+  const t4 = T0 - 10800e3;
+  list.push({
+    id:'c043db8e-4471-4b83-9d21-70b3f1c92a5e', shortId:'c043db8e', subject:'Patient/TEST-00001',
+    purpose:'synthetic-medication-review', lifecycle:'Waiting for review', verification:'Failed',
+    chainFrom:'2d61ba7708c94411…', chainTo:'c043db8e2b019f77…', chainLabel:'BROKEN', flag:'1 FAILED',
+    events: baseRun(t4).concat(tailRun(9, t4, { action:null, guardFlagged:1, guardFailed:1, guardStatus:'Failed', seal:'c043db8e', chainLength:15, stopAfterGuardrail:true }), accessRun(13, t4 + 15000, 5))
+  });
+
+  const t5 = T0 - 14400e3;
+  list.push({
+    id:'37d79370-8c1d-4f55-a0b6-59e7d1c4b8f2', shortId:'37d79370', subject:'Patient/TEST-00001',
+    purpose:'synthetic-encounter-summary', lifecycle:'Completed', verification:'Verified',
+    chainFrom:'7b12cc4409e5a3d0…', chainTo:'37d793705ea1cc38…', chainLabel:'INTACT',
+    events: baseRun(t5).concat(tailRun(9, t5, { action:'MODIFY', seal:'37d79370', chainLength:19 }), accessRun(15, t5 + 18000, 3))
+  });
+
+  return list;
+}
+
+class Component extends DCLogic {
+  state = { txIndex:0, selSeq:0, stage:null, jsonMode:'Formatted', expanded:{}, copied:false, extra:0 };
+
+  get transactions() {
+    if (!this._tx) this._tx = buildTransactions();
+    return this._tx;
+  }
+
+  pick(i) {
+    this.setState({ txIndex:i, selSeq:0, stage:null, expanded:{}, copied:false });
+  }
+
+  runSynthetic = () => {
+    const t = Date.now();
+    const nu = {
+      id: 'b7'+Math.random().toString(16).slice(2,8)+'-1f04-4c62-9a0d-88be5cc31047',
+      shortId: 'b7'+Math.random().toString(16).slice(2,8),
+      subject:'Patient/TEST-00001', purpose:'synthetic-encounter-summary',
+      lifecycle:'Running', verification:'Incomplete', guardrail:'Not evaluated',
+      chainFrom:'0000000000000000…', chainTo:'e3'+Math.random().toString(16).slice(2,16)+'…', chainLabel:'OPEN',
+      events: baseRun(t).concat(accessRun(9, t + 6000, 2))
+    };
+    this._tx = [nu].concat(this.transactions);
+    this.setState({ txIndex:0, selSeq:0, stage:null, expanded:{}, copied:false });
+  };
+
+  statusOf(tx) {
+    const has = (stage) => tx.events.some(e => e.stage === stage && e.status === 'Recorded');
+    const covered = STAGES.filter(s => has(s[0])).length;
+    const failed = tx.events.filter(e => e.status === 'Failed').length;
+    const guardEv = tx.events.filter(e => e.stage === 'guardrails');
+    const actionEv = tx.events.find(e => e.stage === 'human_action' && e.status === 'Recorded');
+    let guardrail = 'Not evaluated', guardTone = C.mute;
+    if (guardEv.length) {
+      const g = guardEv[guardEv.length - 1];
+      if (g.status === 'Failed' || (g.meta.failed || 0) > 0) { guardrail = 'Blocked'; guardTone = C.red; }
+      else if ((g.meta.flagged || 0) > 0) { guardrail = 'Flagged'; guardTone = C.amber; }
+      else { guardrail = 'Pass'; guardTone = C.green; }
+    }
+    return { covered, failed, missing: STAGES.length - covered, guardrail, guardTone,
+      action: actionEv ? actionEv.meta.action : null };
+  }
+
+  renderVals() {
+    const txs = this.transactions;
+    const idx = Math.min(this.state.txIndex, txs.length - 1);
+    const tx = txs[idx];
+    const st = this.statusOf(tx);
+    const events = tx.events;
+    const stageFilter = this.state.stage;
+
+    const txList = txs.map((t, i) => {
+      const on = i === idx;
+      const s = this.statusOf(t);
+      const dot = t.lifecycle === 'Running' ? C.blue : (s.failed ? C.red : (t.lifecycle === 'Completed' ? C.green : C.amber));
+      return {
+        shortId: t.shortId, subject: t.subject, lifecycle: t.lifecycle, flag: t.flag || null,
+        eventCount: t.events.length, dot,
+        dotAnim: t.lifecycle === 'Running' ? 'livepulse 1.6s ease-in-out infinite' : 'none',
+        rowBg: on ? '#161d25' : 'transparent', rowBorder: on ? '#2b3947' : 'transparent',
+        idColor: on ? '#e6ebf0' : '#9aa6b4', subColor: on ? '#9aa6b4' : '#66727f',
+        stateColor: on ? '#cfd8e2' : '#66727f',
+        select: () => this.pick(i)
+      };
+    });
+
+    const counts = {};
+    events.forEach(e => { counts[e.stage] = (counts[e.stage] || 0) + 1; });
+    const maxCount = Math.max(1, ...STAGES.map(s => counts[s[0]] || 0));
+    const stages = STAGES.map(([key, label]) => {
+      const n = counts[key] || 0;
+      const active = stageFilter === key;
+      const empty = n === 0;
+      return {
+        label, count: n,
+        barHeight: (12 + Math.round(46 * (n / maxCount))) + 'px',
+        barColor: empty ? 'transparent' : (active ? 'rgba(106,168,255,.34)' : 'rgba(88,214,138,.16)'),
+        barBorder: empty ? '#242b34' : (active ? '#6aa8ff' : 'rgba(88,214,138,.45)'),
+        railColor: empty ? '#242b34' : (active ? '#6aa8ff' : 'rgba(88,214,138,.55)'),
+        countColor: empty ? '#3f4854' : (active ? '#9cc5ff' : '#e6ebf0'),
+        labelColor: empty ? '#4d5866' : (active ? '#cfd8e2' : '#8b96a4'),
+        select: () => this.setState({ stage: active ? null : key })
+      };
+    });
+
+    let visible = stageFilter ? events.filter(e => e.stage === stageFilter) : events;
+
+    // group runs of >=3 identical consecutive event types
+    const rows = [];
+    for (let i = 0; i < visible.length; ) {
+      let j = i;
+      while (j + 1 < visible.length && visible[j + 1].type === visible[i].type) j++;
+      const run = visible.slice(i, j + 1);
+      if (run.length >= 3) rows.push({ kind:'group', key: visible[i].type + '-' + visible[i].seq, run });
+      else run.forEach(e => rows.push({ kind:'event', e }));
+      i = j + 1;
+    }
+
+    const fmtTime = (iso) => iso.slice(11, 23) + 'Z';
+    const toneFor = (e) => e.status === 'Failed' ? C.red : (e.stage === 'human_action' ? C.blue : C.green);
+
+    const flat = [];
+    rows.forEach(r => {
+      if (r.kind === 'event') {
+        const e = r.e, on = e.seq === this.state.selSeq;
+        flat.push({
+          seqLabel: String(e.seq), type: e.type, stage: e.stage.replace(/_/g, ' '),
+          sub: (e.ref || 'no payload ref') + ' · ' + e.service,
+          time: fmtTime(e.at), timeColor: on ? '#cfd8e2' : '#565f6c',
+          dot: toneFor(e), typeColor: on ? '#ffffff' : '#cfd8e2',
+          bg: on ? '#161d25' : '#0f1318', border: on ? '#2f3f4f' : '#181e25',
+          groupBadge: e.status === 'Failed' ? 'FAILED' : null,
+          activate: () => this.setState({ selSeq: e.seq, copied:false })
+        });
+      } else {
+        const open = !!this.state.expanded[r.key];
+        const first = r.run[0], last = r.run[r.run.length - 1];
+        flat.push({
+          seqLabel: first.seq + '–' + last.seq, type: first.type, stage: first.stage.replace(/_/g, ' '),
+          sub: r.run.length + ' identical events · ' + (open ? 'collapse' : 'expand'),
+          time: fmtTime(first.at) + ' →', timeColor: '#565f6c',
+          dot: '#3f4854', typeColor: '#9aa6b4', bg: '#0d1116', border: '#181e25',
+          groupBadge: '×' + r.run.length,
+          activate: () => this.setState(s => ({ expanded: Object.assign({}, s.expanded, { [r.key]: !s.expanded[r.key] }) }))
+        });
+        if (open) r.run.forEach(e => {
+          const on = e.seq === this.state.selSeq;
+          flat.push({
+            seqLabel: String(e.seq), type: e.type, stage: e.stage.replace(/_/g, ' '),
+            sub: (e.ref || 'no payload ref') + ' · ' + e.service,
+            time: fmtTime(e.at), timeColor: on ? '#cfd8e2' : '#565f6c',
+            dot: toneFor(e), typeColor: on ? '#ffffff' : '#8b96a4',
+            bg: on ? '#161d25' : '#0c1014', border: on ? '#2f3f4f' : '#151b21',
+            groupBadge: null,
+            activate: () => this.setState({ selSeq: e.seq, copied:false })
+          });
+        });
+      }
+    });
+
+    const sel = events.find(e => e.seq === this.state.selSeq) || events[0];
+    const payload = {
+      schema_version:'1.0.0', producer_version:'0.1.0',
+      event_id:'2a696ce7-6766-4946-ad6a-35048e4bde1f', transaction_id: tx.id,
+      sequence_number: sel.seq, event_type: sel.type, actor_service: sel.service,
+      occurred_at: sel.at, status: sel.status.toUpperCase(),
+      payload_ref: sel.ref, payload_digest: sel.ref ? sel.ref.replace('sha256:','') : null,
+      payload_metadata: sel.meta,
+      previous_event_hash: sel.seq === 0 ? '0'.repeat(64) : 'a3f9'+'0'.repeat(56)+'11c4',
+      event_hash: '538a0d512a406ff224b16b4d36e12055e87860132fb30d538a0147f212b9d473'
+    };
+    const jsonText = this.state.jsonMode === 'Raw' ? JSON.stringify(payload) : JSON.stringify(payload, null, 2);
+
+    const dims = [
+      ['event_type', sel.type], ['actor_service', sel.service], ['stage', sel.stage],
+      ['occurred_at', sel.at], ['payload_ref', sel.ref || '—']
+    ].concat(Object.keys(sel.meta).map(k => [k, typeof sel.meta[k] === 'object' ? JSON.stringify(sel.meta[k]) : String(sel.meta[k])]))
+     .map(([key, value]) => ({ key, value }));
+
+    const verifTone = tx.verification === 'Verified' ? C.green : (tx.verification === 'Failed' ? C.red : C.amber);
+    const evidenceTone = st.covered === STAGES.length ? C.green : (st.covered >= 6 ? C.amber : C.red);
+    const actionTone = st.action === 'REJECT' ? C.red : (st.action === 'MODIFY' ? C.amber : (st.action ? C.green : C.mute));
+    const failTone = st.failed ? C.red : (st.missing ? C.amber : C.green);
+
+    const tiles = [
+      { label:'Transaction', value: tx.lifecycle, accent: tx.lifecycle === 'Running' ? C.blue : (tx.lifecycle === 'Completed' ? C.green : C.amber),
+        badge: tx.lifecycle === 'Running' ? 'LIVE' : null, badgeBg:'rgba(106,168,255,.14)',
+        note: tx.lifecycle === 'Running' ? 'Started ' + tx.events[0].at.slice(11,19) + 'Z · end open' : events.length + ' events sealed' },
+      { label:'Verification', value: tx.verification, accent: verifTone, badge: tx.chainLabel, badgeBg:'rgba(240,182,75,.12)',
+        note: tx.chainLabel === 'BROKEN' ? 'Hash chain mismatch at seq 12' : 'Chain ' + tx.chainLabel.toLowerCase() + ' · ' + events.length + ' links' },
+      { label:'Guardrails', value: st.guardrail, accent: st.guardTone, badge:null, badgeBg:'transparent',
+        note: st.guardrail === 'Not evaluated' ? 'No guardrail event recorded yet' : 'clinical-safety.v3 · 12 checks' },
+      { label:'Evidence', value: st.covered + ' / ' + STAGES.length, accent: evidenceTone, badge:'STAGES', badgeBg:'rgba(240,182,75,.12)',
+        note: st.covered === STAGES.length ? 'Every pipeline stage has artifacts' : (STAGES.length - st.covered) + ' stages without artifacts' },
+      { label:'Human action', value: st.action || 'Pending', accent: actionTone, badge:null, badgeBg:'transparent',
+        note: st.action ? 'Recorded by attending reviewer' : 'No accept / modify / reject on record' },
+      { label:'Missing / failed', value: st.missing + ' / ' + st.failed, accent: failTone, badge:null, badgeBg:'transparent',
+        note: st.failed ? 'Failed guardrail evaluation at seq 12' : 'Gaps are expected while the run is open' }
+    ];
+
+    const missingRows = STAGES.filter(s => !events.some(e => e.stage === s[0] && e.status === 'Recorded'))
+      .map(s => ({ label: s[1] }));
+
+    return {
+      tx: { purpose: tx.purpose, subject: tx.subject, id: tx.id, chainFrom: tx.chainFrom, chainTo: tx.chainTo,
+        chainLabel: tx.chainLabel, missing: st.missing,
+        chainBg: tx.chainLabel === 'BROKEN' ? 'rgba(242,112,95,.14)' : (tx.chainLabel === 'OPEN' ? 'rgba(106,168,255,.14)' : 'rgba(88,214,138,.14)'),
+        chainColor: tx.chainLabel === 'BROKEN' ? C.red : (tx.chainLabel === 'OPEN' ? C.blue : C.green) },
+      txList, txCount: txs.length, tiles, stages, rows: flat,
+      showFlow: this.props.showStageFlow ?? true,
+      stageFilter: stageFilter ? stageFilter.replace(/_/g,' ') : null,
+      clearStage: () => this.setState({ stage:null }),
+      accessCount: counts['access_audit'] || 0,
+      timelineNote: (stageFilter ? 'Filtered to ' + stageFilter.replace(/_/g,' ') + ' · ' : '') + events.length + ' events · repeated runs collapsed',
+      missingRows: missingRows.length ? missingRows : null,
+      missingNote: 'These stages have no artifacts in this transaction. For an open run this is expected; for a completed run it blocks verification.',
+      sel: { type: sel.type, seq: sel.seq, service: sel.service, status: sel.status.toUpperCase(), dims,
+        statusBg: sel.status === 'Failed' ? 'rgba(242,112,95,.14)' : 'rgba(88,214,138,.12)',
+        statusColor: sel.status === 'Failed' ? C.red : C.green,
+        digestNote: 'schema 1.0.0 · digest ' + (sel.ref ? sel.ref.replace('sha256:','') : 'none') },
+      jsonText,
+      fmtBg: this.state.jsonMode === 'Formatted' ? '#1d2530' : 'transparent',
+      fmtColor: this.state.jsonMode === 'Formatted' ? '#e6ebf0' : '#66727f',
+      rawBg: this.state.jsonMode === 'Raw' ? '#1d2530' : 'transparent',
+      rawColor: this.state.jsonMode === 'Raw' ? '#e6ebf0' : '#66727f',
+      setFormatted: () => this.setState({ jsonMode:'Formatted' }),
+      setRaw: () => this.setState({ jsonMode:'Raw' }),
+      copyLabel: this.state.copied ? 'Copied' : 'Copy',
+      copyJson: () => { try { navigator.clipboard.writeText(jsonText); } catch (e) {} this.setState({ copied:true }); },
+      runSynthetic: this.runSynthetic
+    };
+  }
+}
+
+</script>
+</body>
+</html>
