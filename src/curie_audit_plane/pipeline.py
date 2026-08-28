@@ -14,7 +14,7 @@ from curie_audit_plane.fhir.context import apply_transformations, build_context
 from curie_audit_plane.fhir.loader import build_input_manifest, iter_resources, load_bundle
 from curie_audit_plane.guardrails.engine import evaluate_guardrails
 from curie_audit_plane.integrity.canonical import canonicalize
-from curie_audit_plane.integrity.hashing import GENESIS_HASH, hash_event
+from curie_audit_plane.integrity.hashing import GENESIS_HASH, hash_event, sha256_hex
 from curie_audit_plane.integrity.merkle import merkle_proof, merkle_root
 from curie_audit_plane.integrity.signing import sign_hex
 from curie_audit_plane.integrity.verifier import verify_transaction
@@ -117,7 +117,12 @@ class Pipeline:
         prompt_version: str = "clinical-summary.v1",
         model_id: str = "curie-stub-summary",
         log_path: Path | None = None,
+        human_action: HumanActionStatus = HumanActionStatus.ACCEPT,
+        actor: str = "reviewer@curie.local",
+        override_policy_version: str | None = None,
     ) -> dict[str, object]:
+        if human_action not in TERMINAL_HUMAN_ACTIONS:
+            raise ValueError("PENDING is a review state, not a terminal human disposition")
         bundle = load_bundle(self.fixture_path)
         manifest = build_input_manifest(bundle, self.services.content)
         transforms = apply_transformations(bundle, self.services.content)
@@ -146,6 +151,23 @@ class Pipeline:
             {"stage": "complete", "model_id": completion.manifest.model_id},
             {"stage": "guardrail", "count": len(guardrails)},
         ]
+        blocked = any(item.result == GuardrailStatus.BLOCK for item in guardrails)
+        if not (blocked and human_action == HumanActionStatus.ACCEPT and not override_policy_version):
+            category = "policy_override" if override_policy_version else {
+                HumanActionStatus.ACCEPT: "accept_as_recorded",
+                HumanActionStatus.MODIFY: "modify_for_accuracy",
+                HumanActionStatus.REJECT: "reject_insufficient_evidence",
+            }.get(human_action, "unspecified")
+            sanitize_comment("", category=category)
+            final_digest = sha256_hex(canonicalize(completion.output.model_dump(mode="json")))
+            records.append(
+                {
+                    "stage": "review",
+                    "action": human_action.value,
+                    "actor": actor,
+                    "final_output_digest": final_digest,
+                }
+            )
         payload = "\n".join(json.dumps(item) for item in records) + "\n"
         if log_path is not None:
             log_path.parent.mkdir(parents=True, exist_ok=True)

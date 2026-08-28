@@ -1,8 +1,13 @@
-from curie_audit_plane.evaluation.harness import run_evaluation_harness
+import sqlite3
+
+import pytest
+
+from curie_audit_plane.evaluation.harness import _logical_sqlite_bytes, run_evaluation_harness
 from curie_audit_plane.integrity.signing import generate_keypair
 from curie_audit_plane.pipeline import Pipeline, PipelineServices
 from curie_audit_plane.store.audit import AuditStore
 from curie_audit_plane.store.content import ProtectedContentStore
+from tests.helpers import make_event
 
 
 def test_evaluation_harness_reports_baselines_overhead_and_reviewer_task(tmp_path):
@@ -38,7 +43,6 @@ def test_evaluation_harness_reports_baselines_overhead_and_reviewer_task(tmp_pat
     assert complete["tamper_detection_rate"] > logs["tamper_detection_rate"]
     assert hash_only["tamper_detection_rate"] >= logs["tamper_detection_rate"]
     overhead = report.capture_overhead
-    assert overhead["n"] >= 3
     assert overhead["warmup"] >= 1
     assert overhead["latency_ms_plane_mean"] > 0
     assert overhead["latency_ms_baseline_mean"] > 0
@@ -49,7 +53,18 @@ def test_evaluation_harness_reports_baselines_overhead_and_reviewer_task(tmp_pat
     assert "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow" in overhead["formulas"]
     assert overhead["baseline_name"] == "no_audit_workflow"
     assert overhead["latency_ratio"]["method"] == "paired-normal"
-    assert "storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow" in overhead["formulas"]
+    assert overhead["n"] >= 30
+    assert "storage_overhead_allocated = (bytes_allocated_plane - bytes_allocated_baseline) / bytes_allocated_baseline" in overhead["formulas"]
+    assert "storage_total_allocated = bytes_allocated_plane / bytes_allocated_baseline" in overhead["formulas"]
+    allocated_plane = overhead["storage_bytes_allocated_plane"]
+    allocated_baseline = overhead["storage_bytes_allocated_baseline"]
+    assert overhead["storage_overhead_allocated"] == pytest.approx(
+        (allocated_plane - allocated_baseline) / allocated_baseline
+    )
+    assert overhead["storage_total_allocated"] == pytest.approx(allocated_plane / allocated_baseline)
+    assert overhead["storage_bytes_logical_plane"] < allocated_plane
+    assert overhead["storage_bytes_logical_baseline"] > 0
+    assert overhead["storage_bytes_audit_allocated_mean"] >= overhead["storage_bytes_audit_logical_mean"]
     assert report.reviewer_task["success"] == 1.0
     assert set(report.reviewer_task["identified"]) >= {
         "source",
@@ -59,3 +74,33 @@ def test_evaluation_harness_reports_baselines_overhead_and_reviewer_task(tmp_pat
         "human_action",
     }
     pipeline.close()
+
+
+def test_logical_sqlite_bytes_count_utf8_octets_not_characters(tmp_path):
+    path = tmp_path / "audit.sqlite"
+    store = AuditStore(path)
+    store.create_transaction("tx-1", "purpose", "Patient/x")
+    store.append_event(
+        make_event(
+            event_id="e0",
+            transaction_id="tx-1",
+            sequence_number=0,
+            payload_metadata={"label": "μ"},
+        )
+    )
+    store.close()
+
+    conn = sqlite3.connect(path)
+    event_json = conn.execute("SELECT event_json FROM events").fetchone()[0]
+    row = conn.execute(
+        "SELECT transaction_id, purpose, subject_ref, status, created_at, ended_at FROM transactions"
+    ).fetchone()
+    conn.close()
+
+    utf8_bytes = len(event_json.encode("utf-8")) + sum(
+        len((column or "").encode("utf-8")) for column in row
+    )
+    character_count = len(event_json) + sum(len(column or "") for column in row)
+    assert "μ" in event_json
+    assert utf8_bytes == character_count + 1
+    assert _logical_sqlite_bytes(path) == utf8_bytes

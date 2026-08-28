@@ -35,10 +35,15 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 - [x] **ORCID** for every author: 0009-0007-2681-006X
 - [x] **IEEE e-mail**: srirammentey@ieee.org
 - [x] Full **mailing address** in `\thanks` and cover letter
+- [ ] **Gate C:** a second person who did not implement the verifier runs
+      `docs/evaluation/independent-exercise.md` and signs
+      `papers/jbhi/GATE_C_ATTESTATION.md`
 - [ ] Choose **Regular Paper**
 - [ ] Choose **Traditional** vs **Open Access**
-- [ ] Suggest **4 independent reviewers** (`suggested_reviewers.md`)
+- [ ] Suggest **4 independent reviewers** in the portal (`suggested_reviewers.md` is a draft; verify emails)
 - [ ] Run **IEEE PDF Checker**
+- [ ] Assign a public **DOI** (not invented in this repository)
+- [ ] Clean-clone release proof: tagged commit regenerates headline tables
 - [ ] Author Consent Form: **not required** for single-author papers unless the portal marks it required
 
 ### Manuscript rules addressed in `main.tex`
@@ -51,12 +56,13 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 
 ### Still tighten if needed after compile
 
-- [x] **Page count ≤ 14** (hard limit including supplementary) — current `main.pdf` is **3 pages**
-- [x] Prefer **≤ 8 pages** to avoid mandatory overlength charges — current `main.pdf` is **3 pages**
-- [x] Confirm abstract word count ≤ 250 in the portal field — IEEE abstract in `main.tex` is **about 183 words**
+- [x] **Page count ≤ 14** (hard limit including supplementary) — current `main.pdf` is **4 pages**
+- [x] Prefer **≤ 8 pages** to avoid mandatory overlength charges — current `main.pdf` is **4 pages**
+- [x] Confirm abstract word count ≤ 250 in the portal field — IEEE abstract in `main.tex` is **about 221 words**
 
 ## Honest scope note
 
-This manuscript is an **engineering evaluation on synthetic data**. Reviewers
-may still ask for real clinical transactions; that is already framed as out of
-scope in Limitations.
+This manuscript is a **protocol and system demonstration on synthetic data**.
+In-repo work cannot close IEEE PDF Checker, DOI minting, portal article/access
+selection, reviewer invitation, or Gate C (a second human must exercise the
+verifier). Those remain open on this checklist.

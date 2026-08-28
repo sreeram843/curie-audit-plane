@@ -38,7 +38,7 @@
 
 ## Coverage
 
-`pytest` with `--cov=curie_audit_plane --cov-fail-under=80` reported **94.59%** on 2026-08-28 (143 tests). The reproducible evaluation command is `curie-audit-plane evaluate --output-dir evaluation-results --encounters 50 --repetitions 1`; it writes `evaluation-report.json`, `evaluation-metrics.csv`, and `evaluation-cohort-metrics.svg`. Console Vitest covers view-model stage mapping plus App selection, ACCEPT/MODIFY/REJECT, verify, replay, filters, JSON modes, downloads, Sankey, evidence, and keyboard timeline controls.
+`pytest` with `--cov=curie_audit_plane --cov-fail-under=80` reported **94.56%** on 2026-08-28 (145 tests). The reproducible evaluation command is `curie-audit-plane evaluate --output-dir evaluation-results --encounters 50 --repetitions 1`; it writes `evaluation-report.json`, `evaluation-metrics.csv`, and `evaluation-cohort-metrics.svg`. Console Vitest covers view-model stage mapping plus App selection, ACCEPT/MODIFY/REJECT, verify, replay, filters, JSON modes, downloads, Sankey, evidence, and keyboard timeline controls.
 
 The evaluation report marks scripted reviewer reconstruction as `SCRIPTED_PROXY`; it is not a human-subject usability result. Baseline, overhead, replay, and integrity results are prototype measurements over synthetic fixtures and must be rerun with fixed experiment configurations before a paper submission.
 

@@ -27,6 +27,7 @@ console/coverage/
 *.pem
 *.key
 !fixtures/**
+texput.log
 papers/jbhi/*.aux
 papers/jbhi/*.log
 papers/jbhi/*.out

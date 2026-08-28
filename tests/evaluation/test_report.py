@@ -32,6 +32,7 @@ def test_evaluation_report_contains_numeric_metrics_and_explicit_study_gaps(tmp_
     assert metrics["independently_verified_arc"]["value"] >= 0.95
     assert metrics["independently_verified_arc"]["denominator"] == 20
     assert "persisted" in metrics["independently_verified_arc"]["notes"].lower()
+    assert "repository" in metrics["independently_verified_arc"]["notes"].lower()
     assert metrics["audit_reconstruction_completeness"]["value"] == metrics["independently_verified_arc"]["value"]
     assert metrics["tamper_detection_rate"]["value"] == 1.0
     assert metrics["tamper_detection_rate"]["denominator"] == len(tamper_cases)
@@ -46,6 +47,9 @@ def test_evaluation_report_contains_numeric_metrics_and_explicit_study_gaps(tmp_
     assert metrics["human_action_capture_completeness"]["denominator"] == 1
     assert metrics["reviewer_task_success"]["status"] == "SCRIPTED_PROXY"
     assert metrics["capture_overhead"]["status"] == "MEASURED"
+    assert "allocated" in metrics["storage_overhead"]["notes"].lower()
+    assert metrics["storage_total_allocated"]["unit"] == "allocated_multiplier"
+    assert metrics["storage_overhead_logical"]["status"] == "MEASURED"
     assert metrics["verification_latency"]["status"] == "MEASURED"
     assert encoded["schema_version"] == "curie-evaluation.v1.1"
     assert encoded["runtime"] == "deterministic-stub"

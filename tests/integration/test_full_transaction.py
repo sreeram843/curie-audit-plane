@@ -268,3 +268,26 @@ def test_sealed_transaction_rejects_clinical_append(tmp_path):
     extra = result.events[-1].model_copy(update={"event_id": "extra", "sequence_number": 99})
     with pytest.raises(ValueError, match="sealed"):
         pipeline.services.audit.append_event(extra)
+
+
+def test_unrecorded_workflow_includes_in_memory_accept_without_audit_events(tmp_path):
+    pipeline = _pipeline(tmp_path)
+    result = pipeline.run_unrecorded_workflow(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+    stages = [record["stage"] for record in result["records"]]
+    assert stages == [
+        "load",
+        "transform",
+        "context",
+        "retrieve",
+        "complete",
+        "guardrail",
+        "review",
+    ]
+    review = result["records"][-1]
+    assert review["action"] == HumanActionStatus.ACCEPT.value
+    assert review["actor"] == "reviewer@curie.local"
+    assert review["final_output_digest"]
+    assert pipeline.services.audit.list_transactions() == []

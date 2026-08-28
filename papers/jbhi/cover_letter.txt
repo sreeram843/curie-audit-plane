@@ -22,14 +22,18 @@ that reconstructs one bounded synthetic FHIR Release 4 to large language
 model transaction—inputs, transformations, model configuration, evidence,
 safeguards, and human ACCEPT/MODIFY/REJECT disposition—without storing hidden
 chain-of-thought or raw protected health information in an immutable log.
-The contribution is an engineering evaluation on synthetic fixtures:
-independently verified reconstructability, tamper detection, role-based
-access outcomes, ablations of provenance classes, and capture overhead
-versus an identical unrecorded clinical workflow. The results are relevant to
-biomedical and health informatics practice: they quantify what must be
-recorded for a reconstructable clinical-AI handoff, and they keep FHIR
-Provenance/AuditEvent as projections rather than a claimed Implementation
-Guide profile.
+The contribution is an engineering protocol demonstration on synthetic fixtures:
+reload-and-verify reconstructability using an in-repository verifier module,
+tamper detection, role-based access outcomes, ablations of provenance classes,
+and capture overhead versus an identical unrecorded clinical workflow.
+Allocated storage is reported as both relative overhead and a total multiplier;
+logical serialized bytes are reported separately because SQLite page allocation
+confounds on-disk file size. The results are relevant to biomedical and health
+informatics practice: they quantify what must be recorded for a reconstructable
+clinical-AI handoff, and they keep FHIR Provenance/AuditEvent as projections
+rather than a claimed Implementation Guide profile. Hash chaining, Merkle
+batching, and Ed25519 are used as known primitives, not as a new cryptographic
+construction.
 
 Originality
 -----------

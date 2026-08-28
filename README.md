@@ -38,7 +38,7 @@ This repository does not claim clinical validation, regulatory clearance, or acc
 - [Research and J-BHI Plan](docs/research-plan.md)
 - [Evaluation report schema](docs/evaluation/report-schema.md)
 - [Scenario matrix protocol](docs/evaluation/scenario-matrix.md)
-- [J-BHI manuscript draft](papers/jbhi/manuscript.md)
+- [J-BHI IEEE manuscript](papers/jbhi/main.tex)
 - [License](LICENSE)
 - [Citation](CITATION.cff)
 - [Domain Glossary](CONTEXT.md)

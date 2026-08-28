@@ -29,20 +29,23 @@ data and emit reviewer-facing summaries rarely preserve the inputs,
 transformations, model configuration, evidence, safeguards, and human
 disposition needed to reconstruct a transaction, while storing raw clinical
 payloads or hidden model reasoning in an immutable log is unsafe. This paper
-presents Curie Audit Plane, a provenance method for one bounded synthetic
-Fast Healthcare Interoperability Resources Release~4 to large language model
-transaction. The plane separates protected clinical content from an
-append-only audit chain, records typed events with content digests, and
-verifies hash chaining, Merkle inclusion, and Ed25519 signatures. Structured
-model output is constrained to rationale, evidence references, uncertainty,
-assumptions, and missing data. On synthetic fixtures, independently verified
-audit reconstruction completeness is $20/20$ required fields, all $19$ labeled
-tamper cases are detected, and access-control probes pass $11/11$ allowed or
-denied outcomes. Capture overhead is reported against an identical unrecorded
-clinical workflow, not a thin log shortcut. Significance for biomedical
-research: the method shows how a FHIR-to-LLM handoff can be reconstructed and
-independently verified without placing hidden chain-of-thought or raw
-protected health information in an immutable store.
+presents Curie Audit Plane, a protocol and system demonstration for one
+bounded synthetic Fast Healthcare Interoperability Resources Release~4 to
+large language model transaction. The plane separates protected clinical
+content from an append-only audit chain, records typed events with content
+digests, and checks hash chaining, Merkle inclusion, and Ed25519 signatures
+with a verifier module in the same repository after persisted records are
+reloaded. Structured model output is constrained to rationale, evidence
+references, uncertainty, assumptions, and missing data. On synthetic
+fixtures, reload-and-verify audit reconstruction completeness is $20/20$
+required fields, all $19$ labeled tamper cases are detected, and
+access-control probes pass $11/11$ allowed or denied outcomes. Capture
+overhead is reported against an identical unrecorded clinical workflow, not a
+thin log shortcut. Significance for biomedical research: the method shows how
+a FHIR-to-LLM handoff can be reconstructed without placing hidden
+chain-of-thought or raw protected health information in an immutable store.
+The contribution is an integration of known integrity and interoperability
+primitives, not a new cryptographic construction.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -66,7 +69,10 @@ This paper treats that question as a biomedical and health-informatics
 provenance problem, not as generic software logging. The prototype is
 deliberately narrow: one synthetic Fast Healthcare Interoperability Resources
 (FHIR) Release~4 encounter, one structured clinical-summary task, and a human
-ACCEPT/MODIFY/REJECT disposition.
+ACCEPT/MODIFY/REJECT disposition. The manuscript is a protocol and system
+demonstration on synthetic fixtures. It is not a population study, a clinical
+efficacy trial, or a claim that the implementation is ready for regulatory
+use.
 
 The frozen research questions are: (i)~reconstructability of required
 provenance fields; (ii)~detection of mutation, omission, reordering, broken
@@ -77,30 +83,70 @@ demonstration (\texttt{SCRIPTED\_PROXY}), not a blinded reviewer study; and
 (v)~replay fidelity for a deterministic stub versus a hosted nondeterministic
 model.
 
+The intended contribution is that integration: a data/proof split, typed
+events, structured rationale without hidden chain-of-thought, FHIR
+\texttt{Provenance}/\texttt{AuditEvent} projections, and reload-and-verify
+scoring against construct-dependent analytical baselines. Hash chaining,
+Merkle batching, and Ed25519 signatures are used as known primitives, not as
+new cryptographic results~\cite{haber1991timestamp,merkle1988signature,rfc8032}.
+
 \section{Related Work}
 \label{sec:related}
 
-Healthcare provenance and audit have a long FHIR-native literature, including
-W3C PROV mappings and FHIR \texttt{Provenance}/\texttt{AuditEvent} resources
-used to record agents, entities, and access~\cite{hl7provenance,hl7auditevent,provdm}.
-Those resources are necessary interoperability projections; they are not, by
-themselves, an internal event chain with independent cryptographic
-verification.
+Healthcare audit and provenance already have native interoperability
+surfaces. FHIR \texttt{Provenance} and \texttt{AuditEvent} record agents,
+entities, and access events, and W3C PROV-DM supplies a generic provenance
+data model~\cite{hl7provenance,hl7auditevent,provdm}. IHE Audit Trail and Node
+Authentication addresses node-level audit trails and secure communication in
+clinical networks~\cite{ihe-atna}. Those artifacts are necessary
+interoperability projections. They are not, by themselves, an internal
+event chain that can reconstruct a FHIR-to-LLM handoff: input manifests,
+transformations, prompt and model identity, retrieved evidence digests,
+guardrail outcomes, and human disposition.
 
-Clinical decision-support logging and electronic health record audit trails
-typically record who accessed what, not the full artificial-intelligence
-transaction: input manifests, transformation records, prompt and model
-identity, retrieved evidence digests, guardrail outcomes, and the human
-handoff. Model-provider traces and application JSON logs can retain payloads
-that should not be immutable, or they omit the links required for
-reconstruction.
+Tamper-evident logging has a long cryptographic literature. Haber and
+Stornetta showed how to time-stamp documents with hash-linked records;
+Merkle trees supply inclusion proofs; Schneier and Kelsey and Crosby and
+Wallach developed hash-chained and efficient tamper-evident logs; Certificate
+Transparency uses Merkle trees for publicly auditable certificate
+logs~\cite{haber1991timestamp,merkle1988signature,schneier1998logs,crosby2009tamper,rfc6962}.
+Ed25519 is a standardized Edwards-curve signature scheme~\cite{rfc8032}.
+This prototype composes those primitives in a local append-only store. It is
+not a distributed ledger and is not evaluated against blockchain-in-healthcare
+architectures surveyed elsewhere~\cite{agbo2019blockchain}.
 
-This work is closest to tamper-evident logging and hash-chained
-audit~\cite{schneier1998logs,crosby2009tamper}, combined with a clinical-data
-boundary. It does not replace deterministic alert governance, FHIR access
-control, or the large language model provider. Related comparisons in the
-evaluation are application JSON logging, hash-only records without signatures,
-and FHIR-only projection.
+Clinical large language model evaluation has focused mainly on accuracy,
+fairness, and the limits of electronic-health-record foundation
+models~\cite{wornow2023shaky,bedi2025testing}. Adapted models can outperform
+experts on clinical text summarization, and large language models encode
+substantial clinical knowledge, but those results are not transaction
+auditability~\cite{vanveen2024adapted,singhal2023medpalm}. A systematic review
+of 519 health-care LLM studies found that almost all used accuracy as the
+primary dimension and that deployment considerations were rarely
+measured~\cite{bedi2025testing}. That literature does not answer whether a
+completed FHIR-to-LLM handoff can be reconstructed and integrity-checked
+without placing raw payloads or hidden reasoning in an immutable log.
+
+Clinical AI governance work addresses transparency to end users and
+regulators: model cards, clinician-facing model-facts labels, and good machine
+learning practice for medical devices~\cite{mitchell2019modelcards,sendak2020modelfacts,fda2021gmlp}.
+Those artifacts describe intended use and performance. They do not record the
+inputs, transformations, evidence, guardrails, and human disposition of one
+completed transaction.
+
+FHIR implementation surveys and the FHIR security framework document how
+\texttt{Provenance}, \texttt{AuditEvent}, and related controls are used in
+interoperable systems~\cite{ayaz2021fhir,hl7security,ihe-atna}. Ordinary
+application logs, model-provider traces, and EHR access trails typically record
+who accessed what, or they retain payloads that should not be immutable.
+
+This work is closest to tamper-evident logging combined with a clinical-data
+boundary. The evaluation comparisons are application JSON logging, hash-only
+records without signatures, and FHIR-only projection. Those recorders are
+analytical emulations built for this study; they are not independently
+shipped products, and their scores are defined against this paper's required
+field inventory. The prototype does not replace deterministic alert
+governance, FHIR access control, or the large language model provider.
 
 \section{Method}
 \label{sec:method}
@@ -125,9 +171,12 @@ A successful transaction emits typed events from input manifestation through
 human action and an integrity-proof commitment. Events are canonically hashed,
 chained, batched with a Merkle root, and signed. Verification reports
 \texttt{VERIFIED}, \texttt{INCOMPLETE}, \texttt{TAMPERED}, or \texttt{FAILED}.
-FHIR Release~4 \texttt{Provenance} and \texttt{AuditEvent} resources are
-documented projections of the internal model, not a claimed Implementation
-Guide profile.
+The verifier is a separate module in this repository. Headline reconstructability
+is computed after reloading persisted SQLite and protected-content records and
+running that module; it is not an external third-party audit. FHIR Release~4
+\texttt{Provenance} and \texttt{AuditEvent} resources are documented
+projections of the internal model, not a claimed Implementation Guide
+profile.
 
 \subsection{Structured Output and Guardrails}
 \label{sec:guardrails}
@@ -146,28 +195,37 @@ commit, dirty-tree flag, fixture alias and digest, provider, model, prompt
 version, decoding parameters, endpoint class, seed, and command template)
 without absolute local paths as publication identifiers.
 
-Headline audit reconstruction completeness (\texttt{independently\_verified\_arc})
-is required-field presence after reloading persisted records, counted only when
-independent verification succeeds. Field-presence completeness on the
-in-memory object is reported separately. Tamper detection uses $19$ labeled
-mutation cases. Replay is classified as \texttt{EXACT\_MATCH},
-\texttt{EQUIVALENT}, or \texttt{DIVERGENT}. Overhead compares the complete
-plane with an identical unrecorded clinical workflow (load, transform,
-context, retrieve, complete, guardrails, JSONL) on isolated stores with warmup
-and three timed repeats:
+Headline audit reconstruction completeness
+(\texttt{independently\_verified\_arc}) is required-field presence after
+reloading persisted records, counted only when the in-repository verifier
+succeeds. The identifier retains the historical metric name; in prose this
+paper calls the quantity reload-and-verify completeness. Field-presence
+completeness on the in-memory object is reported separately. Tamper detection
+uses $19$ labeled mutation cases. Replay is classified as
+\texttt{EXACT\_MATCH}, \texttt{EQUIVALENT}, or \texttt{DIVERGENT}. Overhead
+compares the complete plane with an identical unrecorded clinical workflow
+(load, transform, context, retrieve, complete, guardrails, and an in-memory
+ACCEPT disposition written only to JSONL) on isolated stores with warmup and
+$30$ timed repeats. The unrecorded path does not emit audit events, Merkle
+proofs, or signatures.
 \begin{align}
 \mathrm{latency\_ratio} &= (T_{\mathrm{plane}}-T_{\mathrm{no\_audit}})/T_{\mathrm{no\_audit}}, \\
-\mathrm{storage\_ratio} &= (B_{\mathrm{plane}}-B_{\mathrm{no\_audit}})/B_{\mathrm{no\_audit}}.
+\mathrm{storage\_overhead}^{\mathrm{alloc}} &= (B_{\mathrm{plane}}^{\mathrm{alloc}}-B_{\mathrm{no\_audit}}^{\mathrm{alloc}})/B_{\mathrm{no\_audit}}^{\mathrm{alloc}}, \\
+\mathrm{storage\_total}^{\mathrm{alloc}} &= B_{\mathrm{plane}}^{\mathrm{alloc}}/B_{\mathrm{no\_audit}}^{\mathrm{alloc}}.
 \end{align}
-Rate metrics use Wilson intervals; latency ratios use paired differences.
-Ablations omit input manifests, transformations, model and prompt metadata,
-evidence references, cryptographic proofs, or human provenance.
-Access-control probes record allowed and denied HTTP outcomes for reviewer,
-investigator, admin, output, content, export, missing transaction, and global
-list scope. Application JSONL and hash-only JSONL are separately instrumented
-from the unrecorded workflow; the FHIR projection is built from the source
-bundle. These recorders are not independently shipped products. The complete
-plane is scored from the signed audit chain.
+Allocated bytes are on-disk file sizes, including SQLite page allocation.
+Logical bytes are UTF-8 octet lengths of serialized event JSON, transaction-row
+payloads, and protected-content files, excluding page padding. Relative logical
+overhead and the logical total multiplier are defined analogously. Rate metrics use Wilson
+intervals; latency ratios use paired differences. Ablations omit input
+manifests, transformations, model and prompt metadata, evidence references,
+cryptographic proofs, or human provenance. Access-control probes record
+allowed and denied HTTP outcomes for reviewer, investigator, admin, output,
+content, export, missing transaction, and global list scope. Application JSONL
+and hash-only JSONL are separately instrumented from the unrecorded workflow;
+the FHIR projection is built from the source bundle. These recorders are not
+independently shipped products. The complete plane is scored from the signed
+audit chain after reload.
 
 The default $50$-encounter cohort rewrites one synthetic fixture. It is a
 single-workflow protocol demonstration, not a population sample.
@@ -188,25 +246,28 @@ compromised signing keys or a malicious protected-content store operator.
 \section{Results}
 \label{sec:results}
 
-All numbers below are from the frozen stub evaluation campaign in
-\texttt{evaluation-results/} (schema \texttt{curie-evaluation.v1.1}).
-Software-quality checks at the time of this draft were $143$ Python tests,
-$94.59\%$ statement coverage, and a clean Ruff pass; those are not clinical
+All numbers below are from the stub evaluation campaign in
+\texttt{evaluation-results/} (schema \texttt{curie-evaluation.v1.1}; the
+working tree was dirty when this campaign was written).
+Software-quality checks at the time of this draft were $145$ Python tests,
+$94.56\%$ statement coverage, and a clean Ruff pass; those are not clinical
 performance.
 
 \subsection{Reconstructability and Tamper Detection}
-Independently verified audit reconstruction completeness is $20/20$ required
-fields on the clean fixture transaction. Field-presence completeness on the
-in-memory object is also $20/20$. Required-event completeness is $11/11$ for
-a successful transaction. All $19$ labeled tamper cases are detected, and the
-false-tamper rate over three clean runs is $0$. On the cloned $50$-encounter
-cohort, independently verified completeness remains $1.00$ with Wilson $95\%$
-interval $[0.93, 1.00]$ ($n=50$) after reloading persisted records.
+Reload-and-verify audit reconstruction completeness is $20/20$ required
+fields on the clean fixture transaction after the in-repository verifier
+succeeds. Field-presence completeness on the in-memory object is also
+$20/20$. Required-event completeness is $11/11$ for a successful transaction.
+All $19$ labeled tamper cases are detected, and the false-tamper rate over
+three clean runs is $0$. On the cloned $50$-encounter cohort,
+reload-and-verify completeness remains $1.00$ with Wilson $95\%$ interval
+$[0.93, 1.00]$ ($n=50$) after reloading persisted records.
 
 \begin{table}[!t]
 \centering
 \caption{Baseline comparison on the synthetic fixture (complete plane versus
-separately instrumented unrecorded-workflow and source-bundle recorders).}
+construct-dependent unrecorded-workflow and source-bundle recorders). Scores
+use this paper's required-field inventory.}
 \label{tab:baselines}
 \begin{tabular}{lccc}
 \toprule
@@ -223,7 +284,8 @@ Complete plane & $1.00$ & $1.00$ & $1.00$ \\
 The complete plane reconstructs more required fields and detects the standard
 model-event mutation that application logs and FHIR projections do not detect
 (Table~\ref{tab:baselines}). Hash-only logging detects digest mismatch without
-providing chain or signature guarantees.
+providing chain or signature guarantees. These gaps are expected from the
+construct: the baselines were not designed to record the same field set.
 
 \subsection{Ablations}
 Omitting cryptographic proofs drops reconstructability from $1.00$ to $0.75$
@@ -262,15 +324,21 @@ unauthenticated list denied ($401$); missing transaction reported as missing
 ($404$); global list allowed.
 
 \subsection{Overhead and Replay}
-Mean plane latency is $14.78$\,ms versus $9.15$\,ms for the identical
-unrecorded workflow (paired latency ratio $0.615$, $95\%$ interval
-$[0.594, 0.637]$, $n=3$ after one warmup). Storage ratio versus that workflow is
-$6.31$ ($81\,885$ versus $11\,209$ bytes). These values do not support a claim
-that audit capture is under $15\%$ of an already-complete clinical
-application. Verification of the clean transaction is $1.07$\,ms.
+Mean plane latency is $15.53$\,ms versus $8.84$\,ms for the identical
+unrecorded workflow (paired latency ratio $0.762$, $95\%$ interval
+$[0.541, 0.984]$, $n=30$ after one warmup). Relative allocated storage
+overhead is $6.31$ ($70\,676$ additional bytes; $81\,885$ versus
+$11\,209$ bytes). Total allocated bytes are $7.31\times$ the baseline.
+The allocated audit file is one SQLite page ($65\,536$ bytes); logical
+serialized event and transaction payloads are $23\,105$ bytes. Logical
+plane storage is $39\,454$ versus $11\,209$ baseline bytes (relative logical
+overhead $2.52$; total logical multiplier $3.52\times$). These values do not
+support a claim that audit capture is under $15\%$ of an already-complete
+clinical application. Verification of the clean transaction is $1.17$\,ms.
 Deterministic-stub same-prompt replay is exact; prompt-substitution replay is
-\texttt{DIVERGENT} by construction. Hosted-model same-prompt replay is at best
-\texttt{EQUIVALENT} and is often \texttt{DIVERGENT}.
+\texttt{DIVERGENT} by construction. The frozen live campaign records one hosted
+same-prompt replay observation, classified as \texttt{DIVERGENT} ($n=1$). This
+draft does not estimate a hosted-replay rate.
 
 The $16$-arm scenario matrix exercises ACCEPT/MODIFY/REJECT, forced and
 natural WARN/BLOCK, provider failure, sparse encounter, Synthea slices,
@@ -284,10 +352,18 @@ demonstrations and are excluded from measured tables. Console reconstruction is
 
 This is a single-workflow protocol demonstration on synthetic FHIR fixtures.
 The default cohort rewrites one fixture; it is not $50$ independent patients
-and does not support population-style inference. FHIR projections are mapping
-rules, not Implementation Guide profile validation. Synthea generator version
-and CLI parameters are \texttt{NOT\_PINNED}; optional slice arms are excluded
-from measured evidence. A DOI for the public archive is not assigned in this draft.
+and does not support population-style inference. Baseline ARC and tamper
+scores are construct-dependent: they measure this paper's required-field
+inventory against analytical emulations, not independently shipped logging
+products. Reload-and-verify completeness uses a verifier module in the same
+repository; it is not an external audit. Allocated storage is confounded by
+SQLite page size; logical serialized bytes are the less confounded figure,
+and multi-transaction amortization is not reported. Latency $n=30$ is a
+prototype overhead sketch, not a capacity or tail-latency study. FHIR
+projections are mapping rules, not Implementation Guide profile validation.
+Synthea generator version and CLI parameters are \texttt{NOT\_PINNED}; optional
+slice arms are excluded from measured evidence. A DOI for the public archive
+is not assigned in this draft.
 
 \section{Ethics, Funding, and Disclosure}
 \label{sec:ethics}
@@ -304,13 +380,18 @@ the decision to submit.
 \section{Conclusion}
 \label{sec:conclusion}
 
-A privacy-preserving provenance plane can reconstruct and independently verify
-a bounded synthetic FHIR-to-large-language-model transaction, detect a defined
-mutation suite, and keep hidden reasoning and free-form reviewer text out of
-the immutable chain. Remaining work is experimental scale on independently
-generated synthetic patients, hosted-model replay characterization, and IEEE
-Author Portal packaging (PDF Checker, signed consent if required).
+A privacy-preserving provenance plane can reconstruct a bounded synthetic
+FHIR-to-large-language-model transaction after reloading persisted records
+and running an in-repository verifier, detect a defined mutation suite, and
+keep hidden reasoning and free-form reviewer text out of the immutable chain.
+The result is a protocol demonstration of known primitives under a clinical
+data/proof split, not a new integrity scheme and not a population evaluation.
+Remaining work is experimental scale on independently generated synthetic
+patients, amortized multi-transaction storage, hosted-model replay
+characterization, and IEEE Author Portal packaging (PDF Checker, signed
+consent if required).
 
+\balance
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

@@ -369,8 +369,18 @@ def build_evaluation_report(
     latency_ratio = float(ratio_info.get("mean") if isinstance(ratio_info, dict) else ratio_info or 0.0)
     baseline_ms = float(harness.capture_overhead.get("latency_ms_baseline_mean") or 0.0)
     plane_ms = float(harness.capture_overhead.get("latency_ms_plane_mean") or 0.0)
-    storage_baseline = float(harness.capture_overhead.get("storage_bytes_baseline_mean") or 0.0)
-    storage_plane = float(harness.capture_overhead.get("storage_bytes_plane") or 0.0)
+    storage_baseline = float(
+        harness.capture_overhead.get("storage_bytes_allocated_baseline")
+        or harness.capture_overhead.get("storage_bytes_baseline_mean")
+        or 0.0
+    )
+    storage_plane = float(
+        harness.capture_overhead.get("storage_bytes_allocated_plane")
+        or harness.capture_overhead.get("storage_bytes_plane")
+        or 0.0
+    )
+    logical_baseline = float(harness.capture_overhead.get("storage_bytes_logical_baseline") or 0.0)
+    logical_plane = float(harness.capture_overhead.get("storage_bytes_logical_plane") or 0.0)
     generated_at = datetime.now(UTC).isoformat()
 
     metrics = [
@@ -388,7 +398,7 @@ def build_evaluation_report(
             round(verified_arc * len(REQUIRED_FIELDS)),
             len(REQUIRED_FIELDS),
             "fraction",
-            notes="Required-field presence after reloading persisted records and independent verification.",
+            notes="Required-field presence after reloading persisted records and running the in-repository verifier module. The verifier is a separate implementation in this repository, not an external auditor.",
         ),
         _metric(
             "audit_reconstruction_completeness",
@@ -396,7 +406,7 @@ def build_evaluation_report(
             round(verified_arc * len(REQUIRED_FIELDS)),
             len(REQUIRED_FIELDS),
             "fraction",
-            notes="Headline ARC equals independently_verified_arc from persisted records.",
+            notes="Headline ARC equals independently_verified_arc from persisted records after the in-repository verifier succeeds.",
         ),
         _metric(
             "required_event_completeness",
@@ -438,7 +448,8 @@ def build_evaluation_report(
             "latency_ratio",
             notes=(
                 "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; "
-                "storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
+                "storage_overhead_allocated = (bytes_allocated_plane - bytes_allocated_baseline) / bytes_allocated_baseline; "
+                "storage_total_allocated = bytes_allocated_plane / bytes_allocated_baseline"
             ),
         ),
         _metric(
@@ -446,8 +457,41 @@ def build_evaluation_report(
             (storage_plane - storage_baseline) / storage_baseline if storage_baseline else None,
             storage_plane - storage_baseline,
             storage_baseline,
-            "storage_ratio",
+            "relative_allocated_overhead",
             status="MEASURED" if storage_baseline else "NOT_AVAILABLE",
+            notes=(
+                "Allocated files including SQLite page allocation. "
+                "Relative overhead is (B_plane - B_base) / B_base; "
+                "total allocated multiplier is B_plane / B_base. "
+                "Logical serialized bytes are reported separately."
+            ),
+        ),
+        _metric(
+            "storage_total_allocated",
+            storage_plane / storage_baseline if storage_baseline else None,
+            storage_plane,
+            storage_baseline,
+            "allocated_multiplier",
+            status="MEASURED" if storage_baseline else "NOT_AVAILABLE",
+            notes="Allocated file size of the complete plane divided by the unrecorded workflow.",
+        ),
+        _metric(
+            "storage_overhead_logical",
+            (logical_plane - logical_baseline) / logical_baseline if logical_baseline else None,
+            logical_plane - logical_baseline,
+            logical_baseline,
+            "relative_logical_overhead",
+            status="MEASURED" if logical_baseline else "NOT_AVAILABLE",
+            notes="UTF-8 octet length of SQLite event and transaction payloads plus protected-content files, excluding page allocation.",
+        ),
+        _metric(
+            "storage_total_logical",
+            logical_plane / logical_baseline if logical_baseline else None,
+            logical_plane,
+            logical_baseline,
+            "logical_multiplier",
+            status="MEASURED" if logical_baseline else "NOT_AVAILABLE",
+            notes="UTF-8 logical serialized bytes of the complete plane divided by the unrecorded workflow.",
         ),
         _metric(
             "verification_latency",

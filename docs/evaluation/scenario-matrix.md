@@ -44,78 +44,58 @@ not inferred from scenario-arm outcomes. RQ4 outcomes in this matrix are
 
 ## Commands
 
-Run the scenario matrix with a single encounter and repetition:
+Every `curie-audit-plane evaluate` run executes the 16-arm matrix and writes
+scenario rows into the same report directory as the cohort and benchmark.
+
+Stub campaign (publication default):
 
 ```bash
-curie-audit-plane evaluate --output-dir evaluation-results-scenarios --encounters 1 --repetitions 1
+CAP_LLM_PROVIDER=stub uv run curie-audit-plane evaluate --output-dir evaluation-results --encounters 50 --repetitions 1
 ```
 
-Select either `CAP_LLM_PROVIDER=stub` or
-`CAP_LLM_PROVIDER=openai_compatible`. Never write stub and live-provider runs to
-the same output directory.
-
-An optional slower confidence-interval run is:
+Live companion (separate directory; never mix stub and live):
 
 ```bash
-curie-audit-plane evaluate --encounters 50 --repetitions 3 --output-dir evaluation-results-openai-compatible-r3
+CAP_LLM_PROVIDER=openai_compatible uv run curie-audit-plane evaluate --output-dir evaluation-results-openai-compatible --encounters 50 --repetitions 1
 ```
+
+Do not use a third tree named `evaluation-results-scenarios/`. Scenario results
+belong in those main report directories (`docs/evaluation/report-schema.md`).
 
 ## Result artifacts
 
 Each output directory contains:
 
-- `evaluation-report.json`, schema `curie-evaluation.v1.1`, the authoritative structured report;
-- `evaluation-metrics.csv`, tabular cohort, benchmark, and scenario rows; and
+- `evaluation-report.json`, schema `curie-evaluation.v1.1`, including `scenarios`;
+- `evaluation-metrics.csv`, with `row_type=scenario` rows; and
 - `evaluation-cohort-metrics.svg`, the vector cohort figure.
 
-Keep the established 50-encounter stub artifacts in `evaluation-results/` and the
-established 50-encounter live-provider artifacts in
-`evaluation-results-openai-compatible/`. The 16-arm protocol in this document
-uses `evaluation-results-scenarios/`. Do not overwrite or combine these
-directories when changing providers, encounter counts, or repetition counts.
+Keep stub artifacts in `evaluation-results/` and live-provider artifacts in
+`evaluation-results-openai-compatible/`. Do not overwrite one with the other.
 
 ## Measured results
 
-Recorded 2026-08-28 from `CAP_LLM_PROVIDER=openai_compatible`
-(`medgemma-4b-it-mlx` at the local OpenAI-compatible endpoint) via:
+Authoritative scenario outcomes are the `scenarios` object in
+`evaluation-results/evaluation-report.json` (stub) and
+`evaluation-results-openai-compatible/evaluation-report.json` (live), plus the
+matching `row_type=scenario` CSV rows. Do not transcribe model summaries or
+FHIR payloads.
 
-```bash
-curie-audit-plane evaluate --output-dir evaluation-results-scenarios --encounters 1 --repetitions 1
-```
-
-The authoritative `generated_at` stamp is `2026-08-28T13:25:55.938220+00:00` in
-`evaluation-results-scenarios/evaluation-report.json`. Do not transcribe model
-summaries or FHIR payloads. In this run `natural_guardrail_warn` recorded
-`phi_scan.v1=WARN`, `evidence_refs.v1=PASS`, and `uncertainty.v1=PASS`.
-
-| Arm | Status | Human action | ARC | Verification | Subject reference | Replay result | Access-event count |
-|---|---|---|---|---|---|---|---|
-| `accept` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `modify` | `COMPLETED` | `MODIFY` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `reject` | `COMPLETED` | `REJECT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `guardrail_warn` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `guardrail_block` | `BLOCKED` | `PENDING` | `0.7` | `INCOMPLETE` | opaque token | `null` | `null` |
-| `synthea_sliced` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `two_step_accept` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `block_override_accept` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `natural_guardrail_warn` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `natural_guardrail_block` | `BLOCKED` | `PENDING` | `0.65` | `INCOMPLETE` | opaque token | `null` | `null` |
-| `provider_failure` | `FAILED` | `PENDING` | `0.4` | `INCOMPLETE` | opaque token | `null` | `null` |
-| `sparse_encounter` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `synthea_sliced_second` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `modify_evidence` | `COMPLETED` | `MODIFY` | `1.0` | `VERIFIED` | opaque token | `null` | `null` |
-| `replay_substitution` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `DIVERGENT` | `null` |
-| `access_audit` | `COMPLETED` | `ACCEPT` | `1.0` | `VERIFIED` | opaque token | `null` | `2` |
+The frozen live campaign records **one** hosted same-prompt replay observation,
+classified as `DIVERGENT` (`n=1`). The scenario-arm `replay_substitution`
+result `DIVERGENT` is caused by changing `prompt_version` to
+`clinical-summary.v2`, not by hosted nondeterminism.
 
 ## Limitations and interpretation
 
 - A 50-encounter cohort produced by cloning and rewriting one fixture is not 50
   independent patients and must not be interpreted as clinical population
   evidence.
-- Hosted same-prompt replay is at best `EQUIVALENT` and never `EXACT_MATCH`.
-  This 1×1 live cohort classified same-prompt replay as `DIVERGENT`. The
-  scenario-arm `replay_substitution` result `DIVERGENT` is caused by changing
-  `prompt_version` to `clinical-summary.v2`, not by hosted nondeterminism.
+- Hosted same-prompt replay is reported from the frozen live campaign as
+  `DIVERGENT` with denominator 1. This protocol does not estimate a hosted-replay
+  rate. The scenario-arm `replay_substitution` result `DIVERGENT` is caused by
+  changing `prompt_version` to `clinical-summary.v2`, not by hosted
+  nondeterminism.
 - Reviewer-task evidence remains `SCRIPTED_PROXY`. The matrix does not establish
   human usability or reviewer task success.
 - Synthea source bundles are external and are not committed to this repository.

@@ -1,5 +1,12 @@
 # Evaluation Scenario Matrix Implementation Plan
 
+**Superseded artifact paths:** scenario rows are published inside
+`evaluation-results/` and `evaluation-results-openai-compatible/`. Do not create
+`evaluation-results-scenarios/`. The live protocol is
+`docs/evaluation/scenario-matrix.md`.
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Extend `evaluate` with every remaining prototype workflow arm that changes an audit metric, then record stub and live results without claiming clinical efficacy or human-subject usability.

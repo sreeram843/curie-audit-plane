@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sqlite3
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -28,9 +29,17 @@ TAMPER_STATUSES = {
     VerificationStatus.FAILED,
 }
 OVERHEAD_WARMUP = 1
-OVERHEAD_REPEATS = 3
+OVERHEAD_REPEATS = 30
 LATENCY_FORMULA = "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow"
-STORAGE_FORMULA = "storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
+STORAGE_OVERHEAD_ALLOCATED = (
+    "storage_overhead_allocated = (bytes_allocated_plane - bytes_allocated_baseline) / bytes_allocated_baseline"
+)
+STORAGE_TOTAL_ALLOCATED = "storage_total_allocated = bytes_allocated_plane / bytes_allocated_baseline"
+STORAGE_OVERHEAD_LOGICAL = (
+    "storage_overhead_logical = (bytes_logical_plane - bytes_logical_baseline) / bytes_logical_baseline"
+)
+STORAGE_TOTAL_LOGICAL = "storage_total_logical = bytes_logical_plane / bytes_logical_baseline"
+STORAGE_FORMULA = STORAGE_OVERHEAD_ALLOCATED
 
 
 @dataclass
@@ -48,6 +57,32 @@ def _dir_size(path: Path) -> int:
     return sum(item.stat().st_size for item in path.rglob("*") if item.is_file())
 
 
+def _logical_sqlite_bytes(db_path: Path) -> int:
+    if not db_path.exists():
+        return 0
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    try:
+        events = conn.execute(
+            "SELECT COALESCE(SUM(OCTET_LENGTH(event_json)), 0) FROM events"
+        ).fetchone()[0]
+        access = conn.execute(
+            "SELECT COALESCE(SUM(OCTET_LENGTH(event_json)), 0) FROM access_events"
+        ).fetchone()[0]
+        transactions = conn.execute(
+            """
+            SELECT COALESCE(SUM(
+                OCTET_LENGTH(transaction_id) + OCTET_LENGTH(purpose) + OCTET_LENGTH(subject_ref)
+                + OCTET_LENGTH(status) + OCTET_LENGTH(created_at)
+                + OCTET_LENGTH(COALESCE(ended_at, ''))
+            ), 0)
+            FROM transactions
+            """
+        ).fetchone()[0]
+        return int(events) + int(access) + int(transactions)
+    finally:
+        conn.close()
+
+
 def _queryable(result) -> float:
     values = reconstruct_fields(result)
     keys = [
@@ -63,7 +98,11 @@ def _queryable(result) -> float:
 
 def _no_audit_workflow(pipeline: Pipeline, log_path: Path) -> tuple[float, int]:
     started = perf_counter()
-    result = pipeline.run_unrecorded_workflow(log_path=log_path)
+    result = pipeline.run_unrecorded_workflow(
+        log_path=log_path,
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
     elapsed_ms = (perf_counter() - started) * 1000
     if elapsed_ms <= 0:
         elapsed_ms = 0.001
@@ -200,13 +239,21 @@ def _complete_baseline(result, public_key) -> dict[str, object]:
     }
 
 
+def _ratio(numerator: float, denominator: float) -> float | None:
+    if not denominator:
+        return None
+    return numerator / denominator
+
+
 def _measure_overhead(pipeline: Pipeline) -> dict[str, object]:
     plane_ms: list[float] = []
     baseline_ms: list[float] = []
-    audit_bytes: list[float] = []
+    audit_allocated: list[float] = []
+    audit_logical: list[float] = []
     content_bytes: list[float] = []
     log_bytes: list[float] = []
-    baseline_bytes: list[float] = []
+    baseline_allocated: list[float] = []
+    baseline_logical: list[float] = []
     ratios: list[float] = []
     with tempfile.TemporaryDirectory(prefix="curie-overhead-") as temp:
         root = Path(temp)
@@ -229,14 +276,23 @@ def _measure_overhead(pipeline: Pipeline) -> dict[str, object]:
                 continue
             baseline_ms.append(baseline_elapsed)
             plane_ms.append(plane_elapsed)
-            audit_bytes.append(float(_dir_size(run_root / "audit.sqlite")))
-            content_bytes.append(float(_dir_size(run_root / "protected")))
+            audit_path = run_root / "audit.sqlite"
+            allocated_audit = float(_dir_size(audit_path))
+            logical_audit = float(_logical_sqlite_bytes(audit_path))
+            content = float(_dir_size(run_root / "protected"))
+            baseline_content = float(_dir_size(baseline_root / "protected"))
+            audit_allocated.append(allocated_audit)
+            audit_logical.append(logical_audit)
+            content_bytes.append(content)
             log_bytes.append(float(logged_size))
-            no_audit_total = float(_dir_size(baseline_root / "protected")) + float(logged_size)
-            baseline_bytes.append(no_audit_total)
+            baseline_allocated.append(baseline_content + float(logged_size))
+            baseline_logical.append(baseline_content + float(logged_size))
             ratios.append((plane_elapsed - baseline_elapsed) / baseline_elapsed)
-    plane_storage = mean(audit_bytes) + mean(content_bytes)
-    baseline_storage = mean(baseline_bytes)
+    allocated_plane = mean(audit_allocated) + mean(content_bytes)
+    allocated_baseline = mean(baseline_allocated)
+    logical_plane = mean(audit_logical) + mean(content_bytes)
+    logical_baseline = mean(baseline_logical)
+    overhead_allocated = _ratio(allocated_plane - allocated_baseline, allocated_baseline)
     return {
         "n": OVERHEAD_REPEATS,
         "warmup": OVERHEAD_WARMUP,
@@ -246,14 +302,30 @@ def _measure_overhead(pipeline: Pipeline) -> dict[str, object]:
         "latency_ms_plane": mean(plane_ms),
         "latency_ms_baseline": mean(baseline_ms),
         "latency_ratio": paired_mean_ci(ratios),
-        "storage_bytes_audit_mean": mean(audit_bytes),
+        "storage_bytes_audit_mean": mean(audit_allocated),
+        "storage_bytes_audit_allocated_mean": mean(audit_allocated),
+        "storage_bytes_audit_logical_mean": mean(audit_logical),
         "storage_bytes_content_mean": mean(content_bytes),
         "storage_bytes_log_mean": mean(log_bytes),
-        "storage_bytes_baseline_mean": baseline_storage,
-        "storage_bytes_plane": plane_storage,
+        "storage_bytes_baseline_mean": allocated_baseline,
+        "storage_bytes_allocated_plane": allocated_plane,
+        "storage_bytes_allocated_baseline": allocated_baseline,
+        "storage_bytes_logical_plane": logical_plane,
+        "storage_bytes_logical_baseline": logical_baseline,
+        "storage_overhead_allocated": overhead_allocated,
+        "storage_total_allocated": _ratio(allocated_plane, allocated_baseline),
+        "storage_overhead_logical": _ratio(logical_plane - logical_baseline, logical_baseline),
+        "storage_total_logical": _ratio(logical_plane, logical_baseline),
+        "storage_bytes_plane": allocated_plane,
         "storage_bytes_log": mean(log_bytes),
-        "storage_ratio": (plane_storage - baseline_storage) / baseline_storage if baseline_storage else None,
-        "formulas": [LATENCY_FORMULA, STORAGE_FORMULA],
+        "storage_ratio": overhead_allocated,
+        "formulas": [
+            LATENCY_FORMULA,
+            STORAGE_OVERHEAD_ALLOCATED,
+            STORAGE_TOTAL_ALLOCATED,
+            STORAGE_OVERHEAD_LOGICAL,
+            STORAGE_TOTAL_LOGICAL,
+        ],
     }
 
 

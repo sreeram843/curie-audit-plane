@@ -573,14 +573,14 @@ Create a controlled benchmark of synthetic FHIR transactions with:
 
 | Metric | Definition | Target for prototype |
 |---|---|---|
-| Audit Reconstruction Completeness (ARC) | Required provenance fields successfully reconstructed from persisted records and independently verified ÷ total required fields (`independently_verified_arc`); report `field_presence_arc` separately | ≥95% independently verified on clean benchmark; no silent missing fields |
+| Audit Reconstruction Completeness (ARC) | Required provenance fields successfully reconstructed from persisted records after the in-repository verifier succeeds ÷ total required fields (`independently_verified_arc`); report `field_presence_arc` separately. The metric name does not imply an external auditor. | ≥95% reload-and-verify on clean benchmark; no silent missing fields |
 | Required-event completeness | Required event types present with valid links ÷ required event types | 100% for successful transactions |
 | Tamper detection rate | Tampered benchmark cases correctly flagged ÷ all tampered cases | 100% for defined mutation suite |
 | False tamper rate | Untampered cases incorrectly flagged ÷ all clean cases | 0% on fixture benchmark |
 | Replay fidelity | Runs classified exact/equivalent/divergent using predefined comparison rules | Report by provider/configuration; no universal target for nondeterministic models |
 | Evidence attribution coverage | Output claims with valid evidence references ÷ claims requiring evidence | ≥90% in structured-output benchmark |
 | Human-action capture completeness | Completed runs with actor, action, time, and final-output digest ÷ runs reaching review | 100% |
-| Capture overhead | Added latency and storage relative to an identical unrecorded clinical workflow | Report measured ratio; do not claim <15% unless that baseline is met |
+| Capture overhead | Added latency and storage relative to an identical unrecorded clinical workflow | Report relative allocated overhead and total allocated multiplier separately; also report logical serialized bytes; do not claim <15% unless that baseline is met |
 | Verification latency | Time to verify one transaction and one batch proof | <1 second locally for target fixture size |
 | Reviewer task success | Correctly identify source, model, evidence, guardrail, and human action in a timed task | `SCRIPTED_PROXY` only; no human-subject usability claim in this paper |
 
@@ -599,7 +599,7 @@ The prototype can support a paper organized around:
 2. Design: data/proof separation, event model, FHIR mappings, and cryptographic integrity.
 3. Prototype: one FHIR-to-LLM workflow with structured rationale and human review.
 4. Threat model: mutation, omission, leakage, replay substitution, and key compromise.
-5. Evaluation: independently verified ARC, field-presence ARC, tamper detection with labeled mutations, replay fidelity, overhead versus application logging, and `SCRIPTED_PROXY` reviewer-field reconstruction.
+5. Evaluation: reload-and-verify ARC (`independently_verified_arc`), field-presence ARC, tamper detection with labeled mutations, replay fidelity, overhead versus an identical unrecorded clinical workflow, and `SCRIPTED_PROXY` reviewer-field reconstruction.
 6. Limitations: synthetic data, narrow workflow, provider nondeterminism, incomplete clinical semantics, operational key management, and no clinical efficacy claim.
 7. Future work: multi-agent workflows, longitudinal monitoring, deployment pilots, policy packs, and independent third-party verification.
 
@@ -655,7 +655,7 @@ Before submission, the project should produce:
 
 - **Gate A — contribution freeze:** the event model, research questions, baselines, and primary metrics are fixed before final experiments.
 - **Gate B — reproducibility freeze:** a clean environment can regenerate the headline tables and figures from synthetic fixtures.
-- **Gate C — integrity freeze:** the verifier and tamper benchmark are independently exercised by someone who did not implement them.
+- **Gate C — integrity freeze:** the verifier and tamper benchmark are independently exercised by someone who did not implement them. **Not satisfied.** The protocol is `docs/evaluation/independent-exercise.md`; `papers/jbhi/GATE_C_ATTESTATION.md` is unsigned.
 - **Gate D — venue check:** the current J-BHI author instructions, scope, originality policy, template, and artifact rules are reviewed immediately before submission; IEEE Access/EMBC are retained as fallback routes.
 
 The paper and any future commercial product should remain separate work products: the paper emphasizes novelty, evidence, and limitations; the product plan emphasizes deployment, security operations, integrations, support, and customer value.
