@@ -89,6 +89,17 @@ class _RunContext:
     events: list[AuditEventRecord] = field(default_factory=list)
 
 
+@dataclass
+class ClinicalAssembly:
+    """Shared FHIR assembly stages used by the recorded and unrecorded paths."""
+
+    manifest: object
+    transforms: object
+    context: object
+    evidence: object
+    tool: object | None
+
+
 class Pipeline:
     def __init__(
         self,
@@ -111,6 +122,49 @@ class Pipeline:
     def __exit__(self, *args: object) -> None:
         self.close()
 
+    def _assemble_clinical_inputs(self, bundle: dict[str, object]) -> ClinicalAssembly:
+        manifest = build_input_manifest(bundle, self.services.content)
+        transforms = apply_transformations(bundle, self.services.content)
+        context = build_context(bundle, self.services.content)
+        evidence = retrieve_evidence(bundle, self.corpus_path, self.services.content)
+        tool = None
+        if evidence and evidence[0].chunk_id:
+            tool = lookup_tool(evidence[0].chunk_id, self.corpus_path, self.services.content)
+        return ClinicalAssembly(
+            manifest=manifest,
+            transforms=transforms,
+            context=context,
+            evidence=evidence,
+            tool=tool,
+        )
+
+    def _complete_clinical_handoff(
+        self,
+        assembly: ClinicalAssembly,
+        prompt_version: str,
+        model_id: str,
+    ) -> tuple[object, object]:
+        context_payload = json.loads(
+            self.services.content.get(assembly.context.content_ref).decode("utf-8")
+        )
+        completion = self.completer(
+            self._completion_request(
+                assembly.context.digest,
+                context_payload,
+                assembly.evidence,
+                prompt_version,
+                model_id,
+            )
+        )
+        guardrails = evaluate_guardrails(
+            completion.output,
+            input_manifest=assembly.manifest,
+            context_ref=assembly.context.content_ref,
+            context_digest=assembly.context.digest,
+            evidence=assembly.evidence,
+        )
+        return completion, guardrails
+
     def run_unrecorded_workflow(
         self,
         *,
@@ -124,30 +178,15 @@ class Pipeline:
         if human_action not in TERMINAL_HUMAN_ACTIONS:
             raise ValueError("PENDING is a review state, not a terminal human disposition")
         bundle = load_bundle(self.fixture_path)
-        manifest = build_input_manifest(bundle, self.services.content)
-        transforms = apply_transformations(bundle, self.services.content)
-        context = build_context(bundle, self.services.content)
-        evidence = retrieve_evidence(bundle, self.corpus_path, self.services.content)
-        if evidence and evidence[0].chunk_id:
-            lookup_tool(evidence[0].chunk_id, self.corpus_path, self.services.content)
-        context_payload = json.loads(self.services.content.get(context.content_ref).decode("utf-8"))
-        completion = self.completer(
-            self._completion_request(
-                context.digest, context_payload, evidence, prompt_version, model_id
-            )
-        )
-        guardrails = evaluate_guardrails(
-            completion.output,
-            input_manifest=manifest,
-            context_ref=context.content_ref,
-            context_digest=context.digest,
-            evidence=evidence,
+        assembly = self._assemble_clinical_inputs(bundle)
+        completion, guardrails = self._complete_clinical_handoff(
+            assembly, prompt_version, model_id
         )
         records = [
             {"stage": "load", "status": "ok"},
-            {"stage": "transform", "count": len(transforms)},
-            {"stage": "context", "digest": context.digest},
-            {"stage": "retrieve", "count": len(evidence)},
+            {"stage": "transform", "count": len(assembly.transforms)},
+            {"stage": "context", "digest": assembly.context.digest},
+            {"stage": "retrieve", "count": len(assembly.evidence)},
             {"stage": "complete", "model_id": completion.manifest.model_id},
             {"stage": "guardrail", "count": len(guardrails)},
         ]
@@ -261,7 +300,11 @@ class Pipeline:
         model_id: str,
     ) -> TransactionResult:
         transaction_id = ctx.transaction_id
-        manifest = build_input_manifest(bundle, self.services.content)
+        assembly = self._assemble_clinical_inputs(bundle)
+        manifest = assembly.manifest
+        transforms = assembly.transforms
+        context = assembly.context
+        evidence = assembly.evidence
         identity = {
             "subject_raw": raw_subject,
             "subject_opaque": subject_ref,
@@ -304,7 +347,6 @@ class Pipeline:
             canonicalize([item.model_dump(mode="json") for item in manifest]),
         )
 
-        transforms = apply_transformations(bundle, self.services.content)
         for record in transforms:
             self._emit(
                 ctx,
@@ -322,7 +364,6 @@ class Pipeline:
                 payload_digest=record.output_digest,
             )
 
-        context = build_context(bundle, self.services.content)
         self._emit(
             ctx,
             EventType.CONTEXT_MANIFEST_CREATED,
@@ -331,7 +372,6 @@ class Pipeline:
             payload_digest=context.digest,
         )
 
-        evidence = retrieve_evidence(bundle, self.corpus_path, self.services.content)
         self._emit(
             ctx,
             EventType.RETRIEVAL_COMPLETED,
@@ -344,8 +384,8 @@ class Pipeline:
             canonicalize([item.model_dump(mode="json") for item in evidence]),
         )
 
-        if evidence and evidence[0].chunk_id:
-            tool = lookup_tool(evidence[0].chunk_id, self.corpus_path, self.services.content)
+        if assembly.tool is not None:
+            tool = assembly.tool
             self._emit(
                 ctx,
                 EventType.TOOL_CALLED,
@@ -366,8 +406,10 @@ class Pipeline:
                 payload_digest=tool.result_digest,
             )
 
-        context_payload = json.loads(self.services.content.get(context.content_ref).decode("utf-8"))
-        completion = self.completer(self._completion_request(context.digest, context_payload, evidence, prompt_version, model_id))
+        completion, guardrails = self._complete_clinical_handoff(
+            assembly, prompt_version, model_id
+        )
+        guardrails = list(guardrails)
         self._emit(
             ctx,
             EventType.MODEL_REQUESTED,
@@ -409,13 +451,6 @@ class Pipeline:
             payload_digest=output_digest,
         )
 
-        guardrails = evaluate_guardrails(
-            completion.output,
-            input_manifest=manifest,
-            context_ref=context.content_ref,
-            context_digest=context.digest,
-            evidence=evidence,
-        )
         if force_guardrail is not None:
             guardrails.append(
                 evaluate_guardrails(completion.output)[1].model_copy(

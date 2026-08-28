@@ -41,7 +41,7 @@ Compare the complete plane against at least:
 3. FHIR `Provenance`/`AuditEvent` projection without the internal event model;
 4. the complete provenance plane with protected-content references, typed events, chain verification, Merkle proofs, and signatures.
 
-Application JSONL and hash-only JSONL are separately instrumented from the unrecorded clinical workflow. The FHIR projection is built from the source bundle. These are not independently shipped products; the complete plane is scored from the signed audit chain.
+Application JSONL and hash-only JSONL are separately instrumented from the unrecorded clinical workflow. The FHIR projection is built from the source bundle. These are not independently shipped products; the complete plane is scored from the signed audit chain. Recorded and unrecorded paths share the same FHIR assembly and completion stages; the recorded path only emits audit events and proofs afterward so the RQ3 comparator cannot drift from a duplicated pipeline.
 
 The baseline comparison should measure completeness, detection, queryability, overhead, and reviewer-facing field reconstruction. It must not imply that the baselines are clinically unsafe; they answer different audit questions. Reviewer-facing scores in the prototype harness are `SCRIPTED_PROXY` reconstructions on synthetic fixtures. They are not an IRB human usability study.
 

@@ -5,7 +5,7 @@ from html import escape
 
 FIGURE_METRICS = (
     ("audit_reconstruction_completeness", "Audit Reconstruction Completeness"),
-    ("independently_verified_arc", "Independent Verification"),
+    ("independently_verified_arc", "Reload-and-Verify ARC"),
     ("required_event_completeness", "Required Events"),
     ("evidence_attribution_coverage", "Evidence Attribution"),
     ("human_action_capture_completeness", "Human Action Capture"),

@@ -26,5 +26,6 @@ def test_cohort_figure_is_vector_and_contains_metric_labels():
     assert svg.startswith("<svg ")
     assert 'role="img"' in svg
     assert "Audit Reconstruction Completeness" in svg
-    assert "Independent Verification" in svg
+    assert "Reload-and-Verify ARC" in svg
+    assert "Independent Verification" not in svg
     assert "n=50" in svg

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from curie_audit_plane.adapters.completion import complete_stub
 from curie_audit_plane.integrity.signing import generate_keypair
 from curie_audit_plane.models.enums import (
     EventType,
@@ -268,6 +269,41 @@ def test_sealed_transaction_rejects_clinical_append(tmp_path):
     extra = result.events[-1].model_copy(update={"event_id": "extra", "sequence_number": 99})
     with pytest.raises(ValueError, match="sealed"):
         pipeline.services.audit.append_event(extra)
+
+
+def test_recorded_and_unrecorded_share_one_clinical_completion_request(tmp_path):
+    requests = []
+
+    def tracking_completer(request):
+        requests.append(request)
+        return complete_stub(request)
+
+    private_key, public_key = generate_keypair()
+    pipeline = Pipeline(
+        PipelineServices(
+            audit=AuditStore(tmp_path / "audit.sqlite"),
+            content=ProtectedContentStore(tmp_path / "protected"),
+            private_key=private_key,
+            public_key=public_key,
+            key_id="test-key",
+        ),
+        completer=tracking_completer,
+    )
+    unrecorded = pipeline.run_unrecorded_workflow(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+    recorded = pipeline.run_transaction(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+
+    assert len(requests) == 2
+    assert requests[0].context_digest == requests[1].context_digest
+    assert requests[0].prompt_version == requests[1].prompt_version
+    assert requests[0].model_id == requests[1].model_id
+    assert requests[0].evidence_ids == requests[1].evidence_ids
+    assert unrecorded["output"].model_dump() == recorded.output.model_dump()
 
 
 def test_unrecorded_workflow_includes_in_memory_accept_without_audit_events(tmp_path):
