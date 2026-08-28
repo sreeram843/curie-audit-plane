@@ -248,7 +248,7 @@ compromised signing keys or a malicious protected-content store operator.
 
 All numbers below are from the stub evaluation campaign in
 \texttt{evaluation-results/} (schema \texttt{curie-evaluation.v1.1}; git commit
-\texttt{13716e6}, \texttt{git\_dirty: false}).
+\texttt{0dcf801}, \texttt{git\_dirty: false}).
 Software-quality checks at the time of this draft were $146$ Python tests,
 $94.59\%$ statement coverage, and a clean Ruff pass; those are not clinical
 performance.
@@ -324,9 +324,9 @@ unauthenticated list denied ($401$); missing transaction reported as missing
 ($404$); global list allowed.
 
 \subsection{Overhead and Replay}
-Mean plane latency is $14.77$\,ms versus $9.00$\,ms for the identical
-unrecorded workflow (paired latency ratio $0.645$, $95\%$ interval
-$[0.566, 0.724]$, $n=30$ after one warmup). Relative allocated storage
+Mean plane latency is $16.13$\,ms versus $8.59$\,ms for the identical
+unrecorded workflow (paired latency ratio $1.033$, $95\%$ interval
+$[0.788, 1.278]$, $n=30$ after one warmup). Relative allocated storage
 overhead is $6.20$ ($70\,512$ additional bytes; $81\,885$ versus
 $11\,373$ bytes). Total allocated bytes are $7.20\times$ the baseline.
 The allocated audit file is one SQLite page ($65\,536$ bytes); logical
@@ -334,7 +334,7 @@ serialized event and transaction payloads are $23\,105$ bytes. Logical
 plane storage is $39\,454$ versus $11\,373$ baseline bytes (relative logical
 overhead $2.47$; total logical multiplier $3.47\times$). These values do not
 support a claim that audit capture is under $15\%$ of an already-complete
-clinical application. Verification of the clean transaction is $1.11$\,ms.
+clinical application. Verification of the clean transaction is $1.55$\,ms.
 Deterministic-stub same-prompt replay is exact; prompt-substitution replay is
 \texttt{DIVERGENT} by construction. The frozen live campaign records one hosted
 same-prompt replay observation, classified as \texttt{DIVERGENT} ($n=1$). This

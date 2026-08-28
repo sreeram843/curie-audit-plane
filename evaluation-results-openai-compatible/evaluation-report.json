@@ -1,10 +1,10 @@
 {
   "schema_version": "curie-evaluation.v1.1",
-  "generated_at": "2026-08-28T17:46:00.305688+00:00",
+  "generated_at": "2026-08-28T20:22:18.113566+00:00",
   "fixture": "synthetic-encounter-bundle",
   "runtime": "openai-compatible",
   "experiment": {
-    "git_commit": "cf27977150a39f9b2a608360f7aad725267358bf",
+    "git_commit": "0dcf8013aeb1cd3fb6c389665b2ad92bd1406a32",
     "git_dirty": false,
     "fixture_alias": "synthetic-encounter-bundle",
     "fixture_sha256": "e3a614c49170ee55d9a808cce842d7f8799a58a32746b55f56c5c9942a2aa89f",
@@ -21,7 +21,7 @@
     "python_version": "3.14.6",
     "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
     "command": "curie-audit-plane evaluate --output-dir <output-dir> --encounters N --repetitions R",
-    "generated_at": "2026-08-28T17:46:00.305688+00:00",
+    "generated_at": "2026-08-28T20:22:18.113566+00:00",
     "synthea_license": "CC-BY 4.0",
     "synthea_source": "https://github.com/synthetichealth/synthea",
     "synthea_generator_version": null,
@@ -48,7 +48,7 @@
       "denominator": 20,
       "unit": "fraction",
       "status": "MEASURED",
-      "notes": "Required-field presence after reloading persisted records and independent verification."
+      "notes": "Required-field presence after reloading persisted records and running the in-repository verifier module. The verifier is a separate implementation in this repository, not an external auditor."
     },
     {
       "name": "audit_reconstruction_completeness",
@@ -57,7 +57,7 @@
       "denominator": 20,
       "unit": "fraction",
       "status": "MEASURED",
-      "notes": "Headline ARC equals independently_verified_arc from persisted records."
+      "notes": "Headline ARC equals independently_verified_arc from persisted records after the in-repository verifier succeeds."
     },
     {
       "name": "required_event_completeness",
@@ -115,26 +115,53 @@
     },
     {
       "name": "capture_overhead",
-      "value": -0.03158184807120571,
-      "numerator": -322.26568033608237,
-      "denominator": 9488.119555666344,
+      "value": -0.002405770329771265,
+      "numerator": -22.48053879593499,
+      "denominator": 8848.067870765226,
       "unit": "latency_ratio",
       "status": "MEASURED",
-      "notes": "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
+      "notes": "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; storage_overhead_allocated = (bytes_allocated_plane - bytes_allocated_baseline) / bytes_allocated_baseline; storage_total_allocated = bytes_allocated_plane / bytes_allocated_baseline"
     },
     {
       "name": "storage_overhead",
-      "value": 6.436167365509858,
-      "numerator": 72143.0,
-      "denominator": 11209.0,
-      "unit": "storage_ratio",
+      "value": 6.328936955948299,
+      "numerator": 71979.0,
+      "denominator": 11373.0,
+      "unit": "relative_allocated_overhead",
       "status": "MEASURED",
-      "notes": ""
+      "notes": "Allocated files including SQLite page allocation. Relative overhead is (B_plane - B_base) / B_base; total allocated multiplier is B_plane / B_base. Logical serialized bytes are reported separately."
+    },
+    {
+      "name": "storage_total_allocated",
+      "value": 7.328936955948299,
+      "numerator": 83352.0,
+      "denominator": 11373.0,
+      "unit": "allocated_multiplier",
+      "status": "MEASURED",
+      "notes": "Allocated file size of the complete plane divided by the unrecorded workflow."
+    },
+    {
+      "name": "storage_overhead_logical",
+      "value": 2.605205310823881,
+      "numerator": 29629.0,
+      "denominator": 11373.0,
+      "unit": "relative_logical_overhead",
+      "status": "MEASURED",
+      "notes": "UTF-8 octet length of SQLite event and transaction payloads plus protected-content files, excluding page allocation."
+    },
+    {
+      "name": "storage_total_logical",
+      "value": 3.605205310823881,
+      "numerator": 41002.0,
+      "denominator": 11373.0,
+      "unit": "logical_multiplier",
+      "status": "MEASURED",
+      "notes": "UTF-8 logical serialized bytes of the complete plane divided by the unrecorded workflow."
     },
     {
       "name": "verification_latency",
-      "value": 1.2132920091971755,
-      "numerator": 1.2132920091971755,
+      "value": 1.1172499798703939,
+      "numerator": 1.1172499798703939,
       "denominator": 1,
       "unit": "milliseconds",
       "status": "MEASURED",
@@ -424,7 +451,7 @@
       "tamper_detection_rate": 0.0,
       "queryability": 0.0,
       "detected_mutation": false,
-      "storage_bytes": 276,
+      "storage_bytes": 433,
       "reviewer_fields": []
     },
     {
@@ -434,7 +461,7 @@
       "arc": 0.15,
       "tamper_detection_rate": 1.0,
       "queryability": 0.0,
-      "storage_bytes": 656,
+      "storage_bytes": 889,
       "reviewer_fields": []
     },
     {
@@ -466,30 +493,43 @@
     }
   ],
   "overhead": {
-    "n": 3,
+    "n": 30,
     "warmup": 1,
     "baseline_name": "no_audit_workflow",
-    "latency_ms_plane_mean": 9165.853875330262,
-    "latency_ms_baseline_mean": 9488.119555666344,
-    "latency_ms_plane": 9165.853875330262,
-    "latency_ms_baseline": 9488.119555666344,
+    "latency_ms_plane_mean": 8825.587331969291,
+    "latency_ms_baseline_mean": 8848.067870765226,
+    "latency_ms_plane": 8825.587331969291,
+    "latency_ms_baseline": 8848.067870765226,
     "latency_ratio": {
-      "mean": -0.03158184807120571,
-      "ci95_low": -0.08726038355784865,
-      "ci95_high": 0.024096687415437232,
-      "n": 3,
+      "mean": -0.002405770329771265,
+      "ci95_low": -0.006402658922133804,
+      "ci95_high": 0.0015911182625912728,
+      "n": 30,
       "method": "paired-normal"
     },
     "storage_bytes_audit_mean": 65536.0,
+    "storage_bytes_audit_allocated_mean": 65536.0,
+    "storage_bytes_audit_logical_mean": 23186.0,
     "storage_bytes_content_mean": 17816.0,
-    "storage_bytes_log_mean": 293.0,
-    "storage_bytes_baseline_mean": 11209.0,
+    "storage_bytes_log_mean": 457.0,
+    "storage_bytes_baseline_mean": 11373.0,
+    "storage_bytes_allocated_plane": 83352.0,
+    "storage_bytes_allocated_baseline": 11373.0,
+    "storage_bytes_logical_plane": 41002.0,
+    "storage_bytes_logical_baseline": 11373.0,
+    "storage_overhead_allocated": 6.328936955948299,
+    "storage_total_allocated": 7.328936955948299,
+    "storage_overhead_logical": 2.605205310823881,
+    "storage_total_logical": 3.605205310823881,
     "storage_bytes_plane": 83352.0,
-    "storage_bytes_log": 293.0,
-    "storage_ratio": 6.436167365509858,
+    "storage_bytes_log": 457.0,
+    "storage_ratio": 6.328936955948299,
     "formulas": [
       "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow",
-      "storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
+      "storage_overhead_allocated = (bytes_allocated_plane - bytes_allocated_baseline) / bytes_allocated_baseline",
+      "storage_total_allocated = bytes_allocated_plane / bytes_allocated_baseline",
+      "storage_overhead_logical = (bytes_logical_plane - bytes_logical_baseline) / bytes_logical_baseline",
+      "storage_total_logical = bytes_logical_plane / bytes_logical_baseline"
     ]
   },
   "reviewer_task": {
@@ -501,7 +541,7 @@
       "guardrail",
       "human_action"
     ],
-    "duration_ms": 0.002375018084421754,
+    "duration_ms": 0.0032919924706220627,
     "method": "scripted-field-reconstruction"
   },
   "study": {
@@ -570,30 +610,30 @@
         "interval": "wilson"
       },
       "run_latency": {
-        "mean": 8739.84541418089,
-        "median": 7780.99647948693,
-        "ci95_low": 7760.777727770912,
-        "ci95_high": 9718.91310059087,
+        "mean": 9547.890635060612,
+        "median": 9570.707645994844,
+        "ci95_low": 9301.117957212487,
+        "ci95_high": 9794.663312908737,
         "n": 50,
         "unit": "milliseconds",
         "status": "MEASURED",
         "interval": "normal"
       },
       "verification_latency": {
-        "mean": 1.9423533603549004,
-        "median": 1.3995420158607885,
-        "ci95_low": 1.3039287148251952,
-        "ci95_high": 2.5807780058846053,
+        "mean": 1.451870763557963,
+        "median": 1.3263330038171262,
+        "ci95_low": 1.3655963719606081,
+        "ci95_high": 1.538145155155318,
         "n": 50,
         "unit": "milliseconds",
         "status": "MEASURED",
         "interval": "normal"
       },
       "protected_bytes_added": {
-        "mean": 16544.12,
-        "median": 16498.5,
-        "ci95_low": 16471.209061513102,
-        "ci95_high": 16617.030938486896,
+        "mean": 16530.64,
+        "median": 16541.0,
+        "ci95_low": 16452.142964849874,
+        "ci95_high": 16609.137035150125,
         "n": 50,
         "unit": "bytes",
         "status": "MEASURED",
@@ -620,7 +660,7 @@
       {
         "encounter_index": 1,
         "repetition": 1,
-        "transaction_id": "d1b4d34e-6f33-4e65-b613-8ec25228040b",
+        "transaction_id": "c9538523-0ae1-4dd8-b9bd-2063b0b1bd30",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -628,14 +668,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 9618.415542005096,
-        "verification_latency_ms": 1.5656670148018748,
-        "protected_bytes_added": 17816
+        "run_latency_ms": 13137.367124989396,
+        "verification_latency_ms": 1.4932499907445163,
+        "protected_bytes_added": 17899
       },
       {
         "encounter_index": 2,
         "repetition": 1,
-        "transaction_id": "fbc35648-0357-4142-b907-49761180ab8f",
+        "transaction_id": "62e2c0de-362a-4a96-a433-bdd68a19afcb",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -643,14 +683,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8632.822874991689,
-        "verification_latency_ms": 1.3384160120040178,
-        "protected_bytes_added": 16731
+        "run_latency_ms": 10483.750416984549,
+        "verification_latency_ms": 1.4990420022513717,
+        "protected_bytes_added": 16625
       },
       {
         "encounter_index": 3,
         "repetition": 1,
-        "transaction_id": "4ac4f5cb-8d32-4625-b2b3-e55f4269f7dc",
+        "transaction_id": "38820d0a-b007-4125-8e01-f7b7030bd2f4",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -658,14 +698,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8247.21612498979,
-        "verification_latency_ms": 1.3777909916825593,
-        "protected_bytes_added": 16724
+        "run_latency_ms": 10079.301749996375,
+        "verification_latency_ms": 2.2615409980062395,
+        "protected_bytes_added": 16646
       },
       {
         "encounter_index": 4,
         "repetition": 1,
-        "transaction_id": "4c3b298b-e8ed-4273-9f35-f65c110ea4cc",
+        "transaction_id": "4ff2011b-9890-4fbd-aeab-6349f370f2aa",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -673,14 +713,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8951.064708002377,
-        "verification_latency_ms": 1.1414170148782432,
-        "protected_bytes_added": 16877
+        "run_latency_ms": 10281.173875002423,
+        "verification_latency_ms": 1.3105419930070639,
+        "protected_bytes_added": 16680
       },
       {
         "encounter_index": 5,
         "repetition": 1,
-        "transaction_id": "85e0542d-c271-42cb-839c-5a4e828a38a3",
+        "transaction_id": "cd3e8e69-638c-46c1-866d-53781792c93f",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -688,14 +728,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7731.9502500176895,
-        "verification_latency_ms": 1.3458750036079437,
-        "protected_bytes_added": 16501
+        "run_latency_ms": 9416.701165988343,
+        "verification_latency_ms": 1.7933749768417329,
+        "protected_bytes_added": 16406
       },
       {
         "encounter_index": 6,
         "repetition": 1,
-        "transaction_id": "8751e0ca-85f1-4319-83a3-43b59fea18ef",
+        "transaction_id": "4e129025-5c83-4522-a0ea-a9479c94a312",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -703,14 +743,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8704.008000000613,
-        "verification_latency_ms": 1.282749988604337,
-        "protected_bytes_added": 16700
+        "run_latency_ms": 10318.91212501796,
+        "verification_latency_ms": 1.069541001925245,
+        "protected_bytes_added": 16672
       },
       {
         "encounter_index": 7,
         "repetition": 1,
-        "transaction_id": "eee9b8b7-640e-464d-9742-dc61af41bef8",
+        "transaction_id": "c6e4fd09-51c1-4698-9020-42433237c986",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -718,14 +758,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7955.335832986748,
-        "verification_latency_ms": 1.178500009700656,
-        "protected_bytes_added": 16654
+        "run_latency_ms": 9358.622917003231,
+        "verification_latency_ms": 1.6853339911904186,
+        "protected_bytes_added": 16456
       },
       {
         "encounter_index": 8,
         "repetition": 1,
-        "transaction_id": "8322d3fd-0d8a-4be8-9630-6f215f422904",
+        "transaction_id": "6d623e35-a767-4d83-a24d-6e4986d7fec8",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -733,14 +773,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7343.863415997475,
-        "verification_latency_ms": 1.51291600195691,
-        "protected_bytes_added": 16496
+        "run_latency_ms": 9688.430958980462,
+        "verification_latency_ms": 1.2634170125238597,
+        "protected_bytes_added": 16577
       },
       {
         "encounter_index": 9,
         "repetition": 1,
-        "transaction_id": "a39c7a76-c781-4e1b-8b50-433d6b4a765a",
+        "transaction_id": "5e0da45d-284c-4658-9ed2-594c0bc444a6",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -748,14 +788,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16336.245040991344,
-        "verification_latency_ms": 4.093083989573643,
-        "protected_bytes_added": 16639
+        "run_latency_ms": 9554.191957984585,
+        "verification_latency_ms": 1.5310410235542804,
+        "protected_bytes_added": 16515
       },
       {
         "encounter_index": 10,
         "repetition": 1,
-        "transaction_id": "bd9b777f-79b5-4ee1-9c66-ad3abe179355",
+        "transaction_id": "1402c9be-d921-4489-935b-cf854ce62758",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -763,14 +803,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 21883.68579201051,
-        "verification_latency_ms": 16.98104100069031,
-        "protected_bytes_added": 16516
+        "run_latency_ms": 9587.223334005103,
+        "verification_latency_ms": 1.2822920107282698,
+        "protected_bytes_added": 16425
       },
       {
         "encounter_index": 11,
         "repetition": 1,
-        "transaction_id": "70c088e1-a53f-4f0f-bd04-afebaf43dd12",
+        "transaction_id": "540b4912-57db-47df-9dc3-d0fb27b508a0",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -778,14 +818,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20554.7283749911,
-        "verification_latency_ms": 4.01316600618884,
-        "protected_bytes_added": 16787
+        "run_latency_ms": 9970.926042005885,
+        "verification_latency_ms": 1.8812920025084168,
+        "protected_bytes_added": 16691
       },
       {
         "encounter_index": 12,
         "repetition": 1,
-        "transaction_id": "ced40952-59a2-43e3-ac0f-a90bc865dabd",
+        "transaction_id": "5604dc93-607b-443c-b82f-4016ed3c0838",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -793,14 +833,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20551.087707979605,
-        "verification_latency_ms": 5.035792011767626,
-        "protected_bytes_added": 16747
+        "run_latency_ms": 9938.190999993822,
+        "verification_latency_ms": 1.1918339878320694,
+        "protected_bytes_added": 16587
       },
       {
         "encounter_index": 13,
         "repetition": 1,
-        "transaction_id": "19b3913f-08a0-4c1e-b5f0-0caf10e0ae13",
+        "transaction_id": "08344a0b-5154-4ead-b729-d6a0b19decd3",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -808,14 +848,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 13129.020083026262,
-        "verification_latency_ms": 1.14191701868549,
-        "protected_bytes_added": 16700
+        "run_latency_ms": 9251.345791999483,
+        "verification_latency_ms": 2.339083992410451,
+        "protected_bytes_added": 16288
       },
       {
         "encounter_index": 14,
         "repetition": 1,
-        "transaction_id": "2c555f85-1342-4467-bc0a-5bf3c5ae8a58",
+        "transaction_id": "d6deb8d2-7688-4d38-8b56-9e04f1cc1e63",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -823,14 +863,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7726.968542003306,
-        "verification_latency_ms": 2.5422500038985163,
-        "protected_bytes_added": 16588
+        "run_latency_ms": 8893.455082987202,
+        "verification_latency_ms": 1.5120000171009451,
+        "protected_bytes_added": 16148
       },
       {
         "encounter_index": 15,
         "repetition": 1,
-        "transaction_id": "26a13d6b-648b-4df9-8769-3690813b2e0a",
+        "transaction_id": "fb25ac93-21b1-44fe-9089-56617ebd0061",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -838,14 +878,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6921.940583008109,
-        "verification_latency_ms": 1.1587920016609132,
-        "protected_bytes_added": 16294
+        "run_latency_ms": 10008.049334021052,
+        "verification_latency_ms": 2.0183750020805746,
+        "protected_bytes_added": 16595
       },
       {
         "encounter_index": 16,
         "repetition": 1,
-        "transaction_id": "f3cad8a5-1647-4642-ab7a-b13887d48291",
+        "transaction_id": "57e30dc9-8465-4a72-af59-9f798ba297f9",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -853,14 +893,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7836.386624985607,
-        "verification_latency_ms": 1.7025420092977583,
-        "protected_bytes_added": 16557
+        "run_latency_ms": 9106.344458006788,
+        "verification_latency_ms": 1.3330829970072955,
+        "protected_bytes_added": 16586
       },
       {
         "encounter_index": 17,
         "repetition": 1,
-        "transaction_id": "558dfa34-6f26-43ec-a32b-5235811282e1",
+        "transaction_id": "69ae9d68-c035-49d5-a0cb-7f4d325f8cea",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -868,14 +908,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6523.5085830208845,
-        "verification_latency_ms": 1.4585829921998084,
-        "protected_bytes_added": 16367
+        "run_latency_ms": 8837.40812499309,
+        "verification_latency_ms": 1.0727500193752348,
+        "protected_bytes_added": 16335
       },
       {
         "encounter_index": 18,
         "repetition": 1,
-        "transaction_id": "a14df826-66cc-4a86-a974-b30396ff6db8",
+        "transaction_id": "7e72b421-656e-4603-94c3-13aa15c9816d",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -883,14 +923,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6645.278042007703,
-        "verification_latency_ms": 1.1954579968005419,
-        "protected_bytes_added": 16136
+        "run_latency_ms": 9064.633000001777,
+        "verification_latency_ms": 1.6859580064192414,
+        "protected_bytes_added": 16561
       },
       {
         "encounter_index": 19,
         "repetition": 1,
-        "transaction_id": "4514039a-5976-41f1-8d4b-4303b5b53dd5",
+        "transaction_id": "df8e4211-4242-4a22-b249-eebcfff13b4c",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -898,14 +938,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8521.727374987677,
-        "verification_latency_ms": 1.1226249916944653,
-        "protected_bytes_added": 16611
+        "run_latency_ms": 9926.783292001346,
+        "verification_latency_ms": 1.2553749838843942,
+        "protected_bytes_added": 16571
       },
       {
         "encounter_index": 20,
         "repetition": 1,
-        "transaction_id": "8378f9e7-8670-4cdd-abfa-286ba072778e",
+        "transaction_id": "ba4ddbc6-4634-4e18-ba67-b253e7dd20cd",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -913,14 +953,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6990.886540996144,
-        "verification_latency_ms": 1.1761669884435833,
-        "protected_bytes_added": 16224
+        "run_latency_ms": 8884.499459003564,
+        "verification_latency_ms": 1.7259159940294921,
+        "protected_bytes_added": 16216
       },
       {
         "encounter_index": 21,
         "repetition": 1,
-        "transaction_id": "ac534ae2-1d6c-4410-a835-744c03ebf02d",
+        "transaction_id": "6f422258-fd10-494b-9b74-f289b111f589",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -928,14 +968,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7776.833916985197,
-        "verification_latency_ms": 1.3829169911332428,
-        "protected_bytes_added": 16444
+        "run_latency_ms": 9810.175167018315,
+        "verification_latency_ms": 1.013916014926508,
+        "protected_bytes_added": 16527
       },
       {
         "encounter_index": 22,
         "repetition": 1,
-        "transaction_id": "73afb63f-f405-43c2-9995-7e41f637b664",
+        "transaction_id": "f759c844-ec90-4ae3-9c39-a419cd3cde1a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -943,14 +983,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8529.016624990618,
-        "verification_latency_ms": 1.2710420123767108,
-        "protected_bytes_added": 16732
+        "run_latency_ms": 9134.441542002605,
+        "verification_latency_ms": 1.859000010881573,
+        "protected_bytes_added": 16279
       },
       {
         "encounter_index": 23,
         "repetition": 1,
-        "transaction_id": "32875f05-d9b9-4b90-8394-0f3031a32fa7",
+        "transaction_id": "247c2430-15f7-4b44-a3e2-5ea6a6b4925f",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -958,14 +998,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6513.000542006921,
-        "verification_latency_ms": 1.7273749981541187,
-        "protected_bytes_added": 16384
+        "run_latency_ms": 8410.567249986343,
+        "verification_latency_ms": 1.139875006629154,
+        "protected_bytes_added": 16357
       },
       {
         "encounter_index": 24,
         "repetition": 1,
-        "transaction_id": "75c13aba-f501-4162-86f9-9f9a81cba2a4",
+        "transaction_id": "fa02c174-9b30-4d0a-9e59-7e1333470198",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -973,14 +1013,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8649.626708007418,
-        "verification_latency_ms": 2.1811670158058405,
-        "protected_bytes_added": 16809
+        "run_latency_ms": 10390.763083007187,
+        "verification_latency_ms": 1.2307919969316572,
+        "protected_bytes_added": 16752
       },
       {
         "encounter_index": 25,
         "repetition": 1,
-        "transaction_id": "15e78d89-69e2-4dd4-8d97-6bd09d34e600",
+        "transaction_id": "83a992e8-1d9e-499c-a01e-70628251122a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -988,14 +1028,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6559.144625003682,
-        "verification_latency_ms": 1.3839590246789157,
-        "protected_bytes_added": 16288
+        "run_latency_ms": 8762.07195801544,
+        "verification_latency_ms": 1.2087500072084367,
+        "protected_bytes_added": 16472
       },
       {
         "encounter_index": 26,
         "repetition": 1,
-        "transaction_id": "acfa42fd-ccb6-49fb-8717-dcfba29cd0f0",
+        "transaction_id": "62ad6898-1858-49d0-873b-9fd579cabc0a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1003,14 +1043,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6661.41574998619,
-        "verification_latency_ms": 1.3224169961176813,
-        "protected_bytes_added": 16493
+        "run_latency_ms": 9591.857749997871,
+        "verification_latency_ms": 1.5630420239176601,
+        "protected_bytes_added": 16555
       },
       {
         "encounter_index": 27,
         "repetition": 1,
-        "transaction_id": "5a332c83-63dd-4e93-9bcc-3f8011bb1fa0",
+        "transaction_id": "2e6b52be-6e10-4dfb-8f99-485703e3c797",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1018,14 +1058,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6363.847291999264,
-        "verification_latency_ms": 1.509333000285551,
-        "protected_bytes_added": 16198
+        "run_latency_ms": 8424.384791986085,
+        "verification_latency_ms": 1.8391250050626695,
+        "protected_bytes_added": 16264
       },
       {
         "encounter_index": 28,
         "repetition": 1,
-        "transaction_id": "f67fa4f9-6fed-439d-8f2c-59993828fc2a",
+        "transaction_id": "bbfc5351-2a57-4a60-b7b8-7a2793f289f8",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1033,14 +1073,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7630.628166021779,
-        "verification_latency_ms": 1.14562499220483,
-        "protected_bytes_added": 16590
+        "run_latency_ms": 10184.291624987964,
+        "verification_latency_ms": 1.0676660167519003,
+        "protected_bytes_added": 16713
       },
       {
         "encounter_index": 29,
         "repetition": 1,
-        "transaction_id": "c4c4bf52-d252-4279-9f1a-ff1add10e913",
+        "transaction_id": "b6253691-2287-4ade-a468-0b26cbf9799c",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1048,14 +1088,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6825.800541992066,
-        "verification_latency_ms": 1.2664579844567925,
-        "protected_bytes_added": 16427
+        "run_latency_ms": 9304.908042016905,
+        "verification_latency_ms": 1.5520830056630075,
+        "protected_bytes_added": 16563
       },
       {
         "encounter_index": 30,
         "repetition": 1,
-        "transaction_id": "04f40954-c969-4019-96ce-d6f624f0c830",
+        "transaction_id": "08c365a0-099a-4e5e-8e25-585b945e96b2",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1063,14 +1103,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8042.658209014917,
-        "verification_latency_ms": 1.2208330153953284,
-        "protected_bytes_added": 16454
+        "run_latency_ms": 10046.286625001812,
+        "verification_latency_ms": 1.3195830106269568,
+        "protected_bytes_added": 16514
       },
       {
         "encounter_index": 31,
         "repetition": 1,
-        "transaction_id": "e4040930-3fbd-4ce2-a957-d6506035e365",
+        "transaction_id": "4fc898d7-5707-49e0-8a39-2b073d3c40ea",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1078,14 +1118,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7785.159041988663,
-        "verification_latency_ms": 1.2080419983249158,
-        "protected_bytes_added": 16464
+        "run_latency_ms": 10212.752000021283,
+        "verification_latency_ms": 1.1861669772770256,
+        "protected_bytes_added": 16762
       },
       {
         "encounter_index": 32,
         "repetition": 1,
-        "transaction_id": "8e5205a3-f6c3-4c8a-9af2-67225d74f8d1",
+        "transaction_id": "3800e262-08ab-48a6-9656-e43c17eb03d2",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1093,14 +1133,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6837.875459023053,
-        "verification_latency_ms": 1.6766659973654896,
-        "protected_bytes_added": 16164
+        "run_latency_ms": 9120.032542006811,
+        "verification_latency_ms": 1.6768340137787163,
+        "protected_bytes_added": 16173
       },
       {
         "encounter_index": 33,
         "repetition": 1,
-        "transaction_id": "70ad1b27-398b-45bf-af6c-3f2ccc572e54",
+        "transaction_id": "55870a70-cad5-49b9-8a30-80f7ee9f83e2",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1108,14 +1148,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7127.597790997243,
-        "verification_latency_ms": 1.168082992080599,
-        "protected_bytes_added": 16350
+        "run_latency_ms": 10056.670457997825,
+        "verification_latency_ms": 1.2390839983709157,
+        "protected_bytes_added": 16793
       },
       {
         "encounter_index": 34,
         "repetition": 1,
-        "transaction_id": "017e8ac9-bb8d-4865-9ed1-9db7a9ffacd4",
+        "transaction_id": "7b8ab62d-6f77-4f47-8988-48903bb04346",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1123,14 +1163,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7609.063458017772,
-        "verification_latency_ms": 2.411708002910018,
-        "protected_bytes_added": 16444
+        "run_latency_ms": 9275.51808298449,
+        "verification_latency_ms": 1.7763329960871488,
+        "protected_bytes_added": 16446
       },
       {
         "encounter_index": 35,
         "repetition": 1,
-        "transaction_id": "fcbd05c5-e823-4153-ae59-9d96f24cc800",
+        "transaction_id": "10f5b5bd-1d33-4433-86a2-b727e2b5fd1a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1138,14 +1178,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7389.34349999181,
-        "verification_latency_ms": 1.902084011817351,
-        "protected_bytes_added": 16305
+        "run_latency_ms": 8712.148042017361,
+        "verification_latency_ms": 1.3086660183034837,
+        "protected_bytes_added": 16427
       },
       {
         "encounter_index": 36,
         "repetition": 1,
-        "transaction_id": "09a79a1a-71da-4399-b90d-a145e8deb475",
+        "transaction_id": "8aa4a5dd-6bac-4b72-b40b-b9aa09a4146e",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1153,14 +1193,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8616.330207994906,
-        "verification_latency_ms": 1.4151250070426613,
-        "protected_bytes_added": 16676
+        "run_latency_ms": 9006.927625014214,
+        "verification_latency_ms": 1.1515829828567803,
+        "protected_bytes_added": 16455
       },
       {
         "encounter_index": 37,
         "repetition": 1,
-        "transaction_id": "34154766-649a-4544-b8a6-fdd080436701",
+        "transaction_id": "0f0d398d-785d-4b9b-ac8a-7e9925a67aa7",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1168,14 +1208,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6575.287583022146,
-        "verification_latency_ms": 1.4480829995591193,
-        "protected_bytes_added": 16365
+        "run_latency_ms": 8011.146125005325,
+        "verification_latency_ms": 1.753041025949642,
+        "protected_bytes_added": 16188
       },
       {
         "encounter_index": 38,
         "repetition": 1,
-        "transaction_id": "37ba7a35-220e-4341-877b-f83ca4c85ca3",
+        "transaction_id": "0fa33c5b-109b-46a7-8593-aff447ee7f98",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1183,14 +1223,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 9414.143292000517,
-        "verification_latency_ms": 1.7253329860977829,
-        "protected_bytes_added": 16883
+        "run_latency_ms": 8947.764874988934,
+        "verification_latency_ms": 1.1985409946646541,
+        "protected_bytes_added": 16254
       },
       {
         "encounter_index": 39,
         "repetition": 1,
-        "transaction_id": "b5756b55-5b59-4914-a32c-38436799a8f0",
+        "transaction_id": "3816227c-90dd-4e67-b42d-ad485d923a83",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1198,14 +1238,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8418.333749985322,
-        "verification_latency_ms": 1.3105419930070639,
-        "protected_bytes_added": 16561
+        "run_latency_ms": 9603.356790990802,
+        "verification_latency_ms": 1.2730830057989806,
+        "protected_bytes_added": 16604
       },
       {
         "encounter_index": 40,
         "repetition": 1,
-        "transaction_id": "8f02fd39-eb69-4384-816b-9de116acfcd3",
+        "transaction_id": "97733775-086d-4d85-8a66-833797bd94e3",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1213,14 +1253,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7533.199917001184,
-        "verification_latency_ms": 1.5612089773640037,
-        "protected_bytes_added": 16364
+        "run_latency_ms": 10657.542083004955,
+        "verification_latency_ms": 1.1008750007022172,
+        "protected_bytes_added": 16742
       },
       {
         "encounter_index": 41,
         "repetition": 1,
-        "transaction_id": "25a61091-a383-41ec-ab6e-e20970ba9b72",
+        "transaction_id": "5a9da656-004d-4f61-840b-e94aece20e13",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1228,14 +1268,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7519.519041990861,
-        "verification_latency_ms": 1.3259580009616911,
-        "protected_bytes_added": 16496
+        "run_latency_ms": 9473.362500022631,
+        "verification_latency_ms": 1.5275829937309027,
+        "protected_bytes_added": 16495
       },
       {
         "encounter_index": 42,
         "repetition": 1,
-        "transaction_id": "c69e62ad-9695-43ff-b4bb-4a5f8f621422",
+        "transaction_id": "04af9bee-29d9-4a66-b8c4-c1425daaf8a6",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1243,14 +1283,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6533.672667021165,
-        "verification_latency_ms": 1.4366670220624655,
-        "protected_bytes_added": 16322
+        "run_latency_ms": 8306.24470798648,
+        "verification_latency_ms": 1.879582996480167,
+        "protected_bytes_added": 16324
       },
       {
         "encounter_index": 43,
         "repetition": 1,
-        "transaction_id": "34f9b056-63a0-4422-8243-b23acf051b22",
+        "transaction_id": "314e8e07-48ee-4ef2-92a6-11aeb24f0230",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1258,14 +1298,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7869.867499975953,
-        "verification_latency_ms": 1.3544170069508255,
-        "protected_bytes_added": 16697
+        "run_latency_ms": 9599.848000012571,
+        "verification_latency_ms": 1.3466250093188137,
+        "protected_bytes_added": 16600
       },
       {
         "encounter_index": 44,
         "repetition": 1,
-        "transaction_id": "96a394c7-63b3-47d4-85c1-9e58bbd32361",
+        "transaction_id": "7958de36-65c0-4259-a632-217dbe66f750",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1273,14 +1313,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7409.655916999327,
-        "verification_latency_ms": 1.4606670010834932,
-        "protected_bytes_added": 16461
+        "run_latency_ms": 9447.215624997625,
+        "verification_latency_ms": 1.4461249811574817,
+        "protected_bytes_added": 16454
       },
       {
         "encounter_index": 45,
         "repetition": 1,
-        "transaction_id": "9db6e2c2-5897-4c2d-aef9-42c4003f4452",
+        "transaction_id": "9a7786c3-a4a6-436e-ad6e-2ec858f595c9",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1288,14 +1328,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7931.017499999143,
-        "verification_latency_ms": 1.7637500131968409,
-        "protected_bytes_added": 16652
+        "run_latency_ms": 7621.882500010543,
+        "verification_latency_ms": 1.310250023379922,
+        "protected_bytes_added": 15920
       },
       {
         "encounter_index": 46,
         "repetition": 1,
-        "transaction_id": "2fd0d4fc-d90d-49ba-bf1f-73dcd2cef34c",
+        "transaction_id": "380244b7-dc51-47cd-90ea-961a38d8d782",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1303,14 +1343,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7089.226375013823,
-        "verification_latency_ms": 1.2729999725706875,
-        "protected_bytes_added": 16463
+        "run_latency_ms": 9782.108791987412,
+        "verification_latency_ms": 1.44900000304915,
+        "protected_bytes_added": 16798
       },
       {
         "encounter_index": 47,
         "repetition": 1,
-        "transaction_id": "cabc9452-e13d-4988-aafc-30d2c825a655",
+        "transaction_id": "2b71278a-aaa4-460e-8636-6aea3fa8a609",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1318,14 +1358,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7877.924083994003,
-        "verification_latency_ms": 1.5892919909674674,
-        "protected_bytes_added": 16653
+        "run_latency_ms": 10078.580792003777,
+        "verification_latency_ms": 1.2805410078726709,
+        "protected_bytes_added": 16617
       },
       {
         "encounter_index": 48,
         "repetition": 1,
-        "transaction_id": "8a75f24f-5587-4c02-9407-dabe6e3aa3b9",
+        "transaction_id": "ba5448c9-7db2-42c8-b9ef-b83e392b71ed",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1333,14 +1373,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 8324.086375010666,
-        "verification_latency_ms": 1.606332982191816,
-        "protected_bytes_added": 16694
+        "run_latency_ms": 10212.49337500194,
+        "verification_latency_ms": 1.239041012013331,
+        "protected_bytes_added": 16639
       },
       {
         "encounter_index": 49,
         "repetition": 1,
-        "transaction_id": "de063a3b-db85-4708-8ad5-0cc98a46860a",
+        "transaction_id": "380fb500-5590-4591-8cdf-dd7c3dc372be",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1348,14 +1388,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 6897.907834005309,
-        "verification_latency_ms": 1.276666997000575,
-        "protected_bytes_added": 16217
+        "run_latency_ms": 8267.377333977493,
+        "verification_latency_ms": 1.2325000134296715,
+        "protected_bytes_added": 16335
       },
       {
         "encounter_index": 50,
         "repetition": 1,
-        "transaction_id": "61aea15c-86a7-40eb-b3ac-fcc5153dc1ad",
+        "transaction_id": "cd4e664e-e61e-4fe1-aea2-b7200a2e7134",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1363,9 +1403,9 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 7874.9470000038855,
-        "verification_latency_ms": 1.4281669864431024,
-        "protected_bytes_added": 16491
+        "run_latency_ms": 11154.50045801117,
+        "verification_latency_ms": 1.2192090216558427,
+        "protected_bytes_added": 17031
       }
     ]
   },
@@ -1373,7 +1413,7 @@
     "scenarios": [
       {
         "name": "accept",
-        "transaction_id": "45c81c62-a640-41f4-b2af-d5c046cf70a2",
+        "transaction_id": "b26e66f5-3d4d-40e7-ad52-b29ed59ee9bd",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -1415,7 +1455,7 @@
       },
       {
         "name": "modify",
-        "transaction_id": "9321297f-b356-42c2-80d6-663e9a01a699",
+        "transaction_id": "b5e71c6e-5038-4379-864b-2f579e554935",
         "transaction_status": "COMPLETED",
         "human_action": "MODIFY",
         "forced_guardrail": null,
@@ -1457,7 +1497,7 @@
       },
       {
         "name": "reject",
-        "transaction_id": "a1481590-6987-4011-9b0c-fe3a58e5e233",
+        "transaction_id": "a468c7cd-4875-46ca-97cf-36e3cfb8f76e",
         "transaction_status": "COMPLETED",
         "human_action": "REJECT",
         "forced_guardrail": null,
@@ -1499,7 +1539,7 @@
       },
       {
         "name": "guardrail_warn",
-        "transaction_id": "7240a6ad-665f-470b-975d-4e810253cb98",
+        "transaction_id": "50a7e110-a1a3-4770-9f93-db251e4280be",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": "WARN",
@@ -1543,7 +1583,7 @@
       },
       {
         "name": "guardrail_block",
-        "transaction_id": "ffea5602-d1fd-43ea-952e-b49f4da6616f",
+        "transaction_id": "d7760a68-2049-4125-a063-b5d119c85863",
         "transaction_status": "BLOCKED",
         "human_action": "PENDING",
         "forced_guardrail": "BLOCK",
@@ -1594,7 +1634,7 @@
       },
       {
         "name": "synthea_sliced",
-        "transaction_id": "f6e4b6a7-c4d0-4fa7-bd88-f1377189013a",
+        "transaction_id": "6d38272d-4242-4072-bf42-abe06a3ed01e",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -1636,7 +1676,7 @@
       },
       {
         "name": "synthea_sliced_second",
-        "transaction_id": "85792453-d6cb-4ecc-8dd4-06c134c7ce54",
+        "transaction_id": "94deaed6-6dec-4e01-a281-9ffe1905ef77",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -1671,14 +1711,14 @@
         "runtime": "openai-compatible",
         "replay_result": null,
         "access_event_count": null,
-        "source_output_digest": "16f502031132644200dac89ad925f190e1ae639f89af2cc1f0a70194964d71d8",
-        "final_output_digest": "16f502031132644200dac89ad925f190e1ae639f89af2cc1f0a70194964d71d8",
+        "source_output_digest": "4c08e3afee5ce900da655b9b54c407e001e0f2cd4b20fc600cb161b827c25655",
+        "final_output_digest": "4c08e3afee5ce900da655b9b54c407e001e0f2cd4b20fc600cb161b827c25655",
         "source_evidence_references": null,
         "final_evidence_references": null
       },
       {
         "name": "two_step_accept",
-        "transaction_id": "55f5dcbb-3d01-45a3-9420-1a56f01456ab",
+        "transaction_id": "d94ee60a-b5e1-4df8-b51d-7c4262e677e7",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -1720,7 +1760,7 @@
       },
       {
         "name": "block_override_accept",
-        "transaction_id": "0d07df4c-746c-4d38-b854-2c18616a45f2",
+        "transaction_id": "8b79f09a-a7d5-47ea-8f4e-89fd9571990b",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": "BLOCK",
@@ -1764,7 +1804,7 @@
       },
       {
         "name": "natural_guardrail_warn",
-        "transaction_id": "416de8a2-15ae-4acd-a6b3-22d8c3fcafcf",
+        "transaction_id": "54e430bf-5507-4585-aa42-4b8a89a9e71b",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -1806,7 +1846,7 @@
       },
       {
         "name": "natural_guardrail_block",
-        "transaction_id": "cf3706d4-221c-40e8-94d5-6c43878a88ab",
+        "transaction_id": "eb45e264-1062-402f-8b67-5e56461ec337",
         "transaction_status": "BLOCKED",
         "human_action": "PENDING",
         "forced_guardrail": null,
@@ -1856,7 +1896,7 @@
       },
       {
         "name": "provider_failure",
-        "transaction_id": "ff90d982-efa4-4b63-8365-7ae9d236a466",
+        "transaction_id": "91aaad2f-c6d7-449f-a18a-104495beaa51",
         "transaction_status": "FAILED",
         "human_action": "PENDING",
         "forced_guardrail": null,
@@ -1893,7 +1933,7 @@
       },
       {
         "name": "sparse_encounter",
-        "transaction_id": "9d887ae3-2522-4a1b-a343-d2f53f788b34",
+        "transaction_id": "4cad44e4-d2ac-468a-92fc-3682d26d3dd4",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -1935,7 +1975,7 @@
       },
       {
         "name": "modify_evidence",
-        "transaction_id": "fe1ee872-5dec-4df4-bd06-efa5336f4519",
+        "transaction_id": "142de01b-d1e1-48f4-82f8-c9cae04848e9",
         "transaction_status": "COMPLETED",
         "human_action": "MODIFY",
         "forced_guardrail": null,
@@ -1989,7 +2029,7 @@
       },
       {
         "name": "replay_substitution",
-        "transaction_id": "9c785d10-7851-4052-a80b-cfae4d609555",
+        "transaction_id": "2a0c253c-e8b5-4840-8c60-9cb9ddd4bd30",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
@@ -2031,7 +2071,7 @@
       },
       {
         "name": "access_audit",
-        "transaction_id": "2394b48e-fa03-4b3e-872f-e81b54e895e3",
+        "transaction_id": "c188391b-cf17-47b1-91ed-ef66d447ae0b",
         "transaction_status": "COMPLETED",
         "human_action": "ACCEPT",
         "forced_guardrail": null,
