@@ -262,12 +262,12 @@ unauthenticated list denied ($401$); missing transaction reported as missing
 ($404$); global list allowed.
 
 \subsection{Overhead and Replay}
-Mean plane latency is $14.20$\,ms versus $8.61$\,ms for the identical
-unrecorded workflow (paired latency ratio $0.650$, $95\%$ interval
-$[0.604, 0.697]$, $n=3$ after one warmup). Storage ratio versus that workflow is
+Mean plane latency is $14.78$\,ms versus $9.15$\,ms for the identical
+unrecorded workflow (paired latency ratio $0.615$, $95\%$ interval
+$[0.594, 0.637]$, $n=3$ after one warmup). Storage ratio versus that workflow is
 $6.31$ ($81\,885$ versus $11\,209$ bytes). These values do not support a claim
 that audit capture is under $15\%$ of an already-complete clinical
-application. Verification of the clean transaction is $1.06$\,ms.
+application. Verification of the clean transaction is $1.07$\,ms.
 Deterministic-stub same-prompt replay is exact; prompt-substitution replay is
 \texttt{DIVERGENT} by construction. Hosted-model same-prompt replay is at best
 \texttt{EQUIVALENT} and is often \texttt{DIVERGENT}.

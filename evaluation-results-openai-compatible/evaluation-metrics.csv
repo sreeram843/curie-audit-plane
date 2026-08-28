@@ -1,26 +1,62 @@
 row_type,name,kind,status,value,numerator,denominator,unit,notes,detected,result
-metric,audit_reconstruction_completeness,,MEASURED,1.0,20,20,fraction,Current prototype field-presence ARC; independent verification is reported separately.,,
+metric,field_presence_arc,,MEASURED,1.0,20,20,fraction,Required-field presence on the in-memory transaction object.,,
+metric,independently_verified_arc,,MEASURED,1.0,20,20,fraction,Required-field presence after reloading persisted records and independent verification.,,
+metric,audit_reconstruction_completeness,,MEASURED,1.0,20,20,fraction,Headline ARC equals independently_verified_arc from persisted records.,,
 metric,required_event_completeness,,MEASURED,1.0,11,11,fraction,Successful-transaction required event presence.,,
-metric,tamper_detection_rate,,MEASURED,1.0,12,12,fraction,,,
+metric,tamper_detection_rate,,MEASURED,1.0,19,19,fraction,,,
 metric,false_tamper_rate,,MEASURED,0.0,0,3,fraction,,,
 metric,replay_fidelity,,MEASURED,0.0,0.0,1,fraction_exact_or_equivalent,classification=DIVERGENT,,
 metric,evidence_attribution_coverage,,MEASURED,1.0,4,4,fraction,,,
 metric,human_action_capture_completeness,,MEASURED,1.0,1,1,fraction,,,
-metric,capture_overhead,,MEASURED,0.2556033237844864,1946.2212499929592,7614.225124998484,latency_ratio,Compared with a stub completion-only baseline; storage values are included in the report.,,
-metric,storage_overhead,,MEASURED,1220.1811997526283,3946066.0,3234.0,storage_ratio,,,
-metric,verification_latency,,MEASURED,1.206707995152101,1.206707995152101,1,milliseconds,verification_status=VERIFIED,,
+metric,capture_overhead,,MEASURED,0.002295300131275454,20.900596990637496,9119.88473633149,latency_ratio,latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow,,
+metric,storage_overhead,,MEASURED,6.436167365509858,72143.0,11209.0,storage_ratio,,,
+metric,verification_latency,,MEASURED,1.4098749961704016,1.4098749961704016,1,milliseconds,verification_status=VERIFIED,,
 metric,reviewer_task_success,,SCRIPTED_PROXY,1.0,5.0,5,fraction,Not a human-subject usability result; scripted field reconstruction only.,,
-metric,cohort.audit_reconstruction_completeness,cohort,MEASURED,1.0,,5,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.independently_verified_arc,cohort,MEASURED,1.0,,5,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.required_event_completeness,cohort,MEASURED,1.0,,5,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.evidence_attribution_coverage,cohort,MEASURED,1.0,,5,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.human_action_capture_completeness,cohort,MEASURED,1.0,,5,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.run_latency,cohort,MEASURED,9849.880933202803,,5,milliseconds,"median=9735.510667000199; ci95=[9468.887436119727, 10230.87443028588]",,
-metric,cohort.verification_latency,cohort,MEASURED,1.1550667957635596,,5,milliseconds,"median=1.185041997814551; ci95=[1.0631681063653642, 1.246965485161755]",,
-metric,cohort.protected_bytes_added,cohort,MEASURED,16070.2,,5,bytes,"median=15873.0; ci95=[15563.600320031685, 16576.799679968317]",,
-metric,cohort.event_count,cohort,MEASURED,23.0,,5,events,"median=23.0; ci95=[23.0, 23.0]",,
+metric,cohort.audit_reconstruction_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.independently_verified_arc,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.required_event_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.evidence_attribution_coverage,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.human_action_capture_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.run_latency,cohort,MEASURED,9864.429125860333,,50,milliseconds,"median=9708.46550000715; ci95=[9313.189441760906, 10415.668809959761]",,
+metric,cohort.verification_latency,cohort,MEASURED,1.6136633174028248,,50,milliseconds,"median=1.5216044848784804; ci95=[1.493750052771465, 1.7335765820341844]",,
+metric,cohort.protected_bytes_added,cohort,MEASURED,16530.64,,50,bytes,"median=16541.0; ci95=[16452.142964849874, 16609.137035150125]",,
+metric,cohort.event_count,cohort,MEASURED,23.0,,50,events,"median=23.0; ci95=[23.0, 23.0]",,
 metric,cohort.tamper_detection_rate,cohort,REPRESENTATIVE_CASE,,,,fraction,"median=None; ci95=[None, None]",,
-case,clean,clean,,,,,,,True,
+scenario,accept,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,modify,MODIFY,COMPLETED,1.0,,,,,,VERIFIED
+scenario,reject,REJECT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,guardrail_warn,WARN,COMPLETED,1.0,,,,,,VERIFIED
+scenario,guardrail_block,BLOCK,BLOCKED,0.7,,,,Blocked before human ACCEPT; incomplete required events are expected.,,INCOMPLETE
+scenario,synthea_sliced,ACCEPT,COMPLETED,1.0,,,,"Sliced first encounter from approved Synthea bundle 1 of 2 (source digest 90b65cb8389b, license CC-BY 4.0, source https://github.com/synthetichealth/synthea, generator_version NOT_PINNED); not copied into this repository.",,VERIFIED
+scenario,synthea_sliced_second,ACCEPT,COMPLETED,1.0,,,,"Sliced first encounter from approved Synthea bundle 2 of 2 (source digest 639cfd5447e2, license CC-BY 4.0, source https://github.com/synthetichealth/synthea, generator_version NOT_PINNED); not copied into this repository.",,VERIFIED
+scenario,two_step_accept,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,block_override_accept,BLOCK,COMPLETED,1.0,,,,,,VERIFIED
+scenario,natural_guardrail_warn,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,natural_guardrail_block,PENDING,BLOCKED,0.65,,,,,,INCOMPLETE
+scenario,provider_failure,PENDING,FAILED,0.4,,,,,,INCOMPLETE
+scenario,sparse_encounter,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,modify_evidence,MODIFY,COMPLETED,1.0,,,,,,VERIFIED
+scenario,replay_substitution,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,access_audit,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+ablation,full,ablation,MEASURED,1.0,,,fraction,Complete recorded provenance.,,0.0
+ablation,omit_input_manifests,ablation,MEASURED,0.95,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.050000000000000044
+ablation,omit_transformations,ablation,MEASURED,0.95,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.050000000000000044
+ablation,omit_model_metadata,ablation,MEASURED,0.9,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.09999999999999998
+ablation,omit_evidence,ablation,MEASURED,0.95,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.050000000000000044
+ablation,omit_proofs,ablation,MEASURED,0.75,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.25
+ablation,omit_human_provenance,ablation,MEASURED,0.85,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.15000000000000002
+access,reviewer_read,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id},,reviewer
+access,investigator_verify,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id}/verify,,investigator
+access,admin_content,access_control,PASS,1.0,200,200,http_status,/content/{digest},,admin
+access,denied_unauthenticated,access_control,PASS,1.0,401,401,http_status,/transactions,,unauthenticated
+access,reviewer_denied_export,access_control,PASS,1.0,403,403,http_status,/transactions/{transaction_id}/export,,reviewer
+access,investigator_denied_output,access_control,PASS,1.0,403,403,http_status,/transactions/{transaction_id}/output,,investigator
+access,investigator_denied_content,access_control,PASS,1.0,403,403,http_status,/content/{digest},,investigator
+access,reviewer_output,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id}/output,,reviewer
+access,investigator_export,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id}/export,,investigator
+access,missing_transaction,access_control,PASS,1.0,404,404,http_status,/transactions/missing-transaction-id,,admin
+access,global_scope_list,access_control,PASS,1.0,200,200,http_status,/transactions,,admin
+case,clean,clean_verification,,,,,,,False,
 case,mutate,tamper,,,,,,,True,
 case,delete,tamper,,,,,,,True,
 case,reorder,tamper,,,,,,,True,

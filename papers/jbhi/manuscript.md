@@ -89,7 +89,7 @@ On the synthetic fixture benchmark, independently verified ARC meets the 95% cle
 
 Hosted-model same-prompt replay is at best `EQUIVALENT` and is often `DIVERGENT`. Prompt-substitution replay is `DIVERGENT` by construction. The 16-arm scenario matrix exercises ACCEPT/MODIFY/REJECT, natural WARN/BLOCK, provider failure, Synthea slices, and access audit; it is workflow coverage, not a population sample. The two Synthea slice arms are unpinned demonstrations and are excluded from measured tables. Ablation rows show reconstructability dropping when manifests, transformations, model metadata, evidence, proofs, or human provenance are omitted. Access-control cases report allowed and denied outcomes for reviewer, investigator, admin, output, content, export, missing-record, and global-scope probes.
 
-Overhead on the stub campaign is 14.20 ms versus 8.61 ms for the identical unrecorded workflow (paired latency ratio 0.650, 95% interval [0.604, 0.697], n=3 after one warmup). Storage ratio is 6.31. Clean-transaction verification is 1.06 ms. Treat large latency or storage ratios as real negative results; this draft does not claim that audit capture is under 15% of an already-complete clinical application.
+Overhead on the stub campaign is 14.78 ms versus 9.15 ms for the identical unrecorded workflow (paired latency ratio 0.615, 95% interval [0.594, 0.637], n=3 after one warmup). Storage ratio is 6.31. Clean-transaction verification is 1.07 ms. Treat large latency or storage ratios as real negative results; this draft does not claim that audit capture is under 15% of an already-complete clinical application.
 
 ## V. Discussion and Limitations
 
