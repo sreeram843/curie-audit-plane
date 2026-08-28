@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin:0; padding:0; background:#0b0d10; overflow-x:auto; }
+  * { box-sizing:border-box; }
+  a { color:#6aa8ff; text-decoration:none; }
+  a:hover { color:#9cc5ff; }
+  @keyframes livepulse { 0%,100% { opacity:1; } 50% { opacity:.25; } }
+</style>
+</helmet>
+<div style="background:#0b0d10; color:#e6ebf0; font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:14px; line-height:1.45; min-height:100vh; min-width:1180px; padding:0 0 96px;">
+
+  <header style="padding:40px 44px 30px; border-bottom:1px solid #1c222a; max-width:1240px; margin:0 auto;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.18em; color:#5d6a78; text-transform:uppercase;">Curie Audit Plane · UI handoff</div>
+    <div style="margin-top:10px; font-size:30px; font-weight:600; letter-spacing:-0.025em;">Component states</div>
+    <div style="margin-top:12px; max-width:660px; font-size:14px; color:#8b96a4;">Every interactive element in the audit console with its full state set and the literal values behind it. Values are the source of truth — hand this page to an implementer alongside the console itself.</div>
+    <div style="margin-top:22px; display:flex; gap:8px; flex-wrap:wrap;">
+      <a href="Curie Audit Plane.dc.html" style="padding:7px 13px; border:1px solid #2b3947; border-radius:7px; background:#151b22; color:#cfd8e2; font-size:12.5px;">← Open the console</a>
+      <div style="padding:7px 13px; border:1px solid #1e242c; border-radius:7px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#66727f;">11 components · 38 states</div>
+    </div>
+  </header>
+
+  <section style="max-width:1240px; margin:0 auto; padding:40px 44px 0;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">01 · Tokens</div>
+    <div style="margin-top:18px; display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px;">
+      <sc-for list="{{ colorTokens }}" as="c" hint-placeholder-count="12">
+        <div style="border:1px solid #1e242c; border-radius:9px; background:#11151b; overflow:hidden;">
+          <div style="height:46px; background:{{ c.value }}; border-bottom:1px solid #1e242c;"></div>
+          <div style="padding:11px 12px 12px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#e6ebf0;">{{ c.name }}</div>
+            <div style="margin-top:4px; display:flex; justify-content:space-between; gap:8px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">
+              <span>{{ c.value }}</span>
+              <span>{{ c.use }}</span>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:26px; display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:12px;">
+      <div style="border:1px solid #1e242c; border-radius:10px; background:#11151b; padding:18px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Type</div>
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="6">
+            <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:baseline; padding-bottom:10px; border-bottom:1px solid #171d24;">
+              <div style="font-family:{{ t.family }}; font-size:{{ t.size }}; font-weight:{{ t.weight }}; letter-spacing:{{ t.tracking }}; color:{{ t.color }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.sample }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#66727f; text-align:right;">{{ t.spec }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="border:1px solid #1e242c; border-radius:10px; background:#11151b; padding:18px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; color:#5d6a78; text-transform:uppercase;">Geometry</div>
+        <div style="margin-top:14px; display:flex; flex-direction:column;">
+          <sc-for list="{{ geometry }}" as="g" hint-placeholder-count="7">
+            <div style="display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; padding:7px 0; border-bottom:1px solid #171d24;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#66727f;">{{ g.key }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#cfd8e2;">{{ g.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <sc-for list="{{ groups }}" as="grp" hint-placeholder-count="10">
+    <section style="max-width:1240px; margin:0 auto; padding:44px 44px 0;">
+      <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">{{ grp.index }} · {{ grp.name }}</div>
+        <div style="font-size:12px; color:#66727f;">{{ grp.note }}</div>
+        <div style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#48525f;">{{ grp.selector }}</div>
+      </div>
+      <div style="margin-top:16px; border:1px solid #1e242c; border-radius:12px; background:#0e1116; overflow:hidden;">
+        <sc-for list="{{ grp.states }}" as="s" hint-placeholder-count="4">
+          <div style="display:grid; grid-template-columns:minmax(150px,170px) minmax(540px,1fr) minmax(260px,300px); gap:20px; padding:18px 20px; border-bottom:1px solid #171d24; align-items:center;">
+            <div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#e6ebf0;">{{ s.state }}</div>
+              <div style="margin-top:4px; font-size:11px; color:#66727f;">{{ s.trigger }}</div>
+            </div>
+            <div style="min-width:0;">{{ s.specimen }}</div>
+            <div style="display:flex; flex-direction:column; gap:3px;">
+              <sc-for list="{{ s.props }}" as="p" hint-placeholder-count="3">
+                <div style="display:grid; grid-template-columns:96px minmax(0,1fr); gap:8px; font-family:'IBM Plex Mono',monospace; font-size:10px;">
+                  <span style="color:#5d6a78;">{{ p.k }}</span>
+                  <span style="color:#9aa6b4; word-break:break-all;">{{ p.v }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+
+  <section style="max-width:1240px; margin:0 auto; padding:44px 44px 0;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.16em; color:#5d6a78; text-transform:uppercase;">Implementation notes</div>
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:12px;">
+      <sc-for list="{{ notes }}" as="n" hint-placeholder-count="6">
+        <div style="border:1px solid #1e242c; border-radius:10px; background:#11151b; padding:16px 17px;">
+          <div style="font-size:13px; font-weight:600; color:#e6ebf0;">{{ n.title }}</div>
+          <div style="margin-top:7px; font-size:12.5px; color:#8b96a4;">{{ n.body }}</div>
+          <sc-if value="{{ n.code }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:10px; padding:9px 11px; border-radius:7px; background:#0a0c0f; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#b9c4d0; white-space:pre-wrap;">{{ n.code }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const R = React.createElement;
+const MONO = "'IBM Plex Mono',monospace";
+const SANS = "'IBM Plex Sans',system-ui,sans-serif";
+
+const COLORS = [
+  ['--bg-canvas', '#0b0d10', 'page'],
+  ['--bg-rail', '#0e1116', 'side columns'],
+  ['--bg-panel', '#11151b', 'cards'],
+  ['--bg-row', '#0f1318', 'list rows'],
+  ['--bg-row-sel', '#161d25', 'selected row'],
+  ['--bg-code', '#0a0c0f', 'JSON block'],
+  ['--border', '#1e242c', 'card border'],
+  ['--border-strong', '#2b3947', 'buttons'],
+  ['--border-sel', '#2f3f4f', 'selected row'],
+  ['--text', '#e6ebf0', 'primary'],
+  ['--text-2', '#9aa6b4', 'secondary'],
+  ['--text-3', '#66727f', 'tertiary'],
+  ['--text-4', '#4d5866', 'meta / seq'],
+  ['--ok', '#58d68a', 'recorded / verified'],
+  ['--warn', '#f0b64b', 'incomplete / flagged'],
+  ['--bad', '#f2705f', 'failed / broken'],
+  ['--live', '#6aa8ff', 'running / filter active']
+];
+
+const TYPE = [
+  ['Curie Audit Plane', SANS, '17px', '600', '-0.01em', '#e6ebf0', 'Sans 17/600 — brand'],
+  ['synthetic-encounter-summary', SANS, '22px', '600', '-0.02em', '#e6ebf0', 'Sans 22/600 — page title'],
+  ['Waiting for review', SANS, '19px', '600', '-0.015em', '#f0b64b', 'Sans 19/600 — tile value'],
+  ['Verification', MONO, '9.5px', '500', '0.14em', '#5d6a78', 'Mono 9.5/500 caps — label'],
+  ['transformation.applied', MONO, '12.5px', '400', '0', '#cfd8e2', 'Mono 12.5 — event type'],
+  ['sha256:910e7971 · curie-audit-plane', MONO, '10.5px', '400', '0', '#565f6c', 'Mono 10.5 — row meta']
+];
+
+const GEO = [
+  ['shell columns', 'minmax(240,272) / minmax(520,1fr) / minmax(360,412) · min-width 1180'],
+  ['radius', 'card 10–12px · row 8px · chip 5px · button 7px'],
+  ['row padding', '9px 12px (timeline) · 11px 12px (transaction) · 14px 15px (tile)'],
+  ['grid gaps', 'tiles 12px · stage flow 6px · timeline rows 2px'],
+  ['tile grid', 'repeat(auto-fit, minmax(190px, 1fr))'],
+  ['timeline grid', '46px 14px minmax(0,1fr) auto · gap 12px'],
+  ['dot', '6px (list) · 8px (timeline) · 9px + 3px halo (brand)']
+];
+
+function chip(text, bg, color, extra) {
+  return R('span', { style: Object.assign({ fontFamily:MONO, fontSize:'9.5px', letterSpacing:'0.08em', padding:'2px 6px', borderRadius:'5px', background:bg, color }, extra || {}) }, text);
+}
+
+function btn(label, bg, border, color, opacity) {
+  return R('button', { type:'button', style:{ padding:'9px 12px', border:'1px solid '+border, borderRadius:'7px', background:bg, color, fontFamily:SANS, fontSize:'12.5px', fontWeight:500, cursor: opacity ? 'not-allowed' : 'pointer', display:'inline-flex', alignItems:'center', gap:'7px', opacity: opacity || 1 } },
+    R('span', { style:{ fontFamily:MONO, fontSize:'13px' } }, '+'), R('span', null, label));
+}
+
+function txRow(o) {
+  return R('div', { style:{ width:'244px', padding:'11px 12px', borderRadius:'8px', border:'1px solid '+o.border, background:o.bg } }, [
+    R('div', { key:'a', style:{ display:'flex', alignItems:'center', gap:'8px' } }, [
+      R('div', { key:'d', style:{ width:'6px', height:'6px', borderRadius:'50%', background:o.dot, animation:o.pulse ? 'livepulse 1.6s ease-in-out infinite' : 'none' } }),
+      R('div', { key:'i', style:{ fontFamily:MONO, fontSize:'11.5px', color:o.idColor } }, o.id),
+      R('div', { key:'c', style:{ marginLeft:'auto', fontFamily:MONO, fontSize:'10px', color:'#4d5866' } }, o.count + ' ev')
+    ]),
+    R('div', { key:'b', style:{ marginTop:'5px', fontSize:'12px', color:o.subColor } }, 'Patient/TEST-00001'),
+    R('div', { key:'c', style:{ marginTop:'3px', display:'flex', alignItems:'center', gap:'6px', fontSize:'11px', color:o.stateColor } },
+      [R('span', { key:'s' }, o.state), o.flag ? chip(o.flag, 'rgba(242,112,95,.14)', '#f2705f', { key:'f' }) : null])
+  ]);
+}
+
+function tile(o) {
+  return R('div', { style:{ width:'232px', padding:'14px 15px 15px', border:'1px solid #1e242c', borderTop:'2px solid '+o.accent, borderRadius:'10px', background:'#11151b' } }, [
+    R('div', { key:'l', style:{ fontFamily:MONO, fontSize:'9.5px', letterSpacing:'0.14em', color:'#5d6a78', textTransform:'uppercase' } }, o.label),
+    R('div', { key:'v', style:{ marginTop:'9px', display:'flex', alignItems:'center', gap:'9px' } },
+      [R('div', { key:'x', style:{ fontSize:'19px', fontWeight:600, letterSpacing:'-0.015em', color:o.accent } }, o.value),
+       o.badge ? chip(o.badge, o.badgeBg, o.accent, { key:'b' }) : null]),
+    R('div', { key:'n', style:{ marginTop:'7px', fontSize:'11.5px', color:'#6d7887' } }, o.note)
+  ]);
+}
+
+function stageBar(o) {
+  return R('div', { style:{ width:'88px' } }, [
+    R('div', { key:'b', style:{ height:o.h, borderRadius:'4px 4px 0 0', background:o.fill, border:'1px solid '+o.stroke, borderBottom:'none' } }),
+    R('div', { key:'r', style:{ height:'2px', background:o.rail } }),
+    R('div', { key:'c', style:{ marginTop:'8px', fontFamily:MONO, fontSize:'13px', color:o.countColor } }, o.count),
+    R('div', { key:'l', style:{ marginTop:'3px', fontSize:'10.5px', color:o.labelColor } }, o.label)
+  ]);
+}
+
+function tlRow(o) {
+  return R('div', { style:{ display:'grid', gridTemplateColumns:'46px 14px minmax(0,1fr) auto', gap:'12px', alignItems:'center', padding:'9px 12px', borderRadius:'8px', border:'1px solid '+o.border, background:o.bg, marginLeft:o.indent || 0, minWidth:'540px' } }, [
+    R('div', { key:'s', style:{ fontFamily:MONO, fontSize:'11px', color:'#4d5866', textAlign:'right' } }, o.seq),
+    R('div', { key:'d', style:{ display:'flex', justifyContent:'center' } }, R('div', { style:{ width:'8px', height:'8px', borderRadius:'50%', background:o.dot } })),
+    R('div', { key:'m', style:{ minWidth:0 } }, [
+      R('div', { key:'t', style:{ display:'flex', alignItems:'center', gap:'9px', flexWrap:'wrap' } }, [
+        R('span', { key:'y', style:{ fontFamily:MONO, fontSize:'12.5px', color:o.typeColor } }, o.type),
+        o.badge ? chip(o.badge, o.badgeBg || '#1a212a', o.badgeColor || '#8b96a4', { key:'b' }) : null,
+        chip(o.stage, '#141a21', '#66727f', { key:'s', letterSpacing:'0.08em' })
+      ]),
+      R('div', { key:'u', style:{ marginTop:'3px', fontFamily:MONO, fontSize:'10.5px', color:'#565f6c' } }, o.sub)
+    ]),
+    R('div', { key:'t', style:{ textAlign:'right', fontFamily:MONO, fontSize:'11px', color:o.timeColor } }, o.time)
+  ]);
+}
+
+function segmented(active) {
+  const cell = (label, on) => R('button', { key:label, type:'button', style:{ padding:'3px 10px', border:'none', background:on ? '#1d2530' : 'transparent', color:on ? '#e6ebf0' : '#66727f', fontFamily:MONO, fontSize:'10px', cursor:'pointer' } }, label);
+  return R('div', { style:{ display:'inline-flex', border:'1px solid #232b34', borderRadius:'6px', overflow:'hidden' } }, [cell('Formatted', active === 'Formatted'), cell('Raw', active === 'Raw')]);
+}
+
+function ghost(label, o) {
+  return R('button', { type:'button', style:{ padding:'3px 9px', border:'1px solid '+o.border, borderRadius:'5px', background:o.bg || 'transparent', color:o.color, fontFamily:MONO, fontSize:'10px', cursor:'pointer' } }, label);
+}
+
+const p = (k, v) => ({ k, v });
+
+class Component extends DCLogic {
+  renderVals() {
+    const groups = [
+      { index:'02', name:'Primary action button', selector:'button[data-action="run-synthetic"]', note:'Only filled button in the console.',
+        states: [
+          { state:'default', trigger:'rest', specimen: btn('Run synthetic transaction', '#151b22', '#2b3947', '#cfd8e2'),
+            props:[p('background','#151b22'), p('border','1px #2b3947'), p('color','#cfd8e2'), p('radius','7px')] },
+          { state:'hover', trigger:':hover', specimen: btn('Run synthetic transaction', '#1b232c', '#3a4c5e', '#ffffff'),
+            props:[p('background','#1b232c'), p('border','1px #3a4c5e'), p('color','#ffffff')] },
+          { state:'active', trigger:':active', specimen: btn('Run synthetic transaction', '#121820', '#3a4c5e', '#cfd8e2'),
+            props:[p('background','#121820'), p('transform','translateY(1px)')] },
+          { state:'disabled', trigger:'run in flight', specimen: btn('Running…', '#101419', '#20272f', '#5d6a78', 0.55),
+            props:[p('opacity','0.55'), p('cursor','not-allowed'), p('pointer-events','none')] }
+        ] },
+      { index:'03', name:'Ghost / utility button', selector:'button[data-variant="ghost"]', note:'Reset filter, copy JSON.',
+        states: [
+          { state:'default', trigger:'rest', specimen: ghost('Copy', { border:'#232b34', color:'#8b96a4' }), props:[p('border','1px #232b34'), p('color','#8b96a4'), p('background','transparent')] },
+          { state:'hover', trigger:':hover', specimen: ghost('Copy', { border:'#3a4c5e', color:'#ffffff' }), props:[p('border','1px #3a4c5e'), p('color','#ffffff')] },
+          { state:'confirmed', trigger:'2s after click', specimen: ghost('Copied', { border:'#2c4436', color:'#58d68a', bg:'rgba(88,214,138,.08)' }), props:[p('color','#58d68a'), p('background','rgba(88,214,138,.08)'), p('timeout','2000ms → default')] }
+        ] },
+      { index:'04', name:'Segmented toggle', selector:'[role="tablist"]', note:'JSON view mode. Exactly one active.',
+        states: [
+          { state:'first active', trigger:'default', specimen: segmented('Formatted'), props:[p('cell.on bg','#1d2530'), p('cell.on color','#e6ebf0'), p('cell.off color','#66727f')] },
+          { state:'second active', trigger:'click Raw', specimen: segmented('Raw'), props:[p('container','1px #232b34 / r6 / overflow hidden'), p('cell pad','3px 10px')] }
+        ] },
+      { index:'05', name:'Transaction row', selector:'aside li[data-tx]', note:'Left rail. Status dot encodes lifecycle.',
+        states: [
+          { state:'default', trigger:'rest', specimen: txRow({ id:'71c41fcc', count:19, state:'Waiting for review', dot:'#f0b64b', bg:'transparent', border:'transparent', idColor:'#9aa6b4', subColor:'#66727f', stateColor:'#66727f' }),
+            props:[p('background','transparent'), p('id color','#9aa6b4'), p('dot','#f0b64b (waiting)')] },
+          { state:'hover', trigger:':hover', specimen: txRow({ id:'71c41fcc', count:19, state:'Waiting for review', dot:'#f0b64b', bg:'#151b22', border:'transparent', idColor:'#9aa6b4', subColor:'#66727f', stateColor:'#66727f' }),
+            props:[p('background','#151b22')] },
+          { state:'selected', trigger:'aria-selected', specimen: txRow({ id:'8edf619a', count:24, state:'Running', dot:'#6aa8ff', pulse:true, bg:'#161d25', border:'#2b3947', idColor:'#e6ebf0', subColor:'#9aa6b4', stateColor:'#cfd8e2' }),
+            props:[p('background','#161d25'), p('border','1px #2b3947'), p('id color','#e6ebf0')] },
+          { state:'running', trigger:'lifecycle open', specimen: txRow({ id:'b7c41a02', count:11, state:'Running', dot:'#6aa8ff', pulse:true, bg:'transparent', border:'transparent', idColor:'#9aa6b4', subColor:'#66727f', stateColor:'#66727f' }),
+            props:[p('dot','#6aa8ff'), p('animation','livepulse 1.6s ease-in-out infinite')] },
+          { state:'has failure', trigger:'failed event ≥ 1', specimen: txRow({ id:'c043db8e', count:20, state:'Waiting for review', flag:'1 FAILED', dot:'#f2705f', bg:'transparent', border:'transparent', idColor:'#9aa6b4', subColor:'#66727f', stateColor:'#66727f' }),
+            props:[p('dot','#f2705f'), p('chip bg','rgba(242,112,95,.14)'), p('chip color','#f2705f')] }
+        ] },
+      { index:'06', name:'Verdict tile', selector:'[data-tile]', note:'Accent lives on the 2px top border and the value.',
+        states: [
+          { state:'live / info', trigger:'lifecycle Running', specimen: tile({ label:'Transaction', value:'Running', accent:'#6aa8ff', badge:'LIVE', badgeBg:'rgba(106,168,255,.14)', note:'Started 18:09:17Z · end open' }),
+            props:[p('border-top','2px #6aa8ff'), p('value color','#6aa8ff'), p('badge bg','rgba(106,168,255,.14)')] },
+          { state:'pass', trigger:'verified / pass / ACCEPT', specimen: tile({ label:'Guardrails', value:'Pass', accent:'#58d68a', note:'clinical-safety.v3 · 12 checks' }),
+            props:[p('border-top','2px #58d68a'), p('value color','#58d68a')] },
+          { state:'attention', trigger:'incomplete / flagged / MODIFY', specimen: tile({ label:'Evidence', value:'4 / 9', accent:'#f0b64b', badge:'STAGES', badgeBg:'rgba(240,182,75,.12)', note:'5 stages without artifacts' }),
+            props:[p('border-top','2px #f0b64b'), p('value color','#f0b64b')] },
+          { state:'fail', trigger:'failed / broken / REJECT', specimen: tile({ label:'Verification', value:'Failed', accent:'#f2705f', badge:'BROKEN', badgeBg:'rgba(242,112,95,.12)', note:'Hash chain mismatch at seq 12' }),
+            props:[p('border-top','2px #f2705f'), p('value color','#f2705f')] },
+          { state:'neutral / absent', trigger:'nothing recorded', specimen: tile({ label:'Human action', value:'Pending', accent:'#7d8896', note:'No accept / modify / reject on record' }),
+            props:[p('border-top','2px #7d8896'), p('value color','#7d8896')] }
+        ] },
+      { index:'07', name:'Stage bar', selector:'[data-stage]', note:'Height = count / max count. Click filters the timeline.',
+        states: [
+          { state:'populated', trigger:'count > 0', specimen: stageBar({ h:'34px', fill:'rgba(88,214,138,.16)', stroke:'rgba(88,214,138,.45)', rail:'rgba(88,214,138,.55)', count:'3', label:'Transformations', countColor:'#e6ebf0', labelColor:'#8b96a4' }),
+            props:[p('height','12px + 46px × n/max'), p('fill','rgba(88,214,138,.16)'), p('rail','rgba(88,214,138,.55)')] },
+          { state:'filter active', trigger:'aria-pressed', specimen: stageBar({ h:'34px', fill:'rgba(106,168,255,.34)', stroke:'#6aa8ff', rail:'#6aa8ff', count:'3', label:'Transformations', countColor:'#9cc5ff', labelColor:'#cfd8e2' }),
+            props:[p('fill','rgba(106,168,255,.34)'), p('stroke','#6aa8ff'), p('count color','#9cc5ff')] },
+          { state:'empty / gap', trigger:'count = 0', specimen: stageBar({ h:'12px', fill:'transparent', stroke:'#242b34', rail:'#242b34', count:'0', label:'Model', countColor:'#3f4854', labelColor:'#4d5866' }),
+            props:[p('fill','transparent'), p('stroke','#242b34'), p('note','also listed in “Not recorded”')] }
+        ] },
+      { index:'08', name:'Timeline row', selector:'[data-event]', note:'Single row. Selection drives the inspector.',
+        states: [
+          { state:'default', trigger:'rest', specimen: tlRow({ seq:'2', type:'transformation.applied', stage:'transformations', sub:'sha256:910e7971 · curie-audit-plane', time:'18:09:17.944Z', dot:'#58d68a', typeColor:'#cfd8e2', bg:'#0f1318', border:'#181e25', timeColor:'#565f6c' }),
+            props:[p('background','#0f1318'), p('border','1px #181e25'), p('dot','#58d68a')] },
+          { state:'hover', trigger:':hover', specimen: tlRow({ seq:'2', type:'transformation.applied', stage:'transformations', sub:'sha256:910e7971 · curie-audit-plane', time:'18:09:17.944Z', dot:'#58d68a', typeColor:'#cfd8e2', bg:'#151b22', border:'#181e25', timeColor:'#565f6c' }),
+            props:[p('background','#151b22'), p('cursor','pointer')] },
+          { state:'selected', trigger:'aria-current', specimen: tlRow({ seq:'2', type:'transformation.applied', stage:'transformations', sub:'sha256:910e7971 · curie-audit-plane', time:'18:09:17.944Z', dot:'#58d68a', typeColor:'#ffffff', bg:'#161d25', border:'#2f3f4f', timeColor:'#cfd8e2' }),
+            props:[p('background','#161d25'), p('border','1px #2f3f4f'), p('type color','#ffffff')] },
+          { state:'failed', trigger:'status FAILED', specimen: tlRow({ seq:'12', type:'guardrail.evaluated', stage:'guardrails', sub:'sha256:aa30bd51 · curie-guardrails', time:'18:09:20.600Z', dot:'#f2705f', typeColor:'#cfd8e2', bg:'#0f1318', border:'#181e25', timeColor:'#565f6c', badge:'FAILED', badgeBg:'rgba(242,112,95,.14)', badgeColor:'#f2705f' }),
+            props:[p('dot','#f2705f'), p('badge','FAILED / rgba(242,112,95,.14)')] },
+          { state:'human action', trigger:'stage human_action', specimen: tlRow({ seq:'13', type:'human.action_recorded', stage:'human action', sub:'sha256:e01f2b93 · audit-console', time:'18:09:27.000Z', dot:'#6aa8ff', typeColor:'#cfd8e2', bg:'#0f1318', border:'#181e25', timeColor:'#565f6c' }),
+            props:[p('dot','#6aa8ff')] }
+        ] },
+      { index:'09', name:'Collapsed event group', selector:'[data-group]', note:'Fires when ≥3 consecutive events share a type.',
+        states: [
+          { state:'collapsed', trigger:'default', specimen: tlRow({ seq:'9–23', type:'ui.access_recorded', stage:'access audit', sub:'15 identical events · expand', time:'18:09:25.952Z →', dot:'#3f4854', typeColor:'#9aa6b4', bg:'#0d1116', border:'#181e25', timeColor:'#565f6c', badge:'×15' }),
+            props:[p('background','#0d1116'), p('dot','#3f4854'), p('badge','×n / #1a212a'), p('seq','first–last')] },
+          { state:'expanded (header)', trigger:'aria-expanded', specimen: tlRow({ seq:'9–23', type:'ui.access_recorded', stage:'access audit', sub:'15 identical events · collapse', time:'18:09:25.952Z →', dot:'#3f4854', typeColor:'#9aa6b4', bg:'#0d1116', border:'#181e25', timeColor:'#565f6c', badge:'×15' }),
+            props:[p('sub','… · collapse'), p('children','rendered below, indented')] },
+          { state:'child row', trigger:'inside expanded group', specimen: tlRow({ seq:'9', type:'ui.access_recorded', stage:'access audit', sub:'no payload ref · audit-console', time:'18:09:25.952Z', dot:'#58d68a', typeColor:'#8b96a4', bg:'#0c1014', border:'#151b21', timeColor:'#565f6c' }),
+            props:[p('background','#0c1014'), p('border','1px #151b21'), p('type color','#8b96a4')] },
+          { state:'child selected', trigger:'aria-current', specimen: tlRow({ seq:'9', type:'ui.access_recorded', stage:'access audit', sub:'no payload ref · audit-console', time:'18:09:25.952Z', dot:'#58d68a', typeColor:'#ffffff', bg:'#161d25', border:'#2f3f4f', timeColor:'#cfd8e2' }),
+            props:[p('background','#161d25'), p('border','1px #2f3f4f')] }
+        ] },
+      { index:'10', name:'Chips & badges', selector:'[data-chip]', note:'Same box, four semantic fills.',
+        states: [
+          { state:'stage', trigger:'always', specimen: chip('retrieval tools', '#141a21', '#66727f'), props:[p('bg','#141a21'), p('color','#66727f')] },
+          { state:'chain intact', trigger:'verification Verified', specimen: chip('INTACT', 'rgba(88,214,138,.14)', '#58d68a'), props:[p('bg','rgba(88,214,138,.14)'), p('color','#58d68a')] },
+          { state:'chain open', trigger:'lifecycle Running', specimen: chip('OPEN', 'rgba(106,168,255,.14)', '#6aa8ff'), props:[p('bg','rgba(106,168,255,.14)'), p('color','#6aa8ff')] },
+          { state:'chain broken', trigger:'hash mismatch', specimen: chip('BROKEN', 'rgba(242,112,95,.14)', '#f2705f'), props:[p('bg','rgba(242,112,95,.14)'), p('color','#f2705f')] },
+          { state:'status RECORDED', trigger:'inspector header', specimen: chip('RECORDED', 'rgba(88,214,138,.12)', '#58d68a'), props:[p('bg','rgba(88,214,138,.12)'), p('color','#58d68a')] }
+        ] },
+      { index:'11', name:'Inspector blocks', selector:'aside[data-inspector]', note:'Dimension rows and the JSON pane.',
+        states: [
+          { state:'dimension row', trigger:'per payload key', specimen: R('div', { style:{ display:'grid', gridTemplateColumns:'104px minmax(0,1fr)', gap:'10px', padding:'7px 0', borderBottom:'1px solid #171d24', width:'340px' } }, [
+              R('div', { key:'k', style:{ fontFamily:MONO, fontSize:'10.5px', color:'#66727f' } }, 'operation_name'),
+              R('div', { key:'v', style:{ fontFamily:MONO, fontSize:'11px', color:'#cfd8e2', wordBreak:'break-all' } }, 'filter_resource_types')
+            ]), props:[p('grid','104px 1fr / gap 10px'), p('divider','1px #171d24'), p('key','10.5px #66727f'), p('value','11px #cfd8e2')] },
+          { state:'JSON pane', trigger:'always', specimen: R('pre', { style:{ margin:0, padding:'12px', border:'1px solid #1e242c', borderRadius:'9px', background:'#0a0c0f', fontFamily:MONO, fontSize:'10.5px', lineHeight:1.6, color:'#b9c4d0', whiteSpace:'pre-wrap', width:'340px' } }, '{\n  "sequence_number": 2,\n  "event_type": "transformation.applied",\n  "status": "RECORDED"\n}'),
+            props:[p('bg','#0a0c0f'), p('border','1px #1e242c'), p('radius','9px'), p('line-height','1.6')] },
+          { state:'not-recorded block', trigger:'missing stages > 0', specimen: R('div', { style:{ padding:'12px 14px', border:'1px dashed #2a323c', borderRadius:'10px', width:'340px' } }, [
+              R('div', { key:'l', style:{ fontFamily:MONO, fontSize:'9.5px', letterSpacing:'0.14em', color:'#5d6a78', textTransform:'uppercase' } }, 'Not recorded'),
+              R('div', { key:'c', style:{ marginTop:'9px', display:'flex', gap:'8px', flexWrap:'wrap' } }, ['Model','Guardrails','Human action'].map(t => R('div', { key:t, style:{ fontFamily:MONO, fontSize:'11px', color:'#7d8896', padding:'4px 9px', borderRadius:'6px', background:'#12171d' } }, t)))
+            ]), props:[p('border','1px dashed #2a323c'), p('chip bg','#12171d'), p('chip color','#7d8896')] }
+        ] }
+    ];
+
+    return {
+      colorTokens: COLORS.map(([name, value, use]) => ({ name, value, use })),
+      typeScale: TYPE.map(([sample, family, size, weight, tracking, color, spec]) => ({ sample, family, size, weight, tracking, color, spec })),
+      geometry: GEO.map(([key, value]) => ({ key, value })),
+      groups,
+      notes: [
+        { title:'State ownership', body:'Selection, filter, expansion and JSON mode are the only client state. Everything else derives from the event list.', code:'{ txIndex, selSeq, stage, jsonMode, expanded }' },
+        { title:'Derived verdicts', body:'The six tiles are computed, never stored: stage coverage, latest guardrail event, recorded human action, failed count.', code:'covered = STAGES.filter(hasRecordedEvent).length' },
+        { title:'Group collapsing', body:'Walk the visible events; any run of 3 or more consecutive events with the same event_type becomes one group row with the first–last sequence span.', code:null },
+        { title:'Colour semantics', body:'Green = recorded/verified/pass. Amber = incomplete/flagged/modify. Red = failed/broken/reject. Blue = live or active filter. Never use blue for success.', code:null },
+        { title:'Focus states', body:'Not shown above — every clickable row and button needs a visible focus ring in implementation.', code:'outline: 2px solid #6aa8ff; outline-offset: 2px;' },
+        { title:'Shell responsiveness', body:'Fixed side rails with flexible centre. Below 1180px the shell scrolls horizontally rather than reflowing; a docked bottom inspector is the alternative if mobile matters.', code:'grid-template-columns: minmax(240px,272px) minmax(520px,1fr) minmax(360px,412px)' }
+      ]
+    };
+  }
+}
+
+</script>
+</body>
+</html>

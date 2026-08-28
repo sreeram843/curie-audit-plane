@@ -1,0 +1,488 @@
+{
+  "schema_version": "curie-evaluation.v1",
+  "generated_at": "2026-08-28T00:26:37.011512+00:00",
+  "fixture": "/Users/srirammentey/AI/curie-audit-plane/fixtures/fhir/synthetic-encounter-bundle.json",
+  "runtime": "openai-compatible",
+  "metrics": [
+    {
+      "name": "audit_reconstruction_completeness",
+      "value": 1.0,
+      "numerator": 20,
+      "denominator": 20,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": "Current prototype field-presence ARC; independent verification is reported separately."
+    },
+    {
+      "name": "required_event_completeness",
+      "value": 1.0,
+      "numerator": 11,
+      "denominator": 11,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": "Successful-transaction required event presence."
+    },
+    {
+      "name": "tamper_detection_rate",
+      "value": 1.0,
+      "numerator": 12,
+      "denominator": 12,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": ""
+    },
+    {
+      "name": "false_tamper_rate",
+      "value": 0.0,
+      "numerator": 0,
+      "denominator": 3,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": ""
+    },
+    {
+      "name": "replay_fidelity",
+      "value": 0.0,
+      "numerator": 0.0,
+      "denominator": 1,
+      "unit": "fraction_exact_or_equivalent",
+      "status": "MEASURED",
+      "notes": "classification=DIVERGENT"
+    },
+    {
+      "name": "evidence_attribution_coverage",
+      "value": 1.0,
+      "numerator": 4,
+      "denominator": 4,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": ""
+    },
+    {
+      "name": "human_action_capture_completeness",
+      "value": 1.0,
+      "numerator": 1,
+      "denominator": 1,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": ""
+    },
+    {
+      "name": "capture_overhead",
+      "value": 0.2556033237844864,
+      "numerator": 1946.2212499929592,
+      "denominator": 7614.225124998484,
+      "unit": "latency_ratio",
+      "status": "MEASURED",
+      "notes": "Compared with a stub completion-only baseline; storage values are included in the report."
+    },
+    {
+      "name": "storage_overhead",
+      "value": 1220.1811997526283,
+      "numerator": 3946066.0,
+      "denominator": 3234.0,
+      "unit": "storage_ratio",
+      "status": "MEASURED",
+      "notes": ""
+    },
+    {
+      "name": "verification_latency",
+      "value": 1.206707995152101,
+      "numerator": 1.206707995152101,
+      "denominator": 1,
+      "unit": "milliseconds",
+      "status": "MEASURED",
+      "notes": "verification_status=VERIFIED"
+    },
+    {
+      "name": "reviewer_task_success",
+      "value": 1.0,
+      "numerator": 5.0,
+      "denominator": 5,
+      "unit": "fraction",
+      "status": "SCRIPTED_PROXY",
+      "notes": "Not a human-subject usability result; scripted field reconstruction only."
+    }
+  ],
+  "cases": [
+    {
+      "name": "clean",
+      "detected": true,
+      "kind": "clean"
+    },
+    {
+      "name": "mutate",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "delete",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "reorder",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "broken_reference",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "bad_merkle",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": true,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "bad_signature",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": true,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "missing_event",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "missing_input",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "missing_transformation",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "missing_evidence",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "missing_tool",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "missing_guardrail",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "changed_timestamp",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "reviewer_action",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "wrong_corpus",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "wrong_content_ref",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": false,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "wrong_corpus_rehashed",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": true,
+      "content_ok": false,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "wrong_content_ref_rehashed",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": true,
+      "content_ok": false,
+      "status": "INCOMPLETE"
+    },
+    {
+      "name": "proof_substitution",
+      "detected": true,
+      "kind": "tamper",
+      "chain_ok": true,
+      "content_ok": true,
+      "status": "TAMPERED"
+    },
+    {
+      "name": "replay_stub",
+      "kind": "replay",
+      "result": "DIVERGENT",
+      "detected": false
+    }
+  ],
+  "baselines": [
+    {
+      "name": "application_log",
+      "arc": 1.0,
+      "tamper_detection_rate": 0.0,
+      "queryability": 1.0
+    },
+    {
+      "name": "hash_only",
+      "arc": 1.0,
+      "tamper_detection_rate": 1.0,
+      "queryability": 1.0
+    },
+    {
+      "name": "fhir_projection",
+      "arc": 0.5,
+      "tamper_detection_rate": 0.0,
+      "queryability": 0.5
+    },
+    {
+      "name": "complete_plane",
+      "arc": 1.0,
+      "tamper_detection_rate": 1.0,
+      "queryability": 1.0
+    }
+  ],
+  "overhead": {
+    "latency_ms_plane": 9560.446374991443,
+    "latency_ms_baseline": 7614.225124998484,
+    "latency_ratio": 0.2556033237844864,
+    "storage_bytes_plane": 3949300.0,
+    "storage_bytes_log": 3234.0
+  },
+  "reviewer_task": {
+    "success": 1.0,
+    "identified": [
+      "source",
+      "model",
+      "evidence",
+      "guardrail",
+      "human_action"
+    ],
+    "duration_ms": 0.000500003807246685,
+    "method": "scripted-field-reconstruction"
+  },
+  "study": {
+    "encounter_count": 5,
+    "repetitions": 1,
+    "observation_count": 5,
+    "metrics": {
+      "audit_reconstruction_completeness": {
+        "mean": 1.0,
+        "median": 1.0,
+        "ci95_low": 1.0,
+        "ci95_high": 1.0,
+        "n": 5,
+        "unit": "fraction",
+        "status": "MEASURED"
+      },
+      "independently_verified_arc": {
+        "mean": 1.0,
+        "median": 1.0,
+        "ci95_low": 1.0,
+        "ci95_high": 1.0,
+        "n": 5,
+        "unit": "fraction",
+        "status": "MEASURED"
+      },
+      "required_event_completeness": {
+        "mean": 1.0,
+        "median": 1.0,
+        "ci95_low": 1.0,
+        "ci95_high": 1.0,
+        "n": 5,
+        "unit": "fraction",
+        "status": "MEASURED"
+      },
+      "evidence_attribution_coverage": {
+        "mean": 1.0,
+        "median": 1.0,
+        "ci95_low": 1.0,
+        "ci95_high": 1.0,
+        "n": 5,
+        "unit": "fraction",
+        "status": "MEASURED"
+      },
+      "human_action_capture_completeness": {
+        "mean": 1.0,
+        "median": 1.0,
+        "ci95_low": 1.0,
+        "ci95_high": 1.0,
+        "n": 5,
+        "unit": "fraction",
+        "status": "MEASURED"
+      },
+      "run_latency": {
+        "mean": 9849.880933202803,
+        "median": 9735.510667000199,
+        "ci95_low": 9468.887436119727,
+        "ci95_high": 10230.87443028588,
+        "n": 5,
+        "unit": "milliseconds",
+        "status": "MEASURED"
+      },
+      "verification_latency": {
+        "mean": 1.1550667957635596,
+        "median": 1.185041997814551,
+        "ci95_low": 1.0631681063653642,
+        "ci95_high": 1.246965485161755,
+        "n": 5,
+        "unit": "milliseconds",
+        "status": "MEASURED"
+      },
+      "protected_bytes_added": {
+        "mean": 16070.2,
+        "median": 15873.0,
+        "ci95_low": 15563.600320031685,
+        "ci95_high": 16576.799679968317,
+        "n": 5,
+        "unit": "bytes",
+        "status": "MEASURED"
+      },
+      "event_count": {
+        "mean": 23.0,
+        "median": 23.0,
+        "ci95_low": 23.0,
+        "ci95_high": 23.0,
+        "n": 5,
+        "unit": "events",
+        "status": "MEASURED"
+      },
+      "tamper_detection_rate": {
+        "value": null,
+        "status": "REPRESENTATIVE_CASE",
+        "unit": "fraction",
+        "notes": "The mutation suite remains in the single-transaction benchmark."
+      }
+    },
+    "observations": [
+      {
+        "encounter_index": 1,
+        "repetition": 1,
+        "transaction_id": "b7577d9c-57fa-4050-af77-7802a81fefb1",
+        "arc": 1.0,
+        "independently_verified_arc": 1.0,
+        "required_event_completeness": 1.0,
+        "evidence_attribution_coverage": 1.0,
+        "human_action_capture_completeness": 1.0,
+        "verification_status": "VERIFIED",
+        "event_count": 23,
+        "run_latency_ms": 9328.995083007612,
+        "verification_latency_ms": 1.0009580000769347,
+        "protected_bytes_added": 17086
+      },
+      {
+        "encounter_index": 2,
+        "repetition": 1,
+        "transaction_id": "16a6ce07-4511-4968-b2f5-a40a228cbdf8",
+        "arc": 1.0,
+        "independently_verified_arc": 1.0,
+        "required_event_completeness": 1.0,
+        "evidence_attribution_coverage": 1.0,
+        "human_action_capture_completeness": 1.0,
+        "verification_status": "VERIFIED",
+        "event_count": 23,
+        "run_latency_ms": 9735.510667000199,
+        "verification_latency_ms": 1.2801669945474714,
+        "protected_bytes_added": 15852
+      },
+      {
+        "encounter_index": 3,
+        "repetition": 1,
+        "transaction_id": "dbba72d7-4a63-46bd-8e29-4aa5cf0c1bf1",
+        "arc": 1.0,
+        "independently_verified_arc": 1.0,
+        "required_event_completeness": 1.0,
+        "evidence_attribution_coverage": 1.0,
+        "human_action_capture_completeness": 1.0,
+        "verification_status": "VERIFIED",
+        "event_count": 23,
+        "run_latency_ms": 10269.861249995301,
+        "verification_latency_ms": 1.185041997814551,
+        "protected_bytes_added": 15873
+      },
+      {
+        "encounter_index": 4,
+        "repetition": 1,
+        "transaction_id": "ec25ec85-8340-4dda-9295-1a488f7449a6",
+        "arc": 1.0,
+        "independently_verified_arc": 1.0,
+        "required_event_completeness": 1.0,
+        "evidence_attribution_coverage": 1.0,
+        "human_action_capture_completeness": 1.0,
+        "verification_status": "VERIFIED",
+        "event_count": 23,
+        "run_latency_ms": 10326.12991600763,
+        "verification_latency_ms": 1.1117499961983413,
+        "protected_bytes_added": 15907
+      },
+      {
+        "encounter_index": 5,
+        "repetition": 1,
+        "transaction_id": "9947fd46-50f4-4e0b-9246-c2bcc90e0f42",
+        "arc": 1.0,
+        "independently_verified_arc": 1.0,
+        "required_event_completeness": 1.0,
+        "evidence_attribution_coverage": 1.0,
+        "human_action_capture_completeness": 1.0,
+        "verification_status": "VERIFIED",
+        "event_count": 23,
+        "run_latency_ms": 9588.907750003273,
+        "verification_latency_ms": 1.1974169901804999,
+        "protected_bytes_added": 15633
+      }
+    ]
+  }
+}

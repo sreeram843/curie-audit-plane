@@ -1,0 +1,20 @@
+{
+  "corpus_id": "clinical-knowledge",
+  "version": "clinical-knowledge.v1",
+  "chunks": [
+    {
+      "chunk_id": "htn-bp-target.v1",
+      "document_id": "synthetic-hypertension-guidance",
+      "title": "Office blood pressure targets in adult hypertension",
+      "text": "For most adults with hypertension, office blood pressure at or above 140/90 mmHg supports intensification of lifestyle measures and review of antihypertensive therapy such as an ACE inhibitor.",
+      "keywords": ["hypertension", "blood pressure", "lisinopril"]
+    },
+    {
+      "chunk_id": "lipid-cv-risk.v1",
+      "document_id": "synthetic-lipid-guidance",
+      "title": "Lipid panel in cardiovascular risk review",
+      "text": "An elevated LDL cholesterol finding should be interpreted with blood pressure and existing antihypertensive therapy when summarizing cardiovascular risk for clinician review.",
+      "keywords": ["lipid", "ldl", "cardiovascular"]
+    }
+  ]
+}

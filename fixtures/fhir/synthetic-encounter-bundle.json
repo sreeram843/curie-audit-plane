@@ -1,0 +1,115 @@
+{
+  "resourceType": "Bundle",
+  "id": "synthetic-encounter-bundle",
+  "type": "collection",
+  "timestamp": "2026-08-01T14:30:00Z",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:patient-test-00001",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "TEST-00001",
+        "identifier": [{ "system": "http://curie.local/mrn", "value": "TEST-00001" }],
+        "name": [{ "family": "Test", "given": ["Jane"] }],
+        "gender": "female",
+        "birthDate": "1978-04-12"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:encounter-test-00001",
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "enc-TEST-00001",
+        "status": "finished",
+        "class": { "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode", "code": "AMB" },
+        "subject": { "reference": "Patient/TEST-00001" },
+        "period": { "start": "2026-08-01T14:00:00Z", "end": "2026-08-01T15:00:00Z" }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:condition-htn",
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-htn-TEST-00001",
+        "clinicalStatus": {
+          "coding": [{ "system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active" }]
+        },
+        "code": {
+          "coding": [{ "system": "http://snomed.info/sct", "code": "38341003", "display": "Hypertensive disorder" }],
+          "text": "Hypertension"
+        },
+        "subject": { "reference": "Patient/TEST-00001" },
+        "encounter": { "reference": "Encounter/enc-TEST-00001" }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:med-lisinopril",
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "med-lisinopril-TEST-00001",
+        "status": "active",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [{ "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "314076", "display": "Lisinopril 10 MG Oral Tablet" }],
+          "text": "Lisinopril 10 mg"
+        },
+        "subject": { "reference": "Patient/TEST-00001" },
+        "encounter": { "reference": "Encounter/enc-TEST-00001" }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-bp",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-bp-TEST-00001",
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "85354-9", "display": "Blood pressure panel" }]
+        },
+        "subject": { "reference": "Patient/TEST-00001" },
+        "encounter": { "reference": "Encounter/enc-TEST-00001" },
+        "effectiveDateTime": "2026-08-01T14:20:00Z",
+        "component": [
+          {
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "8480-6" }] },
+            "valueQuantity": { "value": 148, "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]" }
+          },
+          {
+            "code": { "coding": [{ "system": "http://loinc.org", "code": "8462-4" }] },
+            "valueQuantity": { "value": 92, "unit": "mmHg", "system": "http://unitsofmeasure.org", "code": "mm[Hg]" }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:obs-hr",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "obs-hr-TEST-00001",
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "8867-4", "display": "Heart rate" }]
+        },
+        "subject": { "reference": "Patient/TEST-00001" },
+        "encounter": { "reference": "Encounter/enc-TEST-00001" },
+        "effectiveDateTime": "2026-08-01T14:20:00Z",
+        "valueQuantity": { "value": 78, "unit": "beats/minute", "system": "http://unitsofmeasure.org", "code": "/min" }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:dx-lipid",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "dx-lipid-TEST-00001",
+        "status": "final",
+        "code": {
+          "coding": [{ "system": "http://loinc.org", "code": "57698-3", "display": "Lipid panel" }]
+        },
+        "subject": { "reference": "Patient/TEST-00001" },
+        "encounter": { "reference": "Encounter/enc-TEST-00001" },
+        "effectiveDateTime": "2026-08-01T14:25:00Z",
+        "conclusion": "LDL cholesterol moderately elevated relative to hypertension management goals."
+      }
+    }
+  ]
+}

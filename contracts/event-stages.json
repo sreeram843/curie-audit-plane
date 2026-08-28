@@ -1,0 +1,20 @@
+{
+  "transaction.started": "transaction",
+  "transaction.completed": "transaction",
+  "transaction.failed": "transaction",
+  "input.manifest.created": "fhir_inputs",
+  "transformation.applied": "transformations",
+  "context.manifest.created": "context",
+  "retrieval.completed": "retrieval_tools",
+  "tool.called": "retrieval_tools",
+  "tool.completed": "retrieval_tools",
+  "model.requested": "model",
+  "model.responded": "model",
+  "structured_output.validated": "structured_output",
+  "guardrail.completed": "guardrails",
+  "human.action_recorded": "human_action",
+  "integrity.proof_committed": "integrity_proof",
+  "ui.access_recorded": "access_audit",
+  "export.recorded": "access_audit",
+  "replay.recorded": "access_audit"
+}

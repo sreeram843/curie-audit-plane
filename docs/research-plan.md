@@ -1,0 +1,93 @@
+# Curie Audit Plane Research Plan
+
+## Research claim
+
+The prototype will test whether a FHIR-to-LLM provenance plane can make the observable basis of a clinical AI transaction reconstructable and tamper-evident without storing hidden chain-of-thought or raw PHI in an immutable audit store.
+
+This is an auditability and interoperability study. It is not a clinical efficacy, diagnostic accuracy, safety certification, or regulatory-clearance study.
+
+## Research questions
+
+1. Can the plane reconstruct the required inputs, transformations, execution configuration, evidence, safeguards, and human disposition for a bounded clinical AI transaction?
+2. Can the integrity scheme detect mutation, deletion, reordering, broken references, invalid Merkle proofs, and invalid signatures?
+3. What latency and storage overhead does complete capture introduce compared with ordinary application logging?
+4. Does the audit console help reviewers identify evidence, uncertainty, guardrail failures, and human disposition?
+5. How much replay fidelity is possible for a deterministic stub versus a hosted nondeterministic model?
+
+## Benchmark design
+
+Use versioned synthetic FHIR bundles and a small versioned evidence corpus. Run each case through the same declared workflow:
+
+- complete clean transactions;
+- missing input, transformation, evidence, tool, guardrail, or human-action events;
+- changed model version, prompt version, output, timestamp, reviewer action, or evidence digest;
+- deleted and reordered events;
+- wrong content references or corpus versions;
+- invalid signatures and substituted batch proofs from another transaction;
+- deterministic-stub replay and selected hosted-model replay.
+
+The benchmark must retain the ground-truth mutation applied to each case and must distinguish a correctly detected tamper from an ordinary workflow failure.
+
+## Baselines
+
+Compare the complete plane against at least:
+
+1. ordinary application logging with correlated text/JSON records;
+2. hash-only logging without an event chain, Merkle batch, or signature;
+3. FHIR `Provenance`/`AuditEvent` projection without the internal event model;
+4. the complete provenance plane with protected-content references, typed events, chain verification, Merkle proofs, and signatures.
+
+The baseline comparison should measure completeness, detection, queryability, overhead, and reviewer task performance. It must not imply that the baselines are clinically unsafe; they answer different audit questions. The prototype evaluation harness is a scripted reconstruction of those metrics on synthetic fixtures; it is not an IRB human usability study.
+
+## Metrics
+
+| Metric | Definition | Initial target or reporting rule |
+|---|---|---|
+| Audit Reconstruction Completeness | Required provenance fields reconstructed and independently verified divided by total required fields | At least 95% on clean benchmark; report missing fields explicitly |
+| Required-event completeness | Required event types present with valid links divided by required event types | 100% for successful transactions |
+| Tamper detection rate | Tampered cases correctly flagged divided by all tampered cases | 100% for the defined mutation suite |
+| False tamper rate | Clean cases incorrectly flagged divided by all clean cases | 0% on fixtures; report as a rate over at least three independent clean runs, not a single binary result |
+| Replay fidelity | Exact, equivalent, or divergent classification under predefined comparison rules | Report by provider and configuration |
+| Evidence attribution coverage | Output claims with valid evidence references divided by claims requiring evidence | At least 90% in structured-output benchmark |
+| Human-action capture completeness | Review runs with actor, action, time, and final-output digest divided by runs reaching review | 100% |
+| Capture overhead | Added latency and storage relative to baseline workflow | Report; prototype target under 15% latency overhead |
+| Verification latency | Time to verify one transaction and one batch proof | Under one second locally for target fixture size |
+| Reviewer task success | Correct identification of source, model, evidence, guardrail, and human action | Establish baseline and report task errors/time |
+
+## Reproducibility package
+
+Before paper submission, publish or archive:
+
+- synthetic FHIR fixtures and evidence corpus version identifiers;
+- event schemas and canonicalization rules;
+- verifier and benchmark mutation generator;
+- configuration manifests, dependency versions, and seeds where applicable;
+- baseline implementations and evaluation commands;
+- the reproducible `curie-audit-plane evaluate --output-dir <path> --encounters 50 --repetitions 1` command,
+  versioned JSON/CSV report artifacts, and the generated vector cohort figure;
+- generated tables, figures, and UI screenshots;
+- threat model, limitations, data-handling statement, and ethics/IRB statement if human reviewers participate.
+
+## J-BHI evidence gates
+
+The J-BHI route is credible only if the manuscript:
+
+- frames the problem as biomedical and health-informatics provenance for EHR/FHIR workflows;
+- includes a healthcare-specific comparison, not only generic observability baselines;
+- explains the human review and clinical-data boundary;
+- reports synthetic-data generation and access assumptions;
+- separates auditability, security, interoperability, and usability from clinical correctness;
+- includes reproducible schemas, verifier logic, benchmark cases, and limitations.
+
+If the results are primarily software-engineering or infrastructure evidence, IEEE Access or an engineering/health-informatics conference may be a better fallback than overstating J-BHI fit.
+
+## Current prototype evaluation command
+
+The default run processes 50 synthetic FHIR encounters once using the configured
+completer (`CAP_LLM_PROVIDER=stub` or `openai_compatible`). Write stub and live-model
+reports to separate `--output-dir` paths. Increase `--encounters` up to 1,000 and repeat
+the same cohort with `--repetitions` when estimating latency and storage distributions.
+Cohort metrics include mean, median, and normal-approximation 95% confidence intervals.
+The independent verifier is invoked for every observation. Tamper
+detection remains reported from the representative mutation suite because the mutations are
+defined against one sealed transaction; this is an explicit limitation rather than a cohort claim.
