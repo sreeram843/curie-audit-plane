@@ -147,6 +147,37 @@ def test_complete_reuses_recorded_decoding_params():
     assert body["presence_penalty"] == 0.1
 
 
+def test_complete_rejects_malformed_choices():
+    request = CompletionRequest(
+        context_digest="abc123",
+        context=[],
+        evidence_ids=["obs-bp-TEST-00001"],
+        prompt_version="clinical-summary.v1",
+        model_id="medgemma-4b-it-mlx",
+    )
+    payloads = (
+        ["not-a-choice"],
+        [{"message": "plain-text"}],
+        [{"message": {"role": "assistant"}}],
+        [{"message": {"content": 123}}],
+    )
+    for choices in payloads:
+        def handler(_request: httpx.Request, body=choices) -> httpx.Response:
+            return httpx.Response(200, json={"model": "medgemma-4b-it-mlx", "choices": body})
+
+        client = httpx.Client(
+            transport=httpx.MockTransport(handler),
+            base_url="http://127.0.0.1:1234/v1",
+        )
+        with pytest.raises(ValueError, match="choice|message"):
+            complete_openai_compatible(
+                request,
+                base_url="http://127.0.0.1:1234/v1",
+                model="medgemma-4b-it-mlx",
+                client=client,
+            )
+
+
 def test_validate_llm_endpoint_rejects_credentials_and_unapproved_hosts():
     with pytest.raises(ValueError, match="userinfo"):
         validate_llm_endpoint("http://user:secret@127.0.0.1:1234/v1")

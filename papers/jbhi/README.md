@@ -10,6 +10,6 @@ IEEEtran class, and portal checklist).
 - `cover_letter.txt` — paste into the Author Portal
 - `SUBMISSION_CHECKLIST.md` — remaining human/portal steps
 
-Author: Satya Venkata Ranga Janaki Sriram Mentey  
-ORCID: 0009-0007-2681-006X  
+Author: Satya Venkata Ranga Janaki Sriram Mentey
+ORCID: 0009-0007-2681-006X
 E-mail: srirammentey@ieee.org

@@ -1,15 +1,15 @@
 # A Privacy-Preserving Provenance Plane for Reconstructable FHIR-to-LLM Clinical AI Transactions
 
-**Draft for IEEE Journal of Biomedical and Health Informatics (Regular Paper)**  
+**Draft for IEEE Journal of Biomedical and Health Informatics (Regular Paper)**
 **Official IEEE source:** `papers/jbhi/main.tex` (IEEEtran journal class, same author packaging as the companion Curie FHIR J-BHI manuscript). Compile to `main.pdf` before portal upload.
 
-**Author:** Satya Venkata Ranga Janaki Sriram Mentey (corresponding)  
-Address: 8601 Anderson Mill Rd, Apt 722, Austin, TX 78729, USA  
+**Author:** Satya Venkata Ranga Janaki Sriram Mentey (corresponding)
+Address: 8601 Anderson Mill Rd, Apt 722, Austin, TX 78729, USA
 E-mail: srirammentey@ieee.org · ORCID: [0009-0007-2681-006X](https://orcid.org/0009-0007-2681-006X)
 
 ## Abstract
 
-Clinical AI systems that consume electronic health record (EHR) data and emit reviewer-facing summaries create an auditability gap: ordinary application logs rarely preserve the inputs, transformations, model configuration, evidence, safeguards, and human disposition needed to reconstruct a transaction, while storing raw clinical payloads or hidden model reasoning in an immutable log is unsafe. This paper presents Curie Audit Plane, a provenance method for one bounded synthetic FHIR-to-LLM transaction. The plane separates protected clinical content from an append-only audit chain, records typed events with content digests, and verifies hash chaining, Merkle inclusion, and Ed25519 signatures. Structured model output is constrained to rationale, evidence references, uncertainty, assumptions, and missing data; hidden chain-of-thought is rejected. We evaluate reconstructability, tamper detection, replay, and capture overhead on synthetic FHIR fixtures against independently implemented application-log, hash-only, and FHIR Provenance/AuditEvent baselines. Headline Audit Reconstruction Completeness is computed from reloaded persisted records after independent verification, not from in-memory field presence alone. The audit console is reported as a system demonstration with scripted field reconstruction (`SCRIPTED_PROXY`); this work is not a human-subject usability study, a clinical-efficacy trial, or a regulatory submission.
+Clinical AI systems that consume electronic health record (EHR) data and emit reviewer-facing summaries create an auditability gap: ordinary application logs rarely preserve the inputs, transformations, model configuration, evidence, safeguards, and human disposition needed to reconstruct a transaction, while storing raw clinical payloads or hidden model reasoning in an immutable log is unsafe. This paper presents Curie Audit Plane, a provenance method for one bounded synthetic FHIR-to-LLM transaction. The plane separates protected clinical content from an append-only audit chain, records typed events with content digests, and verifies hash chaining, Merkle inclusion, and Ed25519 signatures. Structured model output is constrained to rationale, evidence references, uncertainty, assumptions, and missing data; hidden chain-of-thought is rejected. We evaluate reconstructability, tamper detection, replay, and capture overhead on synthetic FHIR fixtures against separately instrumented application-log and hash-only recorders of the same unrecorded workflow, plus a FHIR projection from the source bundle. Headline Audit Reconstruction Completeness is computed from reloaded persisted records after independent verification, not from in-memory field presence alone. The audit console is reported as a system demonstration with scripted field reconstruction (`SCRIPTED_PROXY`); this work is not a human-subject usability study, a clinical-efficacy trial, or a regulatory submission.
 
 **Keywords:** FHIR, clinical AI, provenance, auditability, integrity, health information systems
 
@@ -67,7 +67,7 @@ Metrics:
 - Ablations: reconstructability after omitting input manifests, transformations, model/prompt metadata, evidence references, cryptographic proofs, or human provenance.
 - Access control: allowed and denied HTTP outcomes for reviewer, investigator, admin, output, content, export, missing transaction, and global list scope.
 
-Baselines are independently implemented: application JSONL, hash-only JSONL, FHIR projection, and the complete plane. Rate metrics use Wilson intervals; latency ratios use paired differences.
+Baselines are separately instrumented recorders of the same unrecorded workflow (application JSONL and hash-only JSONL) or a projection from the source FHIR bundle; they are not independently shipped products. The complete plane is scored from the signed audit chain. Rate metrics use Wilson intervals; latency ratios use paired differences.
 
 ### E. Threat model
 
@@ -75,7 +75,7 @@ Adversaries may mutate, delete, or reorder events; substitute proofs or keys; pr
 
 ### F. Ethics and data
 
-The evaluation uses synthetic FHIR fixtures and optional external Synthea bundles [6] that are not committed to this repository. Discovery is limited to roots listed in `fixtures/synthea/approved-manifest.json`. No real patient records or human participants were analyzed. Therefore no IRB protocol was required for this prototype. If a later study recruits reviewers, that work needs separate ethics review and consent. The authors report no specific funding for this prototype and declare no competing interests.
+The evaluation uses synthetic FHIR fixtures and optional external Synthea bundles [6] that are not committed to this repository. Discovery is limited to roots listed in `fixtures/synthea/approved-manifest.json`. Synthea generator version, population seed, module set, and CLI are **NOT_PINNED** / not measured. No real patient records or human participants were analyzed. Therefore no IRB protocol was required for this prototype. If a later study recruits reviewers, that work needs separate ethics review and consent. The authors report no specific funding for this prototype and declare no competing interests.
 
 ### G. AI-use disclosure
 
@@ -83,13 +83,13 @@ Portions of software and documentation were drafted with assistance from coding 
 
 ## IV. Results
 
-Engineering checks at the time of this draft: 135 Python tests, 94.44% statement coverage, Ruff clean, and 15 console tests with a production build. These are software-quality results, not clinical performance.
+Engineering checks at the time of this draft: 143 Python tests, 94.59% statement coverage, Ruff clean, and 15 console tests with a production build. These are software-quality results, not clinical performance.
 
 On the synthetic fixture benchmark, independently verified ARC meets the 95% clean-transaction target, all 19 labeled tamper cases are detected, and false tamper rate over three clean runs is 0. The complete plane reconstructs more required fields and detects the standard model-event mutation that application logs and FHIR projections do not detect. Hash-only logging detects digest mismatch without providing chain or signature guarantees.
 
-Hosted-model same-prompt replay is at best `EQUIVALENT` and is often `DIVERGENT`. Prompt-substitution replay is `DIVERGENT` by construction. The 16-arm scenario matrix exercises ACCEPT/MODIFY/REJECT, natural WARN/BLOCK, provider failure, Synthea slices, and access audit; it is workflow coverage, not a population sample. Ablation rows show reconstructability dropping when manifests, transformations, model metadata, evidence, proofs, or human provenance are omitted. Access-control cases report allowed and denied outcomes for reviewer, investigator, admin, output, content, export, missing-record, and global-scope probes.
+Hosted-model same-prompt replay is at best `EQUIVALENT` and is often `DIVERGENT`. Prompt-substitution replay is `DIVERGENT` by construction. The 16-arm scenario matrix exercises ACCEPT/MODIFY/REJECT, natural WARN/BLOCK, provider failure, Synthea slices, and access audit; it is workflow coverage, not a population sample. The two Synthea slice arms are unpinned demonstrations and are excluded from measured tables. Ablation rows show reconstructability dropping when manifests, transformations, model metadata, evidence, proofs, or human provenance are omitted. Access-control cases report allowed and denied outcomes for reviewer, investigator, admin, output, content, export, missing-record, and global-scope probes.
 
-Overhead is incremental capture cost relative to an identical unrecorded clinical workflow, not a thin completer-plus-log shortcut. Treat large latency or storage ratios as real negative results; this draft does not claim that audit capture is under 15% of an already-complete clinical application.
+Overhead on the stub campaign is 14.20 ms versus 8.61 ms for the identical unrecorded workflow (paired latency ratio 0.650, 95% interval [0.604, 0.697], n=3 after one warmup). Storage ratio is 6.31. Clean-transaction verification is 1.06 ms. Treat large latency or storage ratios as real negative results; this draft does not claim that audit capture is under 15% of an already-complete clinical application.
 
 ## V. Discussion and Limitations
 

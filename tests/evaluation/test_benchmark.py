@@ -56,6 +56,12 @@ def test_arc_and_tamper_detection_meet_prototype_targets(tmp_path):
     replay = next(case for case in report.cases if case["name"] == "replay_stub")
     assert replay["kind"] == "replay"
     assert replay["result"] in {"EXACT_MATCH", "EQUIVALENT", "DIVERGENT", "NOT_REPLAYABLE"}
+    clean_case = next(case for case in report.cases if case["name"] == "clean")
+    assert clean_case["kind"] == "clean_verification"
+    assert clean_case["detected"] is False
+    assert clean_case["expected_detected"] is False
+    assert clean_case["false_positive"] is False
+    assert clean_case["verifier_status"] == "VERIFIED"
     tamper_cases = [case for case in report.cases if case["kind"] == "tamper"]
     assert len(tamper_cases) == 19
     assert all(case["detected"] for case in tamper_cases)

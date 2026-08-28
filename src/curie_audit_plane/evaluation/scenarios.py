@@ -5,6 +5,8 @@ import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from curie_audit_plane.adapters.completion import (
     Completer,
     CompletionRequest,
@@ -60,8 +62,24 @@ def _is_synthea_bundle(path: Path) -> bool:
     return False
 
 
+class SyntheaManifest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = "curie-synthea-manifest.v1"
+    license: str
+    source: str
+    synthea_identifier_system: str
+    generator_version: str | None = None
+    population_seed: str | None = None
+    modules: list[str] = Field(default_factory=list)
+    cli: str | None = None
+    pinned: bool = False
+    approved_roots: list[str]
+
+
 def synthea_manifest() -> dict[str, object]:
-    return json.loads(_SYNTHEA_MANIFEST_PATH.read_text(encoding="utf-8"))
+    payload = json.loads(_SYNTHEA_MANIFEST_PATH.read_text(encoding="utf-8"))
+    return SyntheaManifest.model_validate(payload).model_dump(mode="json")
 
 
 def approved_synthea_roots() -> list[Path]:
@@ -321,7 +339,8 @@ def run_scenario_matrix(pipeline: Pipeline) -> dict[str, object]:
                                 f"{index + 1} of {len(synthea_bundles)} "
                                 f"(source digest {sha256_hex(synthea.read_bytes())[:12]}, "
                                 f"license {synthea_manifest().get('license')}, "
-                                f"source {synthea_manifest().get('source')}); "
+                                f"source {synthea_manifest().get('source')}, "
+                                "generator_version NOT_PINNED); "
                                 "not copied into this repository."
                             ),
                         )

@@ -9,14 +9,19 @@ may ignore unknown keys. Publishers should emit `v1.1`.
 
 - `experiment`: portable run metadata (git commit, dirty-tree flag, fixture alias and digest,
   recorded provider and model, prompt version, decoding parameters, endpoint class, seed,
-  Python version, platform, command template, timestamp, Synthea license/source). Absolute local
-  paths are not used as the publication fixture identifier.
+  Python version, platform, command template, timestamp, Synthea license/source, and
+  Synthea pin status). Absolute local
+  paths are not used as the publication fixture identifier. `synthea_version` is
+  `NOT_PINNED` unless `generator_version` is recorded.
 - `metrics` names `field_presence_arc` and `independently_verified_arc`.
   `audit_reconstruction_completeness` remains and equals independently verified ARC.
 - `overhead` records warmup, repetition count, paired confidence intervals, separate
   audit-metadata and protected-content storage, and explicit formulas against an identical
   no-audit clinical workflow.
-- `baselines[].implementation` identifies the independent recording method.
+- `baselines[].implementation` identifies the recording method.
+- `baselines[].independence` is `unrecorded_workflow`, `source_bundle`, or `audit_chain`.
+  Application JSONL and hash-only JSONL are separately instrumented from the
+  unrecorded workflow; they are not independently shipped products.
 - `cases[]` mutation labels: `mutation_type`, `expected_detected`,
   `false_positive`, `false_negative`, `verifier_status`.
 - `scenarios` remains the 16-arm workflow matrix from `v1`.
@@ -27,5 +32,7 @@ may ignore unknown keys. Publishers should emit `v1.1`.
 
 ## Compatibility
 
-CSV `row_type` values `metric`, `case`, and `scenario` are unchanged. New metric
-names appear as additional `metric` rows.
+CSV `row_type` values are `metric`, `case`, `scenario`, `ablation`, and `access`.
+New metric names appear as additional `metric` rows. Scenario matrix results are
+published inside `evaluation-results/` (and the live companion directory), not as a
+separate ignored artifact.

@@ -60,6 +60,13 @@ def test_evaluation_report_contains_numeric_metrics_and_explicit_study_gaps(tmp_
     assert experiment["decoding_params"] is not None
     assert experiment["endpoint_class"]
     assert "git_dirty" in experiment
+    assert experiment["synthea_pinned"] is False
+    assert experiment["synthea_version"] == "NOT_PINNED"
+    assert {row["independence"] for row in encoded["baselines"]} >= {
+        "unrecorded_workflow",
+        "source_bundle",
+        "audit_chain",
+    }
     assert encoded["ablations"]
     assert {row["name"] for row in encoded["ablations"]} >= {
         "full",
@@ -85,6 +92,15 @@ def test_evaluation_report_contains_numeric_metrics_and_explicit_study_gaps(tmp_
         "global_scope_list",
     }
     assert encoded["access_control"]["pass_rate"]["interval"] == "wilson"
+    access_blob = json.dumps(encoded["access_control"])
+    assert "eval-admin-token" not in access_blob
+    assert "Bearer " not in access_blob
+    assert {case["role"] for case in encoded["access_control"]["cases"]} <= {
+        "admin",
+        "reviewer",
+        "investigator",
+        "unauthenticated",
+    }
     pipeline.close()
 
 
@@ -110,6 +126,20 @@ def test_evaluation_report_serializes_stable_json_and_csv_rows(tmp_path):
         "replay_stub",
     }
     assert {row["name"] for row in rows if row["row_type"] == "scenario"} >= REQUIRED
+    assert {row["row_type"] for row in rows} >= {
+        "metric",
+        "case",
+        "scenario",
+        "ablation",
+        "access",
+    }
+    assert {row["result"] for row in rows if row["row_type"] == "access"} <= {
+        "admin",
+        "reviewer",
+        "investigator",
+        "unauthenticated",
+        "",
+    }
     assert list(rows[0]) == [
         "row_type",
         "name",

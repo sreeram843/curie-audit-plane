@@ -80,6 +80,18 @@ def parse_rationale_content(content: str) -> StructuredRationale:
         raise ValueError("model response did not match structured rationale schema") from exc
 
 
+def _choice_message_content(choice: object) -> str:
+    if not isinstance(choice, dict):
+        raise ValueError("OpenAI-compatible endpoint returned an invalid choice")
+    message = choice.get("message")
+    if not isinstance(message, dict):
+        raise ValueError("OpenAI-compatible endpoint returned no message")
+    content = message.get("content")
+    if not isinstance(content, str) or not content.strip():
+        raise ValueError("OpenAI-compatible endpoint returned no message content")
+    return content
+
+
 def _system_prompt(evidence_ids: list[str], prompt_version: str) -> str:
     allowed = ", ".join(evidence_ids) if evidence_ids else "(none provided)"
     return (
@@ -156,7 +168,7 @@ def complete_openai_compatible(
     choices = payload.get("choices") or []
     if not choices:
         raise ValueError("OpenAI-compatible endpoint returned no choices")
-    content = str(choices[0].get("message", {}).get("content") or "")
+    content = _choice_message_content(choices[0])
     # Ignore provider reasoning_content; it is not part of the audit contract.
     output = parse_rationale_content(content)
     usage = payload.get("usage") or {}

@@ -138,7 +138,7 @@ def research_export(result: TransactionResult) -> dict[str, Any]:
         },
         "transaction_id": _pseudo(tx_id, "tx"),
         "subject_ref": _pseudo(result.transaction.subject_ref, "subj"),
-        "purpose": result.transaction.purpose,
+        "purpose": _pseudo(result.transaction.purpose, "purpose"),
         "status": result.transaction.status.value,
         "verification_status": result.verification.status.value,
         "verification_reason": result.verification.reason,

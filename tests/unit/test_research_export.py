@@ -135,3 +135,27 @@ def test_research_export_scrubs_arbitrary_ids_names_phones_and_dates(tmp_path):
     assert "555-123-4567" not in blob
     assert "1980-05-01" not in blob
     pipeline.close()
+
+
+def test_research_export_scrubs_caller_controlled_purpose(tmp_path):
+    private_key, public_key = generate_keypair()
+    pipeline = Pipeline(
+        PipelineServices(
+            audit=AuditStore(tmp_path / "audit.sqlite"),
+            content=ProtectedContentStore(tmp_path / "protected"),
+            private_key=private_key,
+            public_key=public_key,
+            key_id="test-key",
+        )
+    )
+    result = pipeline.run_transaction(
+        purpose="Patient John Smith secret-purpose",
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+    export = research_export(result)
+    blob = str(export)
+    assert "John Smith" not in blob
+    assert "secret-purpose" not in blob
+    assert export["purpose"].startswith("purpose_")
+    pipeline.close()

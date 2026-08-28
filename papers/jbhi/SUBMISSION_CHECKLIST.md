@@ -51,9 +51,9 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 
 ### Still tighten if needed after compile
 
-- [ ] **Page count ≤ 14** (hard limit including supplementary)
-- [ ] Prefer **≤ 8 pages** to avoid mandatory overlength charges
-- [ ] Confirm abstract word count ≤ 250 in the portal field
+- [x] **Page count ≤ 14** (hard limit including supplementary) — current `main.pdf` is **3 pages**
+- [x] Prefer **≤ 8 pages** to avoid mandatory overlength charges — current `main.pdf` is **3 pages**
+- [x] Confirm abstract word count ≤ 250 in the portal field — IEEE abstract in `main.tex` is **about 183 words**
 
 ## Honest scope note
 

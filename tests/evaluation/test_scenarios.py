@@ -1,5 +1,8 @@
 import json
 
+import pytest
+from pydantic import ValidationError
+
 from curie_audit_plane.adapters.completion import CompletionRequest
 from curie_audit_plane.evaluation.encounter_slice import slice_first_encounter
 from curie_audit_plane.evaluation.scenarios import (
@@ -272,6 +275,19 @@ def test_discover_synthea_bundles_accepts_marked_file_under_approved_root(tmp_pa
     record = synthea_manifest()
     assert record["license"]
     assert record["source"]
+    assert record["pinned"] is False
+    assert record["generator_version"] is None
+
+
+def test_synthea_manifest_rejects_invalid_schema(tmp_path, monkeypatch):
+    bad = tmp_path / "approved-manifest.json"
+    bad.write_text('{"schema_version": "curie-synthea-manifest.v1"}', encoding="utf-8")
+    monkeypatch.setattr(
+        "curie_audit_plane.evaluation.scenarios._SYNTHEA_MANIFEST_PATH",
+        bad,
+    )
+    with pytest.raises(ValidationError):
+        synthea_manifest()
 
 
 def test_pipeline_subject_ref_is_opaque_token_for_patient_resource(tmp_path):

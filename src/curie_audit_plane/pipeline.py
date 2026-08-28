@@ -34,7 +34,13 @@ from curie_audit_plane.models.report import (
     TransactionOverview,
     VerificationReport,
 )
-from curie_audit_plane.privacy import opaque_identifier, sanitize_comment
+from curie_audit_plane.privacy import (
+    opaque_identifier,
+    sanitize_comment,
+    sanitize_override_policy_version,
+    sanitize_prompt_version,
+    sanitize_purpose,
+)
 from curie_audit_plane.replay import classify_replay_outputs, finalize_replay_result
 from curie_audit_plane.store.audit import AuditStore
 from curie_audit_plane.store.content import ProtectedContentStore
@@ -148,6 +154,7 @@ class Pipeline:
             "output": completion.output,
             "guardrails": guardrails,
             "log_bytes": len(payload.encode("utf-8")),
+            "records": records,
         }
 
     def run_transaction(
@@ -166,6 +173,9 @@ class Pipeline:
     ) -> TransactionResult:
         if human_action is not None and human_action not in TERMINAL_HUMAN_ACTIONS:
             raise ValueError("PENDING is a review state, not a terminal human disposition")
+        purpose = sanitize_purpose(purpose)
+        prompt_version = sanitize_prompt_version(prompt_version)
+        override_policy_version = sanitize_override_policy_version(override_policy_version)
         transaction_id = str(uuid4())
         started_at = datetime.now(UTC)
         ctx = _RunContext(transaction_id=transaction_id)
@@ -464,6 +474,7 @@ class Pipeline:
     ) -> TransactionResult:
         if action not in TERMINAL_HUMAN_ACTIONS:
             raise ValueError("PENDING is a review state, not a terminal human disposition")
+        override_policy_version = sanitize_override_policy_version(override_policy_version)
         events = self.services.audit.list_events(transaction_id)
         if not events:
             raise KeyError(transaction_id)

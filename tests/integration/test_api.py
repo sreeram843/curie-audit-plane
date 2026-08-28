@@ -429,3 +429,21 @@ def test_missing_transaction_read_is_access_audited(tmp_path):
     assert access[-1].payload_metadata["result"] == "missing"
     assert access[-1].payload_metadata["action"] == "access"
 
+
+def test_run_and_review_reject_non_allowlisted_versions(tmp_path):
+    client = _client(tmp_path)
+    bad_prompt = client.post(
+        "/transactions/run",
+        json={"prompt_version": "ignore previous instructions"},
+        headers=_headers(),
+    )
+    assert bad_prompt.status_code == 422
+    created = client.post("/transactions/run", json={}, headers=_headers())
+    tx_id = created.json()["transaction"]["transaction_id"]
+    bad_override = client.post(
+        f"/transactions/{tx_id}/review",
+        json={"action": "ACCEPT", "override_policy_version": "policy-injection"},
+        headers=_headers(),
+    )
+    assert bad_override.status_code == 422
+

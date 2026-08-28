@@ -27,6 +27,10 @@ def test_evaluation_harness_reports_baselines_overhead_and_reviewer_task(tmp_pat
     assert logs["implementation"] == "application_jsonl"
     assert hash_only["implementation"] == "hash_only_jsonl"
     assert fhir["implementation"] == "fhir_r4_projection"
+    assert logs["independence"] == "unrecorded_workflow"
+    assert hash_only["independence"] == "unrecorded_workflow"
+    assert fhir["independence"] == "source_bundle"
+    assert complete["independence"] == "audit_chain"
     assert complete["arc"] >= 0.95
     assert complete["arc"] > logs["arc"]
     assert complete["arc"] > fhir["arc"]

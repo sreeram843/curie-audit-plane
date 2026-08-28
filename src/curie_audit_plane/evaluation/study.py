@@ -5,13 +5,12 @@ from pathlib import Path
 from time import perf_counter
 
 from curie_audit_plane.evaluation.fields import (
-    audit_reconstruction_completeness,
     evidence_attribution_coverage,
+    independently_verified_arc,
     required_event_completeness,
 )
 from curie_audit_plane.evaluation.stats import summarize_values
-from curie_audit_plane.integrity.verifier import verify_transaction
-from curie_audit_plane.models.enums import EventType, HumanActionStatus, VerificationStatus
+from curie_audit_plane.models.enums import EventType, HumanActionStatus
 from curie_audit_plane.pipeline import Pipeline
 
 
@@ -78,30 +77,25 @@ def run_cohort_study(
                 )
                 run_latency_ms = (perf_counter() - started) * 1000
                 verification_started = perf_counter()
-                verification = verify_transaction(
-                    result.events,
-                    result.batch,
-                    pipeline.services.public_key,
-                    content_store=pipeline.services.content,
+                verified_arc, _ = independently_verified_arc(
+                    pipeline, result.transaction.transaction_id
                 )
                 verification_latency_ms = (perf_counter() - verification_started) * 1000
-                arc, _ = audit_reconstruction_completeness(result)
+                reloaded = pipeline.load_result(result.transaction.transaction_id)
                 observations.append(
                     {
                         "encounter_index": encounter_index,
                         "repetition": repetition,
                         "transaction_id": result.transaction.transaction_id,
-                        "arc": arc,
-                        "independently_verified_arc": arc
-                        if verification.status == VerificationStatus.VERIFIED
-                        else 0.0,
-                        "required_event_completeness": required_event_completeness(result),
+                        "arc": verified_arc,
+                        "independently_verified_arc": verified_arc,
+                        "required_event_completeness": required_event_completeness(reloaded),
                         "evidence_attribution_coverage": _evidence_coverage(
-                            result, pipeline.services.content
+                            reloaded, pipeline.services.content
                         ),
-                        "human_action_capture_completeness": _human_action_capture(result),
-                        "verification_status": verification.status.value,
-                        "event_count": len(result.events),
+                        "human_action_capture_completeness": _human_action_capture(reloaded),
+                        "verification_status": reloaded.verification.status.value,
+                        "event_count": len(reloaded.events),
                         "run_latency_ms": run_latency_ms,
                         "verification_latency_ms": verification_latency_ms,
                         "protected_bytes_added": _content_bytes(pipeline.services.content.root)

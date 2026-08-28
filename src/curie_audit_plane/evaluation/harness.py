@@ -12,12 +12,13 @@ from curie_audit_plane.evaluation.fields import (
     reconstruct_fields,
 )
 from curie_audit_plane.evaluation.stats import paired_mean_ci
-from curie_audit_plane.fhir.projection import project_audit_events, project_provenance
+from curie_audit_plane.fhir.loader import iter_resources, load_bundle
 from curie_audit_plane.integrity.canonical import canonicalize
-from curie_audit_plane.integrity.hashing import hash_event
+from curie_audit_plane.integrity.hashing import sha256_hex
 from curie_audit_plane.integrity.verifier import verify_transaction
 from curie_audit_plane.models.enums import EventType, HumanActionStatus, VerificationStatus
 from curie_audit_plane.pipeline import DEFAULT_FIXTURE, Pipeline, PipelineServices
+from curie_audit_plane.privacy import opaque_identifier
 from curie_audit_plane.store.audit import AuditStore
 from curie_audit_plane.store.content import ProtectedContentStore
 
@@ -99,80 +100,88 @@ def _mutate_model_event(events):
     return mutated
 
 
-def _application_log_baseline(result) -> dict[str, object]:
-    records = [
-        {
-            "event_type": event.event_type.value,
-            "occurred_at": event.occurred_at.isoformat(),
-            "status": event.status.value,
-        }
-        for event in result.events
-    ]
-    recoverable = {"integrity.event_hash"} if records else set()
-    mutated = list(records)
-    if mutated:
-        mutated[0] = {**mutated[0], "event_type": "mutated"}
+def _unrecorded_fields(records: list[dict[str, object]]) -> set[str]:
+    found: set[str] = set()
+    for record in records:
+        if record.get("digest"):
+            found.add("context.digest")
+        if record.get("model_id"):
+            found.add("model.model_id")
+    return found
+
+
+def _application_log_baseline(records: list[dict[str, object]]) -> dict[str, object]:
+    recoverable = _unrecorded_fields(records)
     return {
         "name": "application_log",
         "implementation": "application_jsonl",
+        "independence": "unrecorded_workflow",
         "arc": len(recoverable) / len(REQUIRED_FIELDS),
         "tamper_detection_rate": 0.0,
         "queryability": 0.0,
-        "detected_mutation": mutated != records and False,
+        "detected_mutation": False,
         "storage_bytes": len(canonicalize(records)),
         "reviewer_fields": [],
     }
 
 
-def _hash_only_baseline(result) -> dict[str, object]:
-    records = [
-        {
-            "event_type": event.event_type.value,
-            "occurred_at": event.occurred_at.isoformat(),
-            "status": event.status.value,
-            "digest": hash_event(event.model_dump(mode="json")),
-        }
-        for event in result.events
-    ]
-    mutated_events = _mutate_model_event(result.events)
+def _hash_only_baseline(records: list[dict[str, object]]) -> dict[str, object]:
+    hashed = [{**record, "digest": sha256_hex(canonicalize(record))} for record in records]
     detected = False
-    for original, mutated in zip(result.events, mutated_events, strict=True):
-        stored = hash_event(original.model_dump(mode="json"))
-        if hash_event(mutated.model_dump(mode="json")) != stored:
-            detected = True
-            break
-    recoverable = {"integrity.event_hash"}
+    if hashed:
+        original = {key: value for key, value in hashed[0].items() if key != "digest"}
+        mutated = {**original, "stage": "mutated"}
+        detected = sha256_hex(canonicalize(mutated)) != hashed[0]["digest"]
+    recoverable = _unrecorded_fields(records) | {"integrity.event_hash"}
     return {
         "name": "hash_only",
         "implementation": "hash_only_jsonl",
+        "independence": "unrecorded_workflow",
         "arc": len(recoverable) / len(REQUIRED_FIELDS),
         "tamper_detection_rate": 1.0 if detected else 0.0,
         "queryability": 0.0,
-        "storage_bytes": len(canonicalize(records)),
+        "storage_bytes": len(canonicalize(hashed)),
         "reviewer_fields": [],
     }
 
 
-def _fhir_baseline(result) -> dict[str, object]:
-    provenance = project_provenance(result)
-    audit_events = project_audit_events(result)
+def _fhir_baseline_from_bundle(bundle: dict[str, object]) -> dict[str, object]:
+    resources = list(iter_resources(bundle))
+    entity = []
+    subject_ref = None
+    for resource in resources:
+        resource_type = resource.get("resourceType")
+        resource_id = resource.get("id")
+        if not resource_type:
+            continue
+        token = opaque_identifier(f"{resource_type}/{resource_id}" if resource_id else str(resource_type))
+        entity.append({"what": {"reference": f"{resource_type}/{token}"}})
+        if resource_type == "Patient" and resource_id:
+            subject_ref = opaque_identifier(f"Patient/{resource_id}")
+    provenance = {
+        "resourceType": "Provenance",
+        "target": [{"reference": "DocumentReference/unrecorded"}],
+        "agent": [{"who": {"display": "unrecorded-workflow"}}],
+        "entity": entity,
+    }
     recoverable = 0
     if provenance.get("target") or provenance.get("entity"):
         recoverable += 1
     if provenance.get("agent"):
         recoverable += 1
-    if audit_events:
+    if entity:
         recoverable += 1
-    if result.transaction.subject_ref:
+    if subject_ref:
         recoverable += 1
     return {
         "name": "fhir_projection",
         "implementation": "fhir_r4_projection",
+        "independence": "source_bundle",
         "arc": recoverable / len(REQUIRED_FIELDS),
         "tamper_detection_rate": 0.0,
         "queryability": 0.25 if provenance else 0.0,
-        "storage_bytes": len(canonicalize({"provenance": provenance, "audit_events": audit_events})),
-        "reviewer_fields": ["subject"] if result.transaction.subject_ref else [],
+        "storage_bytes": len(canonicalize({"provenance": provenance})),
+        "reviewer_fields": ["subject"] if subject_ref else [],
     }
 
 
@@ -183,6 +192,7 @@ def _complete_baseline(result, public_key) -> dict[str, object]:
     return {
         "name": "complete_plane",
         "implementation": "complete_audit_plane",
+        "independence": "audit_chain",
         "arc": arc,
         "tamper_detection_rate": 1.0 if status in TAMPER_STATUSES else 0.0,
         "queryability": _queryable(result),
@@ -250,6 +260,12 @@ def _measure_overhead(pipeline: Pipeline) -> dict[str, object]:
 def run_evaluation_harness(pipeline: Pipeline) -> EvaluationHarnessReport:
     result = pipeline.run_transaction(human_action=HumanActionStatus.ACCEPT, actor="reviewer@curie.local")
     overhead = _measure_overhead(pipeline)
+    with tempfile.TemporaryDirectory(prefix="curie-baseline-") as temp:
+        isolated = _isolated_pipeline(pipeline, Path(temp) / "unrecorded")
+        unrecorded = isolated.run_unrecorded_workflow(log_path=Path(temp) / "workflow.jsonl")
+        bundle = load_bundle(isolated.fixture_path)
+        isolated.close()
+    records = list(unrecorded.get("records") or [])
 
     identified: list[str] = []
     values = reconstruct_fields(result)
@@ -269,9 +285,9 @@ def run_evaluation_harness(pipeline: Pipeline) -> EvaluationHarnessReport:
     reviewer_ms = (perf_counter() - reviewer_started) * 1000
 
     baselines = [
-        _application_log_baseline(result),
-        _hash_only_baseline(result),
-        _fhir_baseline(result),
+        _application_log_baseline(records),
+        _hash_only_baseline(records),
+        _fhir_baseline_from_bundle(bundle),
         _complete_baseline(result, pipeline.services.public_key),
     ]
     return EvaluationHarnessReport(

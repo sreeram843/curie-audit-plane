@@ -325,7 +325,12 @@ def _experiment_metadata(pipeline: Pipeline, generated_at: str, result: Any) -> 
         "generated_at": generated_at,
         "synthea_license": synthea.get("license"),
         "synthea_source": synthea.get("source"),
-        "synthea_version": synthea.get("version"),
+        "synthea_generator_version": synthea.get("generator_version"),
+        "synthea_population_seed": synthea.get("population_seed"),
+        "synthea_modules": synthea.get("modules") or [],
+        "synthea_cli": synthea.get("cli"),
+        "synthea_pinned": bool(synthea.get("pinned")),
+        "synthea_version": synthea.get("generator_version") or "NOT_PINNED",
     }
 
 

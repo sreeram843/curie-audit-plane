@@ -235,7 +235,19 @@ def run_benchmark(pipeline: Pipeline) -> BenchmarkReport:
         ),
         "proof_substitution": _verify(events, other.batch, public_key),
     }
-    cases: list[dict[str, object]] = [{"name": "clean", "detected": false_flags == 0, "kind": "clean"}]
+    clean_status = verify_transaction(clean.events, clean.batch, public_key)
+    cases: list[dict[str, object]] = [
+        {
+            "name": "clean",
+            "kind": "clean_verification",
+            "detected": False,
+            "expected_detected": False,
+            "false_positive": clean_status.status != VerificationStatus.VERIFIED,
+            "false_negative": False,
+            "verifier_status": clean_status.status.value,
+            "mutation_type": None,
+        }
+    ]
     cases.extend(_case(name, report, mutation_type=name) for name, report in reports.items())
     cases.append({"name": "replay_stub", "kind": "replay", "result": replay.result, "detected": False})
     tamper_cases = [case for case in cases if case["kind"] == "tamper"]

@@ -164,12 +164,16 @@ Ablations omit input manifests, transformations, model and prompt metadata,
 evidence references, cryptographic proofs, or human provenance.
 Access-control probes record allowed and denied HTTP outcomes for reviewer,
 investigator, admin, output, content, export, missing transaction, and global
-list scope.
+list scope. Application JSONL and hash-only JSONL are separately instrumented
+from the unrecorded workflow; the FHIR projection is built from the source
+bundle. These recorders are not independently shipped products. The complete
+plane is scored from the signed audit chain.
 
 The default $50$-encounter cohort rewrites one synthetic fixture. It is a
 single-workflow protocol demonstration, not a population sample.
-Optional Synthea slices are accepted only from roots listed in an approved
-manifest~\cite{walonoski2018synthea}.
+Optional Synthea slices may run from approved roots when dumps exist, but they
+are excluded from measured evidence because generator version, seed, module set,
+and CLI are not pinned~\cite{walonoski2018synthea}.
 
 \subsection{Threat Model}
 \label{sec:threat}
@@ -186,8 +190,8 @@ compromised signing keys or a malicious protected-content store operator.
 
 All numbers below are from the frozen stub evaluation campaign in
 \texttt{evaluation-results/} (schema \texttt{curie-evaluation.v1.1}).
-Software-quality checks at the time of this draft were $135$ Python tests,
-$94.44\%$ statement coverage, and a clean Ruff pass; those are not clinical
+Software-quality checks at the time of this draft were $143$ Python tests,
+$94.59\%$ statement coverage, and a clean Ruff pass; those are not clinical
 performance.
 
 \subsection{Reconstructability and Tamper Detection}
@@ -197,19 +201,19 @@ in-memory object is also $20/20$. Required-event completeness is $11/11$ for
 a successful transaction. All $19$ labeled tamper cases are detected, and the
 false-tamper rate over three clean runs is $0$. On the cloned $50$-encounter
 cohort, independently verified completeness remains $1.00$ with Wilson $95\%$
-interval $[0.93, 1.00]$ ($n=50$).
+interval $[0.93, 1.00]$ ($n=50$) after reloading persisted records.
 
 \begin{table}[!t]
 \centering
 \caption{Baseline comparison on the synthetic fixture (complete plane versus
-independently implemented recorders).}
+separately instrumented unrecorded-workflow and source-bundle recorders).}
 \label{tab:baselines}
 \begin{tabular}{lccc}
 \toprule
 Recorder & ARC & Tamper detection & Queryability \\
 \midrule
-Application JSONL & $0.05$ & $0.00$ & $0.00$ \\
-Hash-only JSONL & $0.05$ & $1.00$ & $0.00$ \\
+Application JSONL & $0.10$ & $0.00$ & $0.00$ \\
+Hash-only JSONL & $0.15$ & $1.00$ & $0.00$ \\
 FHIR R4 projection & $0.20$ & $0.00$ & $0.25$ \\
 Complete plane & $1.00$ & $1.00$ & $1.00$ \\
 \bottomrule
@@ -258,12 +262,12 @@ unauthenticated list denied ($401$); missing transaction reported as missing
 ($404$); global list allowed.
 
 \subsection{Overhead and Replay}
-Mean plane latency is $12.0$\,ms versus $6.7$\,ms for the identical
-unrecorded workflow (paired latency ratio $0.80$, $95\%$ interval
-$[0.72, 0.88]$, $n=3$ after one warmup). Storage ratio versus that workflow is
+Mean plane latency is $14.20$\,ms versus $8.61$\,ms for the identical
+unrecorded workflow (paired latency ratio $0.650$, $95\%$ interval
+$[0.604, 0.697]$, $n=3$ after one warmup). Storage ratio versus that workflow is
 $6.31$ ($81\,885$ versus $11\,209$ bytes). These values do not support a claim
 that audit capture is under $15\%$ of an already-complete clinical
-application. Verification of the clean transaction is $0.94$\,ms.
+application. Verification of the clean transaction is $1.06$\,ms.
 Deterministic-stub same-prompt replay is exact; prompt-substitution replay is
 \texttt{DIVERGENT} by construction. Hosted-model same-prompt replay is at best
 \texttt{EQUIVALENT} and is often \texttt{DIVERGENT}.
@@ -271,7 +275,8 @@ Deterministic-stub same-prompt replay is exact; prompt-substitution replay is
 The $16$-arm scenario matrix exercises ACCEPT/MODIFY/REJECT, forced and
 natural WARN/BLOCK, provider failure, sparse encounter, Synthea slices,
 MODIFY evidence, prompt-substitution replay, and access audit. It is workflow
-coverage, not a population sample. Console reconstruction is
+coverage, not a population sample. The two Synthea slice arms are unpinned
+demonstrations and are excluded from measured tables. Console reconstruction is
 \texttt{SCRIPTED\_PROXY} only.
 
 \section{Limitations}
@@ -281,9 +286,8 @@ This is a single-workflow protocol demonstration on synthetic FHIR fixtures.
 The default cohort rewrites one fixture; it is not $50$ independent patients
 and does not support population-style inference. FHIR projections are mapping
 rules, not Implementation Guide profile validation. Synthea generator version
-and CLI parameters must be recorded by the operator of any local dump; this
-repository stores an approved-root manifest and license, not patient dumps.
-A DOI for the public archive is not assigned in this draft.
+and CLI parameters are \texttt{NOT\_PINNED}; optional slice arms are excluded
+from measured evidence. A DOI for the public archive is not assigned in this draft.
 
 \section{Ethics, Funding, and Disclosure}
 \label{sec:ethics}

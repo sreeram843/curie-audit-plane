@@ -30,13 +30,16 @@ still carry the Synthea identifier system.
 
 ## Generator parameters
 
-This repository does not pin a Synthea CLI invocation. Record the exact
-Synthea version, population seed, and module set used to produce any dump
-that supports a paper table. Fixture hashes for sliced encounters appear in
-scenario `notes` as a 12-character SHA-256 prefix of the **source file bytes**.
+This repository does **not** pin a Synthea generator version, population seed,
+module set, or CLI invocation (`pinned: false` in the approved manifest).
+Optional slice arms are protocol demonstrations when dumps exist under an
+approved root. Treat generator version, seed, modules, and CLI as
+**NOT_MEASURED** until an operator records them in the manifest. Fixture hashes
+for sliced encounters appear in scenario `notes` as a 12-character SHA-256
+prefix of the **source file bytes**.
 
 ## Paper claim
 
-Synthea arms are a protocol demonstration on independently generated
-synthetic patients when those files are present. They do not convert the
-cloned one-fixture cohort into a clinical population sample.
+Synthea arms are a protocol demonstration on external synthetic patients when
+those files are present. They do not convert the cloned one-fixture cohort
+into a clinical population sample. Generator version is **NOT_PINNED**.

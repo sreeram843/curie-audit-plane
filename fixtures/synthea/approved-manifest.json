@@ -3,7 +3,11 @@
   "license": "CC-BY 4.0",
   "source": "https://github.com/synthetichealth/synthea",
   "synthea_identifier_system": "https://github.com/synthetichealth/synthea",
-  "version": "documented-in-docs/evaluation/synthea-provenance.md",
+  "generator_version": null,
+  "population_seed": null,
+  "modules": [],
+  "cli": null,
+  "pinned": false,
   "approved_roots": [
     "../curie-prediction-pipeline/data/synthea/fhir"
   ]
