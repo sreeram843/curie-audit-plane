@@ -16,7 +16,7 @@ cannot satisfy Gate C.
 
 ## Commands
 
-From a clean clone of the commit under test:
+From a clean clone of tag `jbhi-eval-20260828` (or the commit under test):
 
 ```bash
 uv sync

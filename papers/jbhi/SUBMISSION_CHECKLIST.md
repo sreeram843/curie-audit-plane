@@ -43,7 +43,12 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 - [ ] Suggest **4 independent reviewers** in the portal (`suggested_reviewers.md` is a draft; verify emails)
 - [ ] Run **IEEE PDF Checker**
 - [ ] Assign a public **DOI** (not invented in this repository)
-- [ ] Clean-clone release proof: tagged commit regenerates headline tables
+- [x] Clean-clone release proof: annotated tag `jbhi-eval-20260828`
+      (commit `27d8b6a`) regenerates headline ARC 20/20, tamper 19/19,
+      allocated 81885/11373 bytes, and logical 39454/11373 bytes from a
+      clean clone. Regenerated experiment metadata records the tag commit
+      (`27d8b6a`, `git_dirty: false`); frozen campaign files record source
+      `0dcf801`.
 - [ ] Author Consent Form: **not required** for single-author papers unless the portal marks it required
 
 ### Manuscript rules addressed in `main.tex`
