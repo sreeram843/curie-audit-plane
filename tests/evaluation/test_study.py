@@ -35,8 +35,10 @@ def test_cohort_study_aggregates_repeated_runs_with_confidence_intervals(tmp_pat
     arc = study.metrics["audit_reconstruction_completeness"]
     assert arc["mean"] == 1.0
     assert arc["median"] == 1.0
-    assert arc["ci95_low"] == 1.0
+    assert arc["interval"] == "wilson"
     assert arc["ci95_high"] == 1.0
+    assert arc["ci95_low"] < 1.0
+    assert study.metrics["run_latency"]["interval"] == "normal"
     assert study.metrics["tamper_detection_rate"]["status"] == "REPRESENTATIVE_CASE"
     assert study.metrics["verification_latency"]["unit"] == "milliseconds"
     assert len(study.observations) == 6

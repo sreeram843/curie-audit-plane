@@ -271,7 +271,7 @@ The first visual design direction is **clinical operations console**: a quiet ne
 
 ### Performance targets for the prototype
 
-- Capture overhead: target less than 15% additional wall-clock time excluding human review; report the measured result.
+- Capture overhead: report incremental latency and storage versus an identical unrecorded clinical workflow; do not claim a 15% target unless that measured ratio is below 15%.
 - Verification: verify a single transaction in under 1 second on the reference development machine for the target event volume.
 - UI load: render a transaction with up to 100 events in under 2 seconds locally after data retrieval.
 - Availability: not a production SLA for the prototype; test restart/recovery behavior and document limitations.
@@ -554,7 +554,8 @@ The prototype is complete when all of the following are true:
 1. Can a provenance layer reconstruct the observable basis of a clinical AI output without storing hidden chain-of-thought or raw PHI in an immutable store?
 2. How reliably does the integrity scheme detect mutation, omission, reordering, and proof substitution?
 3. What latency and storage overhead does complete capture introduce?
-4. Does the transaction UI help reviewers identify evidence, uncertainty, guardrail failures, and human disposition?
+4. Can the transaction UI expose evidence, uncertainty, guardrail failures, and human disposition as recorded artifacts? Answered as a system demonstration with `SCRIPTED_PROXY` reconstruction, not a human-subject usability study.
+5. How much replay fidelity is possible for a deterministic stub versus a hosted nondeterministic model?
 
 ### Benchmark design
 
@@ -572,16 +573,16 @@ Create a controlled benchmark of synthetic FHIR transactions with:
 
 | Metric | Definition | Target for prototype |
 |---|---|---|
-| Audit Reconstruction Completeness (ARC) | Required provenance fields successfully reconstructed and independently verified ÷ total required fields, reported per transaction and aggregate | ≥95% on clean benchmark; no silent missing fields |
+| Audit Reconstruction Completeness (ARC) | Required provenance fields successfully reconstructed from persisted records and independently verified ÷ total required fields (`independently_verified_arc`); report `field_presence_arc` separately | ≥95% independently verified on clean benchmark; no silent missing fields |
 | Required-event completeness | Required event types present with valid links ÷ required event types | 100% for successful transactions |
 | Tamper detection rate | Tampered benchmark cases correctly flagged ÷ all tampered cases | 100% for defined mutation suite |
 | False tamper rate | Untampered cases incorrectly flagged ÷ all clean cases | 0% on fixture benchmark |
 | Replay fidelity | Runs classified exact/equivalent/divergent using predefined comparison rules | Report by provider/configuration; no universal target for nondeterministic models |
 | Evidence attribution coverage | Output claims with valid evidence references ÷ claims requiring evidence | ≥90% in structured-output benchmark |
 | Human-action capture completeness | Completed runs with actor, action, time, and final-output digest ÷ runs reaching review | 100% |
-| Capture overhead | Added latency and storage relative to baseline AI workflow | Report; target <15% latency overhead |
+| Capture overhead | Added latency and storage relative to an identical unrecorded clinical workflow | Report measured ratio; do not claim <15% unless that baseline is met |
 | Verification latency | Time to verify one transaction and one batch proof | <1 second locally for target fixture size |
-| Reviewer task success | Correctly identify source, model, evidence, guardrail, and human action in a timed task | Establish baseline, then improve |
+| Reviewer task success | Correctly identify source, model, evidence, guardrail, and human action in a timed task | `SCRIPTED_PROXY` only; no human-subject usability claim in this paper |
 
 ### Experimental discipline
 
@@ -598,7 +599,7 @@ The prototype can support a paper organized around:
 2. Design: data/proof separation, event model, FHIR mappings, and cryptographic integrity.
 3. Prototype: one FHIR-to-LLM workflow with structured rationale and human review.
 4. Threat model: mutation, omission, leakage, replay substitution, and key compromise.
-5. Evaluation: ARC, tamper detection, replay fidelity, overhead, and reviewer task performance.
+5. Evaluation: independently verified ARC, field-presence ARC, tamper detection with labeled mutations, replay fidelity, overhead versus application logging, and `SCRIPTED_PROXY` reviewer-field reconstruction.
 6. Limitations: synthetic data, narrow workflow, provider nondeterminism, incomplete clinical semantics, operational key management, and no clinical efficacy claim.
 7. Future work: multi-agent workflows, longitudinal monitoring, deployment pilots, policy packs, and independent third-party verification.
 

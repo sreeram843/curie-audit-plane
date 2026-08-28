@@ -27,4 +27,14 @@ console/coverage/
 *.pem
 *.key
 !fixtures/**
+papers/jbhi/*.aux
+papers/jbhi/*.log
+papers/jbhi/*.out
+papers/jbhi/*.bbl
+papers/jbhi/*.blg
+papers/jbhi/*.fdb_latexmk
+papers/jbhi/*.fls
+papers/jbhi/*.synctex.gz
+.serena/
+skill-observations/
 

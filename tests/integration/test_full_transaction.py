@@ -152,6 +152,26 @@ def test_replay_uses_recorded_stub_runtime_not_current_completer(tmp_path):
     assert replay.result == "EXACT_MATCH"
 
 
+def test_replay_with_prompt_v2_is_divergent_on_stub(tmp_path):
+    pipeline = _pipeline(tmp_path)
+    result = pipeline.run_transaction(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+        prompt_version="clinical-summary.v1",
+    )
+    replayed = pipeline.replay(
+        result.transaction.transaction_id,
+        prompt_version="clinical-summary.v2",
+    )
+    assert replayed.result == "DIVERGENT"
+    assert "summary differs" in replayed.reasons
+    access = pipeline.services.audit.list_access_events(result.transaction.transaction_id)
+    assert any(event.event_type == EventType.REPLAY_RECORDED for event in access)
+    loaded = pipeline.load_result(result.transaction.transaction_id)
+    assert loaded.verification.status == VerificationStatus.VERIFIED
+    pipeline.close()
+
+
 def test_pipeline_rejects_pending_as_terminal_disposition(tmp_path):
     pipeline = _pipeline(tmp_path)
     with pytest.raises(ValueError, match="PENDING"):
@@ -201,6 +221,25 @@ def test_forced_adapter_failure_does_not_leave_running(tmp_path):
     failed = next(event for event in result.events if event.event_type == EventType.TRANSACTION_FAILED)
     assert failed.payload_metadata["error_code"] == "RuntimeError"
     assert result.events[-1].event_hash
+
+
+def test_adapter_exception_text_is_not_stored_on_the_audit_chain(tmp_path):
+    pipeline = _pipeline(tmp_path)
+
+    def boom(_request):
+        raise RuntimeError("provider echoed Patient TEST-00001 and 123-45-6789")
+
+    pipeline.completer = boom
+    result = pipeline.run_transaction(actor="reviewer@curie.local")
+    assert result.transaction.status == TransactionStatus.FAILED
+    failed = next(event for event in result.events if event.event_type == EventType.TRANSACTION_FAILED)
+    meta = json.dumps(failed.payload_metadata)
+    assert failed.payload_metadata["error_code"] == "RuntimeError"
+    assert "TEST-00001" not in meta
+    assert "123-45-6789" not in meta
+    assert "provider echoed" not in meta
+    assert failed.payload_metadata.get("message") in {"", None}
+    assert "message_digest" not in failed.payload_metadata
 
 
 def test_transformation_events_include_full_record(tmp_path):

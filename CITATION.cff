@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+title: Curie Audit Plane
+message: If you use this software, please cite it as below.
+type: software
+authors:
+  - family-names: Mentey
+    given-names: Satya Venkata Ranga Janaki Sriram
+    orcid: "https://orcid.org/0009-0007-2681-006X"
+    email: srirammentey@ieee.org
+    affiliation: Independent researcher
+repository-code: https://github.com/sreeram843/curie-audit-plane
+license: MIT
+version: 0.1.0
+abstract: >
+  A privacy-preserving provenance plane for reconstructing and verifying a
+  bounded synthetic FHIR-to-LLM clinical AI transaction without storing hidden
+  chain-of-thought or raw PHI in an immutable audit store.
+keywords:
+  - FHIR
+  - clinical AI
+  - provenance
+  - auditability
+  - health informatics

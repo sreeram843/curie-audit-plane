@@ -1,15 +1,30 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
+import platform
+import subprocess
+import sys
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
+from pathlib import Path
 from time import perf_counter
 from typing import Any
+from urllib.parse import urlparse
 
+from curie_audit_plane.config import settings
+from curie_audit_plane.evaluation.ablation import run_ablations
+from curie_audit_plane.evaluation.access import run_access_control_evaluation
 from curie_audit_plane.evaluation.benchmark import run_benchmark
-from curie_audit_plane.evaluation.fields import REQUIRED_FIELDS
+from curie_audit_plane.evaluation.fields import (
+    REQUIRED_FIELDS,
+    audit_reconstruction_completeness,
+    evidence_attribution_coverage,
+    independently_verified_arc,
+)
 from curie_audit_plane.evaluation.harness import run_evaluation_harness
+from curie_audit_plane.evaluation.scenarios import run_scenario_matrix, synthea_manifest
 from curie_audit_plane.evaluation.study import CohortStudyReport
 from curie_audit_plane.integrity.verifier import verify_transaction
 from curie_audit_plane.models.enums import (
@@ -20,7 +35,7 @@ from curie_audit_plane.models.enums import (
 )
 from curie_audit_plane.pipeline import Pipeline
 
-REPORT_SCHEMA_VERSION = "curie-evaluation.v1"
+REPORT_SCHEMA_VERSION = "curie-evaluation.v1.1"
 CSV_FIELDS = [
     "row_type",
     "name",
@@ -55,9 +70,13 @@ class EvaluationReport:
     metrics: list[MetricResult] = field(default_factory=list)
     cases: list[dict[str, object]] = field(default_factory=list)
     baselines: list[dict[str, object]] = field(default_factory=list)
-    overhead: dict[str, float] = field(default_factory=dict)
+    overhead: dict[str, object] = field(default_factory=dict)
     reviewer_task: dict[str, object] = field(default_factory=dict)
     study: dict[str, object] | None = None
+    scenarios: dict[str, object] | None = None
+    experiment: dict[str, object] = field(default_factory=dict)
+    ablations: list[dict[str, object]] = field(default_factory=list)
+    access_control: dict[str, object] = field(default_factory=dict)
 
     def to_json_dict(self) -> dict[str, object]:
         return {
@@ -65,12 +84,16 @@ class EvaluationReport:
             "generated_at": self.generated_at,
             "fixture": self.fixture,
             "runtime": self.runtime,
+            "experiment": self.experiment,
             "metrics": [asdict(metric) for metric in self.metrics],
             "cases": self.cases,
             "baselines": self.baselines,
             "overhead": self.overhead,
             "reviewer_task": self.reviewer_task,
             "study": self.study,
+            "scenarios": self.scenarios,
+            "ablations": self.ablations,
+            "access_control": self.access_control,
         }
 
     def to_csv_rows(self) -> list[dict[str, object]]:
@@ -112,6 +135,54 @@ class EvaluationReport:
                         "result": "",
                     }
                 )
+        for scenario in (self.scenarios or {}).get("scenarios", []):
+            rows.append(
+                {
+                    "row_type": "scenario",
+                    "name": scenario.get("name", ""),
+                    "kind": scenario.get("forced_guardrail") or scenario.get("human_action") or "",
+                    "status": scenario.get("transaction_status") or scenario.get("status") or "",
+                    "value": scenario.get("arc", ""),
+                    "numerator": "",
+                    "denominator": "",
+                    "unit": "",
+                    "notes": scenario.get("notes", ""),
+                    "detected": "",
+                    "result": scenario.get("verification_status") or "",
+                }
+            )
+        for ablation in self.ablations:
+            rows.append(
+                {
+                    "row_type": "ablation",
+                    "name": ablation.get("name", ""),
+                    "kind": "ablation",
+                    "status": "MEASURED",
+                    "value": ablation.get("arc", ""),
+                    "numerator": "",
+                    "denominator": "",
+                    "unit": "fraction",
+                    "notes": ablation.get("interpretation", ""),
+                    "detected": "",
+                    "result": ablation.get("delta", ""),
+                }
+            )
+        for case in (self.access_control or {}).get("cases", []):
+            rows.append(
+                {
+                    "row_type": "access",
+                    "name": case.get("name", ""),
+                    "kind": "access_control",
+                    "status": "PASS" if case.get("passed") else "FAIL",
+                    "value": 1.0 if case.get("passed") else 0.0,
+                    "numerator": case.get("observed_status", ""),
+                    "denominator": case.get("expected_status", ""),
+                    "unit": "http_status",
+                    "notes": case.get("path", ""),
+                    "detected": "",
+                    "result": case.get("role", ""),
+                }
+            )
         for case in self.cases:
             rows.append(
                 {
@@ -150,35 +221,11 @@ def _metric(
     return MetricResult(name, value, numerator, denominator, unit, status, notes)
 
 
-def _evidence_coverage(result: Any) -> MetricResult:
-    retrieval = next(
-        (event for event in result.events if event.event_type == EventType.RETRIEVAL_COMPLETED),
-        None,
-    )
-    input_manifest = next(
-        (event for event in result.events if event.event_type == EventType.INPUT_MANIFEST_CREATED),
-        None,
-    )
-    valid_ids = {
-        str(item) for item in (retrieval.payload_metadata.get("chunk_ids") if retrieval else []) or []
-    }
-    valid_ids.update(
-        str(item)
-        for item in (input_manifest.payload_metadata.get("resource_ids") if input_manifest else []) or []
-    )
-    findings = result.output.findings if result.output else []
-    if not findings:
+def _evidence_coverage(result: Any, content_store: Any) -> MetricResult:
+    value, valid_claims, total = evidence_attribution_coverage(result, content_store)
+    if value is None:
         return _metric("evidence_attribution_coverage", None, 0, 0, "fraction", "NOT_APPLICABLE")
-    valid_claims = sum(
-        bool(finding.evidence_refs) and set(finding.evidence_refs) <= valid_ids for finding in findings
-    )
-    return _metric(
-        "evidence_attribution_coverage",
-        valid_claims / len(findings),
-        valid_claims,
-        len(findings),
-        "fraction",
-    )
+    return _metric("evidence_attribution_coverage", value, valid_claims, total, "fraction")
 
 
 def _human_action_capture(result: Any) -> MetricResult:
@@ -206,6 +253,82 @@ def _recorded_runtime(result: Any) -> str:
     return str(runtime or "deterministic-stub")
 
 
+def _git_commit() -> str | None:
+    try:
+        completed = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    commit = completed.stdout.strip()
+    return commit or None
+
+
+def _git_dirty() -> bool:
+    try:
+        completed = subprocess.run(
+            ["git", "status", "--porcelain"],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return bool(completed.stdout.strip())
+
+
+def _endpoint_class(endpoint: str, runtime: str) -> str:
+    if runtime == "deterministic-stub" or str(endpoint).startswith("stub://"):
+        return "deterministic-stub"
+    host = urlparse(str(endpoint)).hostname or ""
+    if host in {"127.0.0.1", "localhost", "::1"}:
+        return "loopback"
+    return "other"
+
+
+def _experiment_metadata(pipeline: Pipeline, generated_at: str, result: Any) -> dict[str, object]:
+    fixture_path = Path(pipeline.fixture_path)
+    fixture_alias = fixture_path.stem
+    digest = ""
+    if fixture_path.is_file():
+        digest = hashlib.sha256(fixture_path.read_bytes()).hexdigest()
+    model_event = next(
+        (event for event in result.events if event.event_type == EventType.MODEL_REQUESTED),
+        None,
+    )
+    metadata = model_event.payload_metadata if model_event else {}
+    runtime = str(metadata.get("runtime") or "deterministic-stub")
+    endpoint = str(metadata.get("endpoint") or "")
+    decoding = metadata.get("decoding_params") or {}
+    seed = decoding.get("seed") if isinstance(decoding, dict) else None
+    synthea = synthea_manifest()
+    return {
+        "git_commit": _git_commit(),
+        "git_dirty": _git_dirty(),
+        "fixture_alias": fixture_alias,
+        "fixture_sha256": digest,
+        "provider": metadata.get("provider_id") or settings.llm_provider,
+        "configured_provider": settings.llm_provider,
+        "model_id": metadata.get("model_id") or settings.llm_model,
+        "prompt_version": metadata.get("prompt_version") or "clinical-summary.v1",
+        "decoding_params": decoding,
+        "endpoint_class": _endpoint_class(endpoint, runtime),
+        "seed": seed if seed is not None else 0,
+        "python_version": sys.version.split()[0],
+        "platform": platform.platform(),
+        "command": "curie-audit-plane evaluate --output-dir <output-dir> --encounters N --repetitions R",
+        "generated_at": generated_at,
+        "synthea_license": synthea.get("license"),
+        "synthea_source": synthea.get("source"),
+        "synthea_version": synthea.get("version"),
+    }
+
+
 def build_evaluation_report(
     pipeline: Pipeline,
     *,
@@ -213,10 +336,13 @@ def build_evaluation_report(
 ) -> EvaluationReport:
     benchmark = run_benchmark(pipeline)
     harness = run_evaluation_harness(pipeline)
+    scenarios = run_scenario_matrix(pipeline)
     clean_result = pipeline.run_transaction(
         human_action=HumanActionStatus.ACCEPT,
         actor="reviewer@curie.local",
     )
+    ablations = run_ablations(clean_result)
+    access_control = run_access_control_evaluation(pipeline)
 
     verification_started = perf_counter()
     verification = verify_transaction(
@@ -230,19 +356,42 @@ def build_evaluation_report(
     replay_case = next((case for case in benchmark.cases if case.get("kind") == "replay"), None)
     replay_classification = str(replay_case.get("result")) if replay_case else "NOT_REPLAYABLE"
     replay_value = 1.0 if replay_classification in {"EXACT_MATCH", "EQUIVALENT"} else 0.0
-    baseline_ms = harness.capture_overhead.get("latency_ms_baseline", 0.0)
-    plane_ms = harness.capture_overhead.get("latency_ms_plane", 0.0)
-    storage_log = harness.capture_overhead.get("storage_bytes_log", 0.0)
-    storage_plane = harness.capture_overhead.get("storage_bytes_plane", 0.0)
+    tamper_cases = [case for case in benchmark.cases if case.get("kind") == "tamper"]
+    tamper_detected = sum(1 for case in tamper_cases if case.get("detected"))
+    field_presence, _ = audit_reconstruction_completeness(clean_result)
+    verified_arc, _ = independently_verified_arc(pipeline, clean_result.transaction.transaction_id)
+    ratio_info = harness.capture_overhead.get("latency_ratio") or {}
+    latency_ratio = float(ratio_info.get("mean") if isinstance(ratio_info, dict) else ratio_info or 0.0)
+    baseline_ms = float(harness.capture_overhead.get("latency_ms_baseline_mean") or 0.0)
+    plane_ms = float(harness.capture_overhead.get("latency_ms_plane_mean") or 0.0)
+    storage_baseline = float(harness.capture_overhead.get("storage_bytes_baseline_mean") or 0.0)
+    storage_plane = float(harness.capture_overhead.get("storage_bytes_plane") or 0.0)
+    generated_at = datetime.now(UTC).isoformat()
 
     metrics = [
         _metric(
-            "audit_reconstruction_completeness",
-            benchmark.clean_arc,
-            round(benchmark.clean_arc * len(REQUIRED_FIELDS)),
+            "field_presence_arc",
+            field_presence,
+            round(field_presence * len(REQUIRED_FIELDS)),
             len(REQUIRED_FIELDS),
             "fraction",
-            notes="Current prototype field-presence ARC; independent verification is reported separately.",
+            notes="Required-field presence on the in-memory transaction object.",
+        ),
+        _metric(
+            "independently_verified_arc",
+            verified_arc,
+            round(verified_arc * len(REQUIRED_FIELDS)),
+            len(REQUIRED_FIELDS),
+            "fraction",
+            notes="Required-field presence after reloading persisted records and independent verification.",
+        ),
+        _metric(
+            "audit_reconstruction_completeness",
+            verified_arc,
+            round(verified_arc * len(REQUIRED_FIELDS)),
+            len(REQUIRED_FIELDS),
+            "fraction",
+            notes="Headline ARC equals independently_verified_arc from persisted records.",
         ),
         _metric(
             "required_event_completeness",
@@ -254,9 +403,9 @@ def build_evaluation_report(
         ),
         _metric(
             "tamper_detection_rate",
-            benchmark.tamper_detection_rate,
-            round(benchmark.tamper_detection_rate * 12),
-            12,
+            (tamper_detected / len(tamper_cases)) if tamper_cases else None,
+            tamper_detected,
+            len(tamper_cases),
             "fraction",
         ),
         _metric(
@@ -274,23 +423,26 @@ def build_evaluation_report(
             "fraction_exact_or_equivalent",
             notes=f"classification={replay_classification}",
         ),
-        _evidence_coverage(clean_result),
+        _evidence_coverage(clean_result, pipeline.services.content),
         _human_action_capture(clean_result),
         _metric(
             "capture_overhead",
-            harness.capture_overhead.get("latency_ratio"),
+            latency_ratio,
             plane_ms - baseline_ms,
             baseline_ms,
             "latency_ratio",
-            notes="Compared with the same completer without audit capture; storage values are included in the report.",
+            notes=(
+                "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; "
+                "storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
+            ),
         ),
         _metric(
             "storage_overhead",
-            (storage_plane - storage_log) / storage_log if storage_log else None,
-            storage_plane - storage_log,
-            storage_log,
+            (storage_plane - storage_baseline) / storage_baseline if storage_baseline else None,
+            storage_plane - storage_baseline,
+            storage_baseline,
             "storage_ratio",
-            status="MEASURED" if storage_log else "NOT_AVAILABLE",
+            status="MEASURED" if storage_baseline else "NOT_AVAILABLE",
         ),
         _metric(
             "verification_latency",
@@ -312,8 +464,8 @@ def build_evaluation_report(
         ),
     ]
     return EvaluationReport(
-        generated_at=datetime.now(UTC).isoformat(),
-        fixture=str(pipeline.fixture_path),
+        generated_at=generated_at,
+        fixture="synthetic-encounter-bundle",
         runtime=_recorded_runtime(clean_result),
         metrics=metrics,
         cases=benchmark.cases,
@@ -321,4 +473,8 @@ def build_evaluation_report(
         overhead=harness.capture_overhead,
         reviewer_task=harness.reviewer_task,
         study=cohort_study.to_json_dict() if cohort_study else None,
+        scenarios=scenarios,
+        experiment=_experiment_metadata(pipeline, generated_at, clean_result),
+        ablations=ablations,
+        access_control=access_control,
     )

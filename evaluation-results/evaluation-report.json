@@ -1,9 +1,50 @@
 {
-  "schema_version": "curie-evaluation.v1",
-  "generated_at": "2026-08-27T23:53:48.463470+00:00",
-  "fixture": "/Users/srirammentey/AI/curie-audit-plane/fixtures/fhir/synthetic-encounter-bundle.json",
+  "schema_version": "curie-evaluation.v1.1",
+  "generated_at": "2026-08-28T14:53:14.230909+00:00",
+  "fixture": "synthetic-encounter-bundle",
   "runtime": "deterministic-stub",
+  "experiment": {
+    "git_commit": "771cfcb2829db7bb8fa4bce148e5638f86d33a2f",
+    "git_dirty": true,
+    "fixture_alias": "synthetic-encounter-bundle",
+    "fixture_sha256": "e3a614c49170ee55d9a808cce842d7f8799a58a32746b55f56c5c9942a2aa89f",
+    "provider": "curie-stub",
+    "configured_provider": "stub",
+    "model_id": "curie-stub-summary",
+    "prompt_version": "clinical-summary.v1",
+    "decoding_params": {
+      "temperature": 0,
+      "seed": 0
+    },
+    "endpoint_class": "deterministic-stub",
+    "seed": 0,
+    "python_version": "3.14.6",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "command": "curie-audit-plane evaluate --output-dir <output-dir> --encounters N --repetitions R",
+    "generated_at": "2026-08-28T14:53:14.230909+00:00",
+    "synthea_license": "CC-BY 4.0",
+    "synthea_source": "https://github.com/synthetichealth/synthea",
+    "synthea_version": "documented-in-docs/evaluation/synthea-provenance.md"
+  },
   "metrics": [
+    {
+      "name": "field_presence_arc",
+      "value": 1.0,
+      "numerator": 20,
+      "denominator": 20,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": "Required-field presence on the in-memory transaction object."
+    },
+    {
+      "name": "independently_verified_arc",
+      "value": 1.0,
+      "numerator": 20,
+      "denominator": 20,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "notes": "Required-field presence after reloading persisted records and independent verification."
+    },
     {
       "name": "audit_reconstruction_completeness",
       "value": 1.0,
@@ -11,7 +52,7 @@
       "denominator": 20,
       "unit": "fraction",
       "status": "MEASURED",
-      "notes": "Current prototype field-presence ARC; independent verification is reported separately."
+      "notes": "Headline ARC equals independently_verified_arc from persisted records."
     },
     {
       "name": "required_event_completeness",
@@ -25,8 +66,8 @@
     {
       "name": "tamper_detection_rate",
       "value": 1.0,
-      "numerator": 12,
-      "denominator": 12,
+      "numerator": 19,
+      "denominator": 19,
       "unit": "fraction",
       "status": "MEASURED",
       "notes": ""
@@ -69,26 +110,26 @@
     },
     {
       "name": "capture_overhead",
-      "value": 414.4366068850296,
-      "numerator": 21.23987500090152,
-      "denominator": 0.05124999734107405,
+      "value": 0.8004421066572956,
+      "numerator": 5.336291661175589,
+      "denominator": 6.683055330843975,
       "unit": "latency_ratio",
       "status": "MEASURED",
-      "notes": "Compared with a stub completion-only baseline; storage values are included in the report."
+      "notes": "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
     },
     {
       "name": "storage_overhead",
-      "value": 2086.8033395176253,
-      "numerator": 6748722.0,
-      "denominator": 3234.0,
+      "value": 6.305290391649567,
+      "numerator": 70676.0,
+      "denominator": 11209.0,
       "unit": "storage_ratio",
       "status": "MEASURED",
       "notes": ""
     },
     {
       "name": "verification_latency",
-      "value": 2.307959002791904,
-      "numerator": 2.307959002791904,
+      "value": 0.9430830250494182,
+      "numerator": 0.9430830250494182,
       "denominator": 1,
       "unit": "milliseconds",
       "status": "MEASURED",
@@ -114,6 +155,11 @@
       "name": "mutate",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "mutate",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -122,6 +168,11 @@
       "name": "delete",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "delete",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -130,6 +181,11 @@
       "name": "reorder",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "reorder",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -138,6 +194,11 @@
       "name": "broken_reference",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "broken_reference",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -146,6 +207,11 @@
       "name": "bad_merkle",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "bad_merkle",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": true,
       "content_ok": true,
       "status": "TAMPERED"
@@ -154,6 +220,11 @@
       "name": "bad_signature",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "bad_signature",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": true,
       "content_ok": true,
       "status": "TAMPERED"
@@ -162,6 +233,11 @@
       "name": "missing_event",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "missing_event",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -170,6 +246,11 @@
       "name": "missing_input",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "missing_input",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -178,6 +259,11 @@
       "name": "missing_transformation",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "missing_transformation",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -186,6 +272,11 @@
       "name": "missing_evidence",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "missing_evidence",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -194,6 +285,11 @@
       "name": "missing_tool",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "missing_tool",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -202,6 +298,11 @@
       "name": "missing_guardrail",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "missing_guardrail",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -210,6 +311,11 @@
       "name": "changed_timestamp",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "changed_timestamp",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -218,6 +324,11 @@
       "name": "reviewer_action",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "reviewer_action",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -226,6 +337,11 @@
       "name": "wrong_corpus",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "wrong_corpus",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -234,6 +350,11 @@
       "name": "wrong_content_ref",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "wrong_content_ref",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": false,
       "content_ok": true,
       "status": "TAMPERED"
@@ -242,6 +363,11 @@
       "name": "wrong_corpus_rehashed",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "wrong_corpus_rehashed",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": true,
       "content_ok": false,
       "status": "TAMPERED"
@@ -250,6 +376,11 @@
       "name": "wrong_content_ref_rehashed",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "wrong_content_ref_rehashed",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "INCOMPLETE",
       "chain_ok": true,
       "content_ok": false,
       "status": "INCOMPLETE"
@@ -258,6 +389,11 @@
       "name": "proof_substitution",
       "detected": true,
       "kind": "tamper",
+      "mutation_type": "proof_substitution",
+      "expected_detected": true,
+      "false_positive": false,
+      "false_negative": false,
+      "verifier_status": "TAMPERED",
       "chain_ok": true,
       "content_ok": true,
       "status": "TAMPERED"
@@ -272,35 +408,75 @@
   "baselines": [
     {
       "name": "application_log",
-      "arc": 1.0,
+      "implementation": "application_jsonl",
+      "arc": 0.05,
       "tamper_detection_rate": 0.0,
-      "queryability": 1.0
+      "queryability": 0.0,
+      "detected_mutation": false,
+      "storage_bytes": 2453,
+      "reviewer_fields": []
     },
     {
       "name": "hash_only",
-      "arc": 1.0,
+      "implementation": "hash_only_jsonl",
+      "arc": 0.05,
       "tamper_detection_rate": 1.0,
-      "queryability": 1.0
+      "queryability": 0.0,
+      "storage_bytes": 4201,
+      "reviewer_fields": []
     },
     {
       "name": "fhir_projection",
-      "arc": 0.5,
+      "implementation": "fhir_r4_projection",
+      "arc": 0.2,
       "tamper_detection_rate": 0.0,
-      "queryability": 0.5
+      "queryability": 0.25,
+      "storage_bytes": 20233,
+      "reviewer_fields": [
+        "subject"
+      ]
     },
     {
       "name": "complete_plane",
+      "implementation": "complete_audit_plane",
       "arc": 1.0,
       "tamper_detection_rate": 1.0,
-      "queryability": 1.0
+      "queryability": 1.0,
+      "reviewer_fields": [
+        "source",
+        "model",
+        "evidence",
+        "guardrail",
+        "human_action"
+      ]
     }
   ],
   "overhead": {
-    "latency_ms_plane": 21.291124998242594,
-    "latency_ms_baseline": 0.05124999734107405,
-    "latency_ratio": 414.4366068850296,
-    "storage_bytes_plane": 6751956.0,
-    "storage_bytes_log": 3234.0
+    "n": 3,
+    "warmup": 1,
+    "baseline_name": "no_audit_workflow",
+    "latency_ms_plane_mean": 12.019346992019564,
+    "latency_ms_baseline_mean": 6.683055330843975,
+    "latency_ms_plane": 12.019346992019564,
+    "latency_ms_baseline": 6.683055330843975,
+    "latency_ratio": {
+      "mean": 0.8004421066572956,
+      "ci95_low": 0.7184075694689016,
+      "ci95_high": 0.8824766438456897,
+      "n": 3,
+      "method": "paired-normal"
+    },
+    "storage_bytes_audit_mean": 65536.0,
+    "storage_bytes_content_mean": 16349.0,
+    "storage_bytes_log_mean": 293.0,
+    "storage_bytes_baseline_mean": 11209.0,
+    "storage_bytes_plane": 81885.0,
+    "storage_bytes_log": 293.0,
+    "storage_ratio": 6.305290391649567,
+    "formulas": [
+      "latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow",
+      "storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow"
+    ]
   },
   "reviewer_task": {
     "success": 1.0,
@@ -311,7 +487,7 @@
       "guardrail",
       "human_action"
     ],
-    "duration_ms": 0.00037500285543501377,
+    "duration_ms": 0.001333013642579317,
     "method": "scripted-field-reconstruction"
   },
   "study": {
@@ -322,74 +498,92 @@
       "audit_reconstruction_completeness": {
         "mean": 1.0,
         "median": 1.0,
-        "ci95_low": 1.0,
+        "ci95_low": 0.9286499658256813,
         "ci95_high": 1.0,
         "n": 50,
+        "numerator": 50,
+        "denominator": 50,
         "unit": "fraction",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "wilson"
       },
       "independently_verified_arc": {
         "mean": 1.0,
         "median": 1.0,
-        "ci95_low": 1.0,
+        "ci95_low": 0.9286499658256813,
         "ci95_high": 1.0,
         "n": 50,
+        "numerator": 50,
+        "denominator": 50,
         "unit": "fraction",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "wilson"
       },
       "required_event_completeness": {
         "mean": 1.0,
         "median": 1.0,
-        "ci95_low": 1.0,
+        "ci95_low": 0.9286499658256813,
         "ci95_high": 1.0,
         "n": 50,
+        "numerator": 50,
+        "denominator": 50,
         "unit": "fraction",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "wilson"
       },
       "evidence_attribution_coverage": {
         "mean": 1.0,
         "median": 1.0,
-        "ci95_low": 1.0,
+        "ci95_low": 0.9286499658256813,
         "ci95_high": 1.0,
         "n": 50,
+        "numerator": 50,
+        "denominator": 50,
         "unit": "fraction",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "wilson"
       },
       "human_action_capture_completeness": {
         "mean": 1.0,
         "median": 1.0,
-        "ci95_low": 1.0,
+        "ci95_low": 0.9286499658256813,
         "ci95_high": 1.0,
         "n": 50,
+        "numerator": 50,
+        "denominator": 50,
         "unit": "fraction",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "wilson"
       },
       "run_latency": {
-        "mean": 18.485967419692315,
-        "median": 18.12599949334981,
-        "ci95_low": 17.922212860448706,
-        "ci95_high": 19.049721978935924,
+        "mean": 12.136124122771434,
+        "median": 11.801687491242774,
+        "ci95_low": 11.719218702320312,
+        "ci95_high": 12.553029543222557,
         "n": 50,
         "unit": "milliseconds",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "normal"
       },
       "verification_latency": {
-        "mean": 1.271270879660733,
-        "median": 1.201187500555534,
-        "ci95_low": 1.2052848882056582,
-        "ci95_high": 1.337256871115808,
+        "mean": 0.9303608012851328,
+        "median": 0.8720835030544549,
+        "ci95_low": 0.8771129208426489,
+        "ci95_high": 0.9836086817276166,
         "n": 50,
         "unit": "milliseconds",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "normal"
       },
       "protected_bytes_added": {
-        "mean": 14699.88,
-        "median": 14682.0,
-        "ci95_low": 14664.8352,
-        "ci95_high": 14734.924799999999,
+        "mean": 15472.88,
+        "median": 15455.0,
+        "ci95_low": 15437.8352,
+        "ci95_high": 15507.924799999999,
         "n": 50,
         "unit": "bytes",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "normal"
       },
       "event_count": {
         "mean": 23.0,
@@ -398,7 +592,8 @@
         "ci95_high": 23.0,
         "n": 50,
         "unit": "events",
-        "status": "MEASURED"
+        "status": "MEASURED",
+        "interval": "normal"
       },
       "tamper_detection_rate": {
         "value": null,
@@ -411,7 +606,7 @@
       {
         "encounter_index": 1,
         "repetition": 1,
-        "transaction_id": "d4548550-0ecb-4747-8493-4897501b471f",
+        "transaction_id": "c47639c7-8069-4c70-80ff-fd601a8caef8",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -419,14 +614,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 21.28462500695605,
-        "verification_latency_ms": 1.6338749992428347,
-        "protected_bytes_added": 15576
+        "run_latency_ms": 12.705625005764887,
+        "verification_latency_ms": 1.274167007068172,
+        "protected_bytes_added": 16349
       },
       {
         "encounter_index": 2,
         "repetition": 1,
-        "transaction_id": "d46350d0-c1ab-4fcf-868b-e1122f99a4e6",
+        "transaction_id": "7a7cccae-0441-47fa-bff4-5bc4e10913e5",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -434,14 +629,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.809917012229562,
-        "verification_latency_ms": 1.4271249965531752,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.382083979900926,
+        "verification_latency_ms": 0.8622920140624046,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 3,
         "repetition": 1,
-        "transaction_id": "96d75506-0305-486c-82c4-c9ce791b62ee",
+        "transaction_id": "be832980-5b4d-40a6-a5f0-afe4d5957e95",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -449,14 +644,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.785916996421292,
-        "verification_latency_ms": 1.172082993434742,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.377333012409508,
+        "verification_latency_ms": 0.8005419804248959,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 4,
         "repetition": 1,
-        "transaction_id": "b4967a47-324f-4366-b50f-749867e5dfa0",
+        "transaction_id": "85658bfa-f3f2-49ee-80e8-a6eb6daa0d3e",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -464,14 +659,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 22.29820899083279,
-        "verification_latency_ms": 1.2312499893596396,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.17708399053663,
+        "verification_latency_ms": 0.9359169926028699,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 5,
         "repetition": 1,
-        "transaction_id": "fb69fb7c-8a3b-482d-9214-1f6879d0e8a0",
+        "transaction_id": "3d91cb9b-a6e1-4890-b71e-f617f32c21cb",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -479,14 +674,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.619167007273063,
-        "verification_latency_ms": 1.08804099727422,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.744791991077363,
+        "verification_latency_ms": 0.8562500006519258,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 6,
         "repetition": 1,
-        "transaction_id": "121e90cc-2815-4113-89d9-e23b250c4390",
+        "transaction_id": "f1af915a-8427-44d9-a226-fe2a367743f3",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -494,14 +689,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.256665993249044,
-        "verification_latency_ms": 1.7651249945629388,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 13.188749988330528,
+        "verification_latency_ms": 0.8235410205088556,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 7,
         "repetition": 1,
-        "transaction_id": "f8657767-d896-4e4b-bcad-5f1b9ac36221",
+        "transaction_id": "00ce3ae3-53e9-4ce6-87d0-c32cb1156b04",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -509,14 +704,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.995332993450575,
-        "verification_latency_ms": 1.2058749998686835,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.64695799909532,
+        "verification_latency_ms": 1.0935000027529895,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 8,
         "repetition": 1,
-        "transaction_id": "d5855e1a-ed1c-4d08-a2fb-2e674a2ba8e7",
+        "transaction_id": "7cc41d30-7968-4ce5-a2b8-d078f4affdcc",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -524,14 +719,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.443249991629273,
-        "verification_latency_ms": 1.1282089981250465,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.656500010052696,
+        "verification_latency_ms": 0.8443330007139593,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 9,
         "repetition": 1,
-        "transaction_id": "a3110cab-3c7f-4832-af12-48c04878d666",
+        "transaction_id": "fa7b1e71-de72-49dc-b368-880df9b52eb5",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -539,14 +734,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.029291004291736,
-        "verification_latency_ms": 1.1655840062303469,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.254083005245775,
+        "verification_latency_ms": 0.8933339850045741,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 10,
         "repetition": 1,
-        "transaction_id": "d580b296-ae24-4751-b720-d8522a6721ec",
+        "transaction_id": "b358d31f-6a03-4a13-acd7-684418ee72d6",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -554,14 +749,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.25750001403503,
-        "verification_latency_ms": 1.10937500721775,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.134541000705212,
+        "verification_latency_ms": 0.8853749895934016,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 11,
         "repetition": 1,
-        "transaction_id": "e10280c4-0b32-4083-9a1f-6df6b0ee0f6d",
+        "transaction_id": "b049c39f-4873-494d-827a-a16aa4ac701d",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -569,14 +764,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.61629200761672,
-        "verification_latency_ms": 1.2511670065578073,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.20266698510386,
+        "verification_latency_ms": 1.042749994667247,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 12,
         "repetition": 1,
-        "transaction_id": "c929b77e-815b-4b08-9e30-57643be9774e",
+        "transaction_id": "0d504554-e682-4a55-9084-b7ef3bd530ad",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -584,14 +779,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.774874995462596,
-        "verification_latency_ms": 1.3841250038240105,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.111125000752509,
+        "verification_latency_ms": 1.1406250123400241,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 13,
         "repetition": 1,
-        "transaction_id": "1c50488a-6684-4744-8ca9-0e8819f15483",
+        "transaction_id": "edc21953-da65-4f3d-b542-2c18d54533eb",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -599,14 +794,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.672917001415044,
-        "verification_latency_ms": 1.8472920055501163,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.794250011211261,
+        "verification_latency_ms": 1.8562909972388297,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 14,
         "repetition": 1,
-        "transaction_id": "f4cfa17f-e915-48f3-b692-36f169a0f707",
+        "transaction_id": "6945f8f4-0ef4-4f25-a2fe-a75c6ed99008",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -614,14 +809,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 15.889874994172715,
-        "verification_latency_ms": 1.1743340000975877,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.219541997183114,
+        "verification_latency_ms": 0.8928750175982714,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 15,
         "repetition": 1,
-        "transaction_id": "7c7231b1-433a-42b5-8a6a-8abcbc5122af",
+        "transaction_id": "afc84155-6511-42a1-8bca-d74dfc4b2b01",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -629,14 +824,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.531749996123835,
-        "verification_latency_ms": 1.3038340111961588,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.656667018542066,
+        "verification_latency_ms": 1.088792021619156,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 16,
         "repetition": 1,
-        "transaction_id": "a262b3e3-0d8a-4a7c-b639-fd67c045a511",
+        "transaction_id": "4279805d-08ce-44f4-93fc-74614af5d401",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -644,14 +839,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.17562500562053,
-        "verification_latency_ms": 1.098041990189813,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.391333013307303,
+        "verification_latency_ms": 1.1223329929634929,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 17,
         "repetition": 1,
-        "transaction_id": "ec4d628f-003d-4b21-aa45-e85a6a76f8c6",
+        "transaction_id": "ce079f9f-ccdb-4674-bcb4-a74916c99fed",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -659,14 +854,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.273332996410318,
-        "verification_latency_ms": 1.0664579895092174,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.929125001188368,
+        "verification_latency_ms": 0.9472499950788915,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 18,
         "repetition": 1,
-        "transaction_id": "54559e1b-15c0-4694-8ebe-acb4fbd3c822",
+        "transaction_id": "4e8fe60b-f27c-44f2-a1e0-cec451f209f9",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -674,14 +869,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.35854099772405,
-        "verification_latency_ms": 1.4488750020973384,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.306500022532418,
+        "verification_latency_ms": 0.9619590127840638,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 19,
         "repetition": 1,
-        "transaction_id": "cf6f674d-9e93-4b79-8320-1478ce072935",
+        "transaction_id": "d719609e-b8c4-410b-b6f6-cf57ed7bd1ac",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -689,14 +884,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.361750007490627,
-        "verification_latency_ms": 1.1658750008791685,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 19.34195897774771,
+        "verification_latency_ms": 0.7731250079814345,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 20,
         "repetition": 1,
-        "transaction_id": "b4a25f2f-3b6c-4812-901c-5a8c45c17e1c",
+        "transaction_id": "5c527c83-0089-4804-b299-8f81478dbbcc",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -704,14 +899,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.57716599968262,
-        "verification_latency_ms": 1.0732910013757646,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.093583005480468,
+        "verification_latency_ms": 0.836874998640269,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 21,
         "repetition": 1,
-        "transaction_id": "5f6e3f44-0efe-4013-bb08-a6803bd0c34f",
+        "transaction_id": "8f490419-37d4-4632-b389-15adb998097d",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -719,14 +914,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 15.911458001937717,
-        "verification_latency_ms": 1.1580830032471567,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.103750002803281,
+        "verification_latency_ms": 0.7729580102022737,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 22,
         "repetition": 1,
-        "transaction_id": "98cdedd5-f107-411c-85b7-4bb3403cad2e",
+        "transaction_id": "602aa955-ad85-4714-9160-25f25f4e7da1",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -734,14 +929,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 19.13708299980499,
-        "verification_latency_ms": 1.0573339968686923,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.214540980290622,
+        "verification_latency_ms": 0.9877500124275684,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 23,
         "repetition": 1,
-        "transaction_id": "eb1a56c5-245e-4ccb-a720-0efc3207bafe",
+        "transaction_id": "7a6f9e9c-0bd3-45f5-8a54-a2175519ac0d",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -749,14 +944,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.21008299116511,
-        "verification_latency_ms": 1.090875011868775,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.735291976947337,
+        "verification_latency_ms": 0.9222500084433705,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 24,
         "repetition": 1,
-        "transaction_id": "46feecce-6e34-47a8-a475-00099dfa20c4",
+        "transaction_id": "e89f6b13-b0e9-48d6-a647-7a095bc9b5f4",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -764,14 +959,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.403374997433275,
-        "verification_latency_ms": 1.2027500051772222,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.628042004304007,
+        "verification_latency_ms": 0.7775420090183616,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 25,
         "repetition": 1,
-        "transaction_id": "97f78039-ee45-42eb-bb92-cee541d367ff",
+        "transaction_id": "d1b4c3cc-c168-4bf8-a412-2d4dd1bcb25a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -779,14 +974,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 22.50866599206347,
-        "verification_latency_ms": 1.2100419990019873,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.562125000637025,
+        "verification_latency_ms": 0.9535829885862768,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 26,
         "repetition": 1,
-        "transaction_id": "5ac02a24-4b1a-4cf4-9998-46840abf72a7",
+        "transaction_id": "ff74d82e-0699-4358-b5d5-168dbf4e8ad5",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -794,14 +989,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 19.47887499409262,
-        "verification_latency_ms": 1.527625005110167,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.712916981196031,
+        "verification_latency_ms": 0.8344160160049796,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 27,
         "repetition": 1,
-        "transaction_id": "b443fbc8-75bb-4b8e-829c-45e8bfd35786",
+        "transaction_id": "35dc8847-75a3-4bc3-a0f4-c5b5bd1a4a3c",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -809,14 +1004,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.979542007902637,
-        "verification_latency_ms": 1.1996249959338456,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.230541014811024,
+        "verification_latency_ms": 1.0243330034427345,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 28,
         "repetition": 1,
-        "transaction_id": "7ca14bb8-7e80-4ce9-b553-a4e8d98510ba",
+        "transaction_id": "db77dca4-49cb-4a9b-bd0e-93b527fd2108",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -824,14 +1019,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.84087500406895,
-        "verification_latency_ms": 1.113999998779036,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.323665996314958,
+        "verification_latency_ms": 0.8153340022545308,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 29,
         "repetition": 1,
-        "transaction_id": "f822c15a-99c1-4bc6-bb32-b813d9bd05f1",
+        "transaction_id": "d4495dba-3c6d-48de-b666-933973c2d48a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -839,14 +1034,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.346707998309284,
-        "verification_latency_ms": 1.3879159960197285,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.508458002936095,
+        "verification_latency_ms": 0.7736670086160302,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 30,
         "repetition": 1,
-        "transaction_id": "083f4cc9-e2f7-4b43-8e64-3afba4be44c7",
+        "transaction_id": "0188db04-6d36-4376-b727-693ce900192e",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -854,14 +1049,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 19.307833004859276,
-        "verification_latency_ms": 1.1462080001365393,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 13.485666015185416,
+        "verification_latency_ms": 0.8312920108437538,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 31,
         "repetition": 1,
-        "transaction_id": "6842c976-99ca-4489-8338-ee19ce18cbc4",
+        "transaction_id": "544f445b-00b2-4435-9397-f3eaa11dce3f",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -869,14 +1064,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.815875002881512,
-        "verification_latency_ms": 0.9980830072890967,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.109667015261948,
+        "verification_latency_ms": 1.2206659885123372,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 32,
         "repetition": 1,
-        "transaction_id": "c008b982-d1fe-4809-bed3-70ab58decf58",
+        "transaction_id": "ac5db3eb-ab27-4cb5-a1b2-6a8385cc9fae",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -884,14 +1079,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.329541002050973,
-        "verification_latency_ms": 1.250166998943314,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 10.591500002192333,
+        "verification_latency_ms": 0.8145000028889626,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 33,
         "repetition": 1,
-        "transaction_id": "cdd8bb9f-f5f5-4ca0-b1d3-8ec186e003a1",
+        "transaction_id": "71f8083f-d421-4a76-a9d6-c43a5e5cc56e",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -899,14 +1094,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.57529200403951,
-        "verification_latency_ms": 1.2181249912828207,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.858582991408184,
+        "verification_latency_ms": 0.933458999497816,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 34,
         "repetition": 1,
-        "transaction_id": "21339184-5368-45a7-b0ca-b21f620ce4d3",
+        "transaction_id": "e5286989-4be8-43c8-bbbe-0587f3cff942",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -914,14 +1109,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 17.63062500685919,
-        "verification_latency_ms": 1.094332998036407,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.30137499421835,
+        "verification_latency_ms": 0.8197499846573919,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 35,
         "repetition": 1,
-        "transaction_id": "8c6c063c-e6b3-4ad4-ab26-c1cd6af29424",
+        "transaction_id": "1cd0ac73-55a0-4776-b8ed-a8b9add4c242",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -929,14 +1124,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.85012500092853,
-        "verification_latency_ms": 1.338959002168849,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.490041011711583,
+        "verification_latency_ms": 0.778957997681573,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 36,
         "repetition": 1,
-        "transaction_id": "2a833f41-ac93-40f8-b77a-bd9d5204ad9d",
+        "transaction_id": "21ce5d81-ae4b-401e-8ce6-45f369162bfd",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -944,14 +1139,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 22.750541000277735,
-        "verification_latency_ms": 1.3458750036079437,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.459250003099442,
+        "verification_latency_ms": 0.913209019927308,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 37,
         "repetition": 1,
-        "transaction_id": "7db69803-9865-4e72-9278-058222a9cfec",
+        "transaction_id": "c025ae50-ae20-44be-9b98-522178f09ca7",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -959,14 +1154,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.757500001811422,
-        "verification_latency_ms": 1.7239579901797697,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.29895802680403,
+        "verification_latency_ms": 0.78541599214077,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 38,
         "repetition": 1,
-        "transaction_id": "6d5cc15a-526b-4f82-9078-d6f33ce2c209",
+        "transaction_id": "4ea70e62-9fd7-4499-ab4e-619977889764",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -974,14 +1169,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 19.353165989741683,
-        "verification_latency_ms": 1.6685000009601936,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 10.761333018308505,
+        "verification_latency_ms": 0.7674160005990416,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 39,
         "repetition": 1,
-        "transaction_id": "7ce73fa8-5bec-4f5c-a78f-9ce9aac75bcd",
+        "transaction_id": "2c0d4384-c4a7-4c71-aab4-889fcb77eb6d",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -989,14 +1184,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.916624997975305,
-        "verification_latency_ms": 1.2464999890653417,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 10.583666007732973,
+        "verification_latency_ms": 0.8461250108666718,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 40,
         "repetition": 1,
-        "transaction_id": "a14e3c7d-91c3-4a6e-8e1d-71ab2ff7ed5f",
+        "transaction_id": "966eae14-7306-462a-9a29-f32b1e3b5e43",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1004,14 +1199,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 19.049499998800457,
-        "verification_latency_ms": 1.039334005326964,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.832959007937461,
+        "verification_latency_ms": 0.8066669979598373,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 41,
         "repetition": 1,
-        "transaction_id": "a8bc3d9f-16f2-4d46-a5b3-256c80189699",
+        "transaction_id": "85751809-d07f-47de-a6db-820c13abc3f4",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1019,14 +1214,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.12270799605176,
-        "verification_latency_ms": 0.9951249958248809,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.59654199727811,
+        "verification_latency_ms": 1.1259579914622009,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 42,
         "repetition": 1,
-        "transaction_id": "6fd680f0-712a-4b00-856a-b39bc61dfb5e",
+        "transaction_id": "7075f21b-7610-4818-88b7-27a62f0eb998",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1034,14 +1229,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.5792500047246,
-        "verification_latency_ms": 1.0903340007644147,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 17.48375000897795,
+        "verification_latency_ms": 0.7725830073468387,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 43,
         "repetition": 1,
-        "transaction_id": "46e8b4fe-07c3-4ecc-8a32-49817d6b0490",
+        "transaction_id": "401ea9c4-d10a-4cad-9ca0-0168f1a45bea",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1049,14 +1244,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 23.277291998965666,
-        "verification_latency_ms": 1.6935829917201772,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.15500001469627,
+        "verification_latency_ms": 0.8818749920465052,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 44,
         "repetition": 1,
-        "transaction_id": "9817ca1e-b6e8-4732-8ac0-a70bf8f1a844",
+        "transaction_id": "e7bc01ed-9734-48f4-8978-7817a2e7b5cf",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1064,14 +1259,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.761166990268975,
-        "verification_latency_ms": 1.1215840058866888,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 10.659999999916181,
+        "verification_latency_ms": 1.061957998899743,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 45,
         "repetition": 1,
-        "transaction_id": "761cba7b-dac3-47ba-99fd-3ec1b7599561",
+        "transaction_id": "a1a24fc5-1d89-41d2-ba4b-4d98974d135a",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1079,14 +1274,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 18.58354199794121,
-        "verification_latency_ms": 1.231667003594339,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.864125001011416,
+        "verification_latency_ms": 0.7807080110069364,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 46,
         "repetition": 1,
-        "transaction_id": "ab751274-b010-45a7-82e9-4dbfc1ff492a",
+        "transaction_id": "03577881-2b19-4442-bf47-005e843cc820",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1094,14 +1289,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.682624991517514,
-        "verification_latency_ms": 1.0298330016667023,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.119457998778671,
+        "verification_latency_ms": 0.7805420027580112,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 47,
         "repetition": 1,
-        "transaction_id": "7cad27f8-bd6f-4fb8-84a0-3e9269cff80a",
+        "transaction_id": "56eeef7e-2492-4f28-8625-ac853e722a30",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1109,14 +1304,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 15.787124997586943,
-        "verification_latency_ms": 1.1037919903174043,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.373082990758121,
+        "verification_latency_ms": 0.7664579898118973,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 48,
         "repetition": 1,
-        "transaction_id": "c8e650cf-c1aa-435f-8851-2173115856a0",
+        "transaction_id": "6a9dc25b-1dcb-4260-a89b-849b4bd02a58",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1124,14 +1319,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 16.612833002000116,
-        "verification_latency_ms": 1.0905410017585382,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 11.52700002421625,
+        "verification_latency_ms": 1.2247079866938293,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 49,
         "repetition": 1,
-        "transaction_id": "3519f24e-295b-4071-8c66-8665f6c33dfc",
+        "transaction_id": "3a619e1e-c098-4bb3-b6d8-1ac1515c71e9",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1139,14 +1334,14 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 20.150458003627136,
-        "verification_latency_ms": 1.4426249981625006,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 12.648875010199845,
+        "verification_latency_ms": 0.7666669844184071,
+        "protected_bytes_added": 15455
       },
       {
         "encounter_index": 50,
         "repetition": 1,
-        "transaction_id": "512eee51-1421-477b-a636-cb7a813f9b68",
+        "transaction_id": "bb53e27b-244b-4954-9b04-0dc5b1569710",
         "arc": 1.0,
         "independently_verified_arc": 1.0,
         "required_event_completeness": 1.0,
@@ -1154,10 +1349,893 @@
         "human_action_capture_completeness": 1.0,
         "verification_status": "VERIFIED",
         "event_count": 23,
-        "run_latency_ms": 21.576083992840722,
-        "verification_latency_ms": 2.0063330011907965,
-        "protected_bytes_added": 14682
+        "run_latency_ms": 14.271542022470385,
+        "verification_latency_ms": 1.0451659909449518,
+        "protected_bytes_added": 15455
       }
     ]
+  },
+  "scenarios": {
+    "scenarios": [
+      {
+        "name": "accept",
+        "transaction_id": "61b49473-0ce0-4468-86a0-7a1ed61aa90b",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "modify",
+        "transaction_id": "45a1e434-2fc1-42bd-83c2-232f4d2421e1",
+        "transaction_status": "COMPLETED",
+        "human_action": "MODIFY",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "cce61fc16d18ea972f03099f1cca9c81eb4f2f198599701940be04d73ad377ff",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "reject",
+        "transaction_id": "048d76ba-6be2-4ef0-8a15-0fda7450033f",
+        "transaction_status": "COMPLETED",
+        "human_action": "REJECT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "guardrail_warn",
+        "transaction_id": "02048b73-7fec-4e2e-b9e9-33dd50d8c36f",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": "WARN",
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 24,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1",
+          "forced.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS",
+          "forced.v1": "WARN"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "guardrail_block",
+        "transaction_id": "ed87283d-0d67-4f04-8e38-dd12f785fbd7",
+        "transaction_status": "BLOCKED",
+        "human_action": "PENDING",
+        "forced_guardrail": "BLOCK",
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "INCOMPLETE",
+        "arc": 0.7,
+        "missing_fields": [
+          "human.action",
+          "human.actor",
+          "human.final_output_digest",
+          "integrity.merkle_root",
+          "integrity.signature",
+          "integrity.key_id"
+        ],
+        "event_count": 21,
+        "notes": "Blocked before human ACCEPT; incomplete required events are expected.",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1",
+          "forced.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS",
+          "forced.v1": "BLOCK"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": null,
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "synthea_sliced",
+        "transaction_id": "a6c2241f-2b1e-4823-9898-ba74daa60db3",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_4c1376654e2b10272404",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 21,
+        "notes": "Sliced first encounter from approved Synthea bundle 1 of 2 (source digest 90b65cb8389b, license CC-BY 4.0, source https://github.com/synthetichealth/synthea); not copied into this repository.",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ac239f636f71c468afd9c2e3346a1c3a8da1c1d0b07909207eafe2b10a506491",
+        "final_output_digest": "ac239f636f71c468afd9c2e3346a1c3a8da1c1d0b07909207eafe2b10a506491",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "synthea_sliced_second",
+        "transaction_id": "d0ca49df-52d6-48f9-8d80-110632218692",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_947b1d1e4ef4daab3032",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 21,
+        "notes": "Sliced first encounter from approved Synthea bundle 2 of 2 (source digest 639cfd5447e2, license CC-BY 4.0, source https://github.com/synthetichealth/synthea); not copied into this repository.",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "6399e5edf62dc85b77c122dde199177aed4a54c68fb9cf4f4d424ddbe84e4ff9",
+        "final_output_digest": "6399e5edf62dc85b77c122dde199177aed4a54c68fb9cf4f4d424ddbe84e4ff9",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "two_step_accept",
+        "transaction_id": "c47a4a4f-b7db-4970-ab7a-8c5d7c59a8e3",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": "WAITING_FOR_REVIEW",
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "block_override_accept",
+        "transaction_id": "e2234f5b-fd8c-4920-83ed-4092635198fd",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": "BLOCK",
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 24,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": "override.v1",
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1",
+          "forced.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS",
+          "forced.v1": "BLOCK"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "natural_guardrail_warn",
+        "transaction_id": "b853eaea-bb2b-4a20-b811-a9abd5c55605",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "e97c367be8eeecfded9267969a86392f631d2b402f2eced128624759e3246f53",
+        "final_output_digest": "e97c367be8eeecfded9267969a86392f631d2b402f2eced128624759e3246f53",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "natural_guardrail_block",
+        "transaction_id": "37474486-35e9-487c-b6f9-0ba221c8b7de",
+        "transaction_status": "BLOCKED",
+        "human_action": "PENDING",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "INCOMPLETE",
+        "arc": 0.65,
+        "missing_fields": [
+          "output.evidence_references",
+          "human.action",
+          "human.actor",
+          "human.final_output_digest",
+          "integrity.merkle_root",
+          "integrity.signature",
+          "integrity.key_id"
+        ],
+        "event_count": 20,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "BLOCK",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "PASS",
+          "policy.action.v1": "BLOCK"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "8f2b5dffb0471c288b886d314b0d7c17e5ed1a5494e21981a0d3bec21a85ab1e",
+        "final_output_digest": null,
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "provider_failure",
+        "transaction_id": "c0654f76-385f-4495-91b8-2d44ce4c6eff",
+        "transaction_status": "FAILED",
+        "human_action": "PENDING",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "INCOMPLETE",
+        "arc": 0.4,
+        "missing_fields": [
+          "model.model_id",
+          "model.prompt_version",
+          "output.digest",
+          "output.uncertainty",
+          "output.evidence_references",
+          "guardrail.result",
+          "human.action",
+          "human.actor",
+          "human.final_output_digest",
+          "integrity.merkle_root",
+          "integrity.signature",
+          "integrity.key_id"
+        ],
+        "event_count": 10,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [],
+        "guardrail_results": {},
+        "runtime": null,
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": null,
+        "final_output_digest": null,
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "sparse_encounter",
+        "transaction_id": "7d49b363-5d4c-469d-be28-8c36eddbdd13",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_5448b9ccf38e5cb24ca9",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 21,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "7c23f8391e7f0f4c07d732aa8cd03926505954993f24d98c7cce4a051e4f6f8a",
+        "final_output_digest": "7c23f8391e7f0f4c07d732aa8cd03926505954993f24d98c7cce4a051e4f6f8a",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "modify_evidence",
+        "transaction_id": "bc3cbd67-9156-4bf7-af47-21f1fcdee868",
+        "transaction_status": "COMPLETED",
+        "human_action": "MODIFY",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "cce61fc16d18ea972f03099f1cca9c81eb4f2f198599701940be04d73ad377ff",
+        "source_evidence_references": [
+          "obs-bp-TEST-00001",
+          "med-lisinopril-TEST-00001",
+          "htn-bp-target.v1"
+        ],
+        "final_evidence_references": [
+          "cond-htn-TEST-00001"
+        ]
+      },
+      {
+        "name": "replay_substitution",
+        "transaction_id": "b80343cb-c484-4cb8-9f98-01e9c262cefb",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": "DIVERGENT",
+        "access_event_count": null,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      },
+      {
+        "name": "access_audit",
+        "transaction_id": "f925161f-12a3-4c14-b5d6-96c088a24383",
+        "transaction_status": "COMPLETED",
+        "human_action": "ACCEPT",
+        "forced_guardrail": null,
+        "subject_ref": "tok_41affa126190df2ce7b0",
+        "verification_status": "VERIFIED",
+        "arc": 1.0,
+        "missing_fields": [],
+        "event_count": 23,
+        "notes": "",
+        "waiting_status": null,
+        "override_policy_version": null,
+        "guardrail_rule_ids": [
+          "input.manifest.v1",
+          "context.bound.v1",
+          "evidence.digest.v1",
+          "schema.v1",
+          "evidence_refs.v1",
+          "uncertainty.v1",
+          "phi_scan.v1",
+          "policy.action.v1"
+        ],
+        "guardrail_results": {
+          "input.manifest.v1": "PASS",
+          "context.bound.v1": "PASS",
+          "evidence.digest.v1": "PASS",
+          "schema.v1": "PASS",
+          "evidence_refs.v1": "PASS",
+          "uncertainty.v1": "PASS",
+          "phi_scan.v1": "WARN",
+          "policy.action.v1": "PASS"
+        },
+        "runtime": "deterministic-stub",
+        "replay_result": null,
+        "access_event_count": 2,
+        "source_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "final_output_digest": "ff0b06fb366b7e4e90d2ec5874cf650a757f0b7b7db788d5d74efde401cf9ee6",
+        "source_evidence_references": null,
+        "final_evidence_references": null
+      }
+    ]
+  },
+  "ablations": [
+    {
+      "name": "full",
+      "arc": 1.0,
+      "delta": 0.0,
+      "omitted_fields": [],
+      "interpretation": "Complete recorded provenance."
+    },
+    {
+      "name": "omit_input_manifests",
+      "arc": 0.95,
+      "delta": 0.050000000000000044,
+      "omitted_fields": [
+        "input.manifest.resource_ids"
+      ],
+      "interpretation": "Drop in reconstructability when the listed provenance class is omitted."
+    },
+    {
+      "name": "omit_transformations",
+      "arc": 0.95,
+      "delta": 0.050000000000000044,
+      "omitted_fields": [
+        "transformation.output_digest"
+      ],
+      "interpretation": "Drop in reconstructability when the listed provenance class is omitted."
+    },
+    {
+      "name": "omit_model_metadata",
+      "arc": 0.9,
+      "delta": 0.09999999999999998,
+      "omitted_fields": [
+        "model.model_id",
+        "model.prompt_version"
+      ],
+      "interpretation": "Drop in reconstructability when the listed provenance class is omitted."
+    },
+    {
+      "name": "omit_evidence",
+      "arc": 0.95,
+      "delta": 0.050000000000000044,
+      "omitted_fields": [
+        "output.evidence_references"
+      ],
+      "interpretation": "Drop in reconstructability when the listed provenance class is omitted."
+    },
+    {
+      "name": "omit_proofs",
+      "arc": 0.75,
+      "delta": 0.25,
+      "omitted_fields": [
+        "integrity.event_hash",
+        "integrity.previous_event_hash",
+        "integrity.merkle_root",
+        "integrity.signature",
+        "integrity.key_id"
+      ],
+      "interpretation": "Drop in reconstructability when the listed provenance class is omitted."
+    },
+    {
+      "name": "omit_human_provenance",
+      "arc": 0.85,
+      "delta": 0.15000000000000002,
+      "omitted_fields": [
+        "human.action",
+        "human.actor",
+        "human.final_output_digest"
+      ],
+      "interpretation": "Drop in reconstructability when the listed provenance class is omitted."
+    }
+  ],
+  "access_control": {
+    "cases": [
+      {
+        "name": "reviewer_read",
+        "role": "eval-reviewer-token",
+        "method": "GET",
+        "path": "/transactions/{transaction_id}",
+        "expected_status": 200,
+        "observed_status": 200,
+        "passed": true
+      },
+      {
+        "name": "investigator_verify",
+        "role": "eval-investigator-token",
+        "method": "POST",
+        "path": "/transactions/{transaction_id}/verify",
+        "expected_status": 200,
+        "observed_status": 200,
+        "passed": true
+      },
+      {
+        "name": "admin_content",
+        "role": "eval-admin-token",
+        "method": "GET",
+        "path": "/content/{digest}",
+        "expected_status": 200,
+        "observed_status": 200,
+        "passed": true
+      },
+      {
+        "name": "denied_unauthenticated",
+        "role": "unauthenticated",
+        "method": "GET",
+        "path": "/transactions",
+        "expected_status": 401,
+        "observed_status": 401,
+        "passed": true
+      },
+      {
+        "name": "reviewer_denied_export",
+        "role": "eval-reviewer-token",
+        "method": "GET",
+        "path": "/transactions/{transaction_id}/export",
+        "expected_status": 403,
+        "observed_status": 403,
+        "passed": true
+      },
+      {
+        "name": "investigator_denied_output",
+        "role": "eval-investigator-token",
+        "method": "GET",
+        "path": "/transactions/{transaction_id}/output",
+        "expected_status": 403,
+        "observed_status": 403,
+        "passed": true
+      },
+      {
+        "name": "investigator_denied_content",
+        "role": "eval-investigator-token",
+        "method": "GET",
+        "path": "/content/{digest}",
+        "expected_status": 403,
+        "observed_status": 403,
+        "passed": true
+      },
+      {
+        "name": "reviewer_output",
+        "role": "eval-reviewer-token",
+        "method": "GET",
+        "path": "/transactions/{transaction_id}/output",
+        "expected_status": 200,
+        "observed_status": 200,
+        "passed": true
+      },
+      {
+        "name": "investigator_export",
+        "role": "eval-investigator-token",
+        "method": "GET",
+        "path": "/transactions/{transaction_id}/export",
+        "expected_status": 200,
+        "observed_status": 200,
+        "passed": true
+      },
+      {
+        "name": "missing_transaction",
+        "role": "eval-admin-token",
+        "method": "GET",
+        "path": "/transactions/missing-transaction-id",
+        "expected_status": 404,
+        "observed_status": 404,
+        "passed": true
+      },
+      {
+        "name": "global_scope_list",
+        "role": "eval-admin-token",
+        "method": "GET",
+        "path": "/transactions",
+        "expected_status": 200,
+        "observed_status": 200,
+        "passed": true
+      }
+    ],
+    "pass_rate": {
+      "mean": 1.0,
+      "median": 1.0,
+      "ci95_low": 0.7411599827511859,
+      "ci95_high": 1.0,
+      "n": 11,
+      "numerator": 11,
+      "denominator": 11,
+      "unit": "fraction",
+      "status": "MEASURED",
+      "interval": "wilson"
+    }
   }
 }

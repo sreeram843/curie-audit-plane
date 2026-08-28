@@ -5,6 +5,7 @@ import re
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 from pydantic import ValidationError
@@ -15,6 +16,32 @@ from curie_audit_plane.integrity.hashing import sha256_hex
 from curie_audit_plane.models.manifests import ModelManifest, StructuredRationale
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
+APPROVED_LLM_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+APPROVED_LLM_SCHEMES = frozenset({"http", "https"})
+
+
+def sanitize_llm_endpoint(url: str) -> str:
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    netloc = f"{host}:{parsed.port}" if parsed.port else host
+    path = parsed.path.rstrip("/")
+    return f"{parsed.scheme}://{netloc}{path}"
+
+
+def validate_llm_endpoint(url: str) -> str:
+    parsed = urlparse(url)
+    if parsed.username or parsed.password:
+        raise ValueError("LLM endpoint must not include userinfo")
+    if parsed.query:
+        raise ValueError("LLM endpoint must not include query")
+    if parsed.fragment:
+        raise ValueError("LLM endpoint must not include fragment")
+    if parsed.scheme not in APPROVED_LLM_SCHEMES:
+        raise ValueError("LLM endpoint scheme is not approved")
+    host = parsed.hostname or ""
+    if host not in APPROVED_LLM_HOSTS:
+        raise ValueError("LLM endpoint host is not approved")
+    return sanitize_llm_endpoint(url)
 
 
 def normalize_base_url(url: str) -> str:
@@ -76,7 +103,7 @@ def complete_openai_compatible(
     timeout_seconds: float = 120,
     client: httpx.Client | None = None,
 ) -> CompletionResult:
-    endpoint = normalize_base_url(base_url)
+    endpoint = validate_llm_endpoint(normalize_base_url(base_url))
     messages = [
         {"role": "system", "content": _system_prompt(request.evidence_ids, request.prompt_version)},
         {
@@ -143,7 +170,7 @@ def complete_openai_compatible(
     manifest = ModelManifest(
         model_id=returned_model,
         provider_id="lmstudio",
-        endpoint=endpoint,
+        endpoint=sanitize_llm_endpoint(endpoint),
         model_version=returned_model,
         prompt_version=request.prompt_version,
         decoding_params={

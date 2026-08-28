@@ -1,25 +1,61 @@
 row_type,name,kind,status,value,numerator,denominator,unit,notes,detected,result
-metric,audit_reconstruction_completeness,,MEASURED,1.0,20,20,fraction,Current prototype field-presence ARC; independent verification is reported separately.,,
+metric,field_presence_arc,,MEASURED,1.0,20,20,fraction,Required-field presence on the in-memory transaction object.,,
+metric,independently_verified_arc,,MEASURED,1.0,20,20,fraction,Required-field presence after reloading persisted records and independent verification.,,
+metric,audit_reconstruction_completeness,,MEASURED,1.0,20,20,fraction,Headline ARC equals independently_verified_arc from persisted records.,,
 metric,required_event_completeness,,MEASURED,1.0,11,11,fraction,Successful-transaction required event presence.,,
-metric,tamper_detection_rate,,MEASURED,1.0,12,12,fraction,,,
+metric,tamper_detection_rate,,MEASURED,1.0,19,19,fraction,,,
 metric,false_tamper_rate,,MEASURED,0.0,0,3,fraction,,,
 metric,replay_fidelity,,MEASURED,1.0,1.0,1,fraction_exact_or_equivalent,classification=EXACT_MATCH,,
 metric,evidence_attribution_coverage,,MEASURED,1.0,2,2,fraction,,,
 metric,human_action_capture_completeness,,MEASURED,1.0,1,1,fraction,,,
-metric,capture_overhead,,MEASURED,414.4366068850296,21.23987500090152,0.05124999734107405,latency_ratio,Compared with a stub completion-only baseline; storage values are included in the report.,,
-metric,storage_overhead,,MEASURED,2086.8033395176253,6748722.0,3234.0,storage_ratio,,,
-metric,verification_latency,,MEASURED,2.307959002791904,2.307959002791904,1,milliseconds,verification_status=VERIFIED,,
+metric,capture_overhead,,MEASURED,0.8004421066572956,5.336291661175589,6.683055330843975,latency_ratio,latency_ratio = (T_plane - T_no_audit_workflow) / T_no_audit_workflow; storage_ratio = (bytes_plane - bytes_no_audit_workflow) / bytes_no_audit_workflow,,
+metric,storage_overhead,,MEASURED,6.305290391649567,70676.0,11209.0,storage_ratio,,,
+metric,verification_latency,,MEASURED,0.9430830250494182,0.9430830250494182,1,milliseconds,verification_status=VERIFIED,,
 metric,reviewer_task_success,,SCRIPTED_PROXY,1.0,5.0,5,fraction,Not a human-subject usability result; scripted field reconstruction only.,,
-metric,cohort.audit_reconstruction_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.independently_verified_arc,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.required_event_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.evidence_attribution_coverage,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.human_action_capture_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[1.0, 1.0]",,
-metric,cohort.run_latency,cohort,MEASURED,18.485967419692315,,50,milliseconds,"median=18.12599949334981; ci95=[17.922212860448706, 19.049721978935924]",,
-metric,cohort.verification_latency,cohort,MEASURED,1.271270879660733,,50,milliseconds,"median=1.201187500555534; ci95=[1.2052848882056582, 1.337256871115808]",,
-metric,cohort.protected_bytes_added,cohort,MEASURED,14699.88,,50,bytes,"median=14682.0; ci95=[14664.8352, 14734.924799999999]",,
+metric,cohort.audit_reconstruction_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.independently_verified_arc,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.required_event_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.evidence_attribution_coverage,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.human_action_capture_completeness,cohort,MEASURED,1.0,,50,fraction,"median=1.0; ci95=[0.9286499658256813, 1.0]",,
+metric,cohort.run_latency,cohort,MEASURED,12.136124122771434,,50,milliseconds,"median=11.801687491242774; ci95=[11.719218702320312, 12.553029543222557]",,
+metric,cohort.verification_latency,cohort,MEASURED,0.9303608012851328,,50,milliseconds,"median=0.8720835030544549; ci95=[0.8771129208426489, 0.9836086817276166]",,
+metric,cohort.protected_bytes_added,cohort,MEASURED,15472.88,,50,bytes,"median=15455.0; ci95=[15437.8352, 15507.924799999999]",,
 metric,cohort.event_count,cohort,MEASURED,23.0,,50,events,"median=23.0; ci95=[23.0, 23.0]",,
 metric,cohort.tamper_detection_rate,cohort,REPRESENTATIVE_CASE,,,,fraction,"median=None; ci95=[None, None]",,
+scenario,accept,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,modify,MODIFY,COMPLETED,1.0,,,,,,VERIFIED
+scenario,reject,REJECT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,guardrail_warn,WARN,COMPLETED,1.0,,,,,,VERIFIED
+scenario,guardrail_block,BLOCK,BLOCKED,0.7,,,,Blocked before human ACCEPT; incomplete required events are expected.,,INCOMPLETE
+scenario,synthea_sliced,ACCEPT,COMPLETED,1.0,,,,"Sliced first encounter from approved Synthea bundle 1 of 2 (source digest 90b65cb8389b, license CC-BY 4.0, source https://github.com/synthetichealth/synthea); not copied into this repository.",,VERIFIED
+scenario,synthea_sliced_second,ACCEPT,COMPLETED,1.0,,,,"Sliced first encounter from approved Synthea bundle 2 of 2 (source digest 639cfd5447e2, license CC-BY 4.0, source https://github.com/synthetichealth/synthea); not copied into this repository.",,VERIFIED
+scenario,two_step_accept,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,block_override_accept,BLOCK,COMPLETED,1.0,,,,,,VERIFIED
+scenario,natural_guardrail_warn,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,natural_guardrail_block,PENDING,BLOCKED,0.65,,,,,,INCOMPLETE
+scenario,provider_failure,PENDING,FAILED,0.4,,,,,,INCOMPLETE
+scenario,sparse_encounter,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,modify_evidence,MODIFY,COMPLETED,1.0,,,,,,VERIFIED
+scenario,replay_substitution,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+scenario,access_audit,ACCEPT,COMPLETED,1.0,,,,,,VERIFIED
+ablation,full,ablation,MEASURED,1.0,,,fraction,Complete recorded provenance.,,0.0
+ablation,omit_input_manifests,ablation,MEASURED,0.95,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.050000000000000044
+ablation,omit_transformations,ablation,MEASURED,0.95,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.050000000000000044
+ablation,omit_model_metadata,ablation,MEASURED,0.9,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.09999999999999998
+ablation,omit_evidence,ablation,MEASURED,0.95,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.050000000000000044
+ablation,omit_proofs,ablation,MEASURED,0.75,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.25
+ablation,omit_human_provenance,ablation,MEASURED,0.85,,,fraction,Drop in reconstructability when the listed provenance class is omitted.,,0.15000000000000002
+access,reviewer_read,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id},,eval-reviewer-token
+access,investigator_verify,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id}/verify,,eval-investigator-token
+access,admin_content,access_control,PASS,1.0,200,200,http_status,/content/{digest},,eval-admin-token
+access,denied_unauthenticated,access_control,PASS,1.0,401,401,http_status,/transactions,,unauthenticated
+access,reviewer_denied_export,access_control,PASS,1.0,403,403,http_status,/transactions/{transaction_id}/export,,eval-reviewer-token
+access,investigator_denied_output,access_control,PASS,1.0,403,403,http_status,/transactions/{transaction_id}/output,,eval-investigator-token
+access,investigator_denied_content,access_control,PASS,1.0,403,403,http_status,/content/{digest},,eval-investigator-token
+access,reviewer_output,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id}/output,,eval-reviewer-token
+access,investigator_export,access_control,PASS,1.0,200,200,http_status,/transactions/{transaction_id}/export,,eval-investigator-token
+access,missing_transaction,access_control,PASS,1.0,404,404,http_status,/transactions/missing-transaction-id,,eval-admin-token
+access,global_scope_list,access_control,PASS,1.0,200,200,http_status,/transactions,,eval-admin-token
 case,clean,clean,,,,,,,True,
 case,mutate,tamper,,,,,,,True,
 case,delete,tamper,,,,,,,True,

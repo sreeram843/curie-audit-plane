@@ -92,14 +92,18 @@ def test_pipeline_hosted_replay_is_equivalent_or_not_replayable(tmp_path, monkey
         )
         pipeline.services.audit._conn.commit()
 
+    replayed_models = []
+
     def fake_openai(request, **kwargs):
+        replayed_models.append(kwargs["model"])
         return complete_stub(request)
 
     monkeypatch.setattr("curie_audit_plane.pipeline.complete_openai_compatible", fake_openai)
     _rewrite("openai-compatible", "http://127.0.0.1:1234/v1")
-    matching = pipeline.replay(tx_id)
+    matching = pipeline.replay(tx_id, model_id="curie-hosted-substitute")
     assert matching.result == "EQUIVALENT"
     assert any("not bit-exact" in reason or "hosted" in reason.lower() for reason in matching.reasons)
+    assert replayed_models == ["curie-hosted-substitute"]
 
     _rewrite("openai-compatible", "")
     missing = pipeline.replay(tx_id)

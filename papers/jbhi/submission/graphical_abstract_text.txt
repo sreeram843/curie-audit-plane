@@ -1,0 +1,6 @@
+A provenance plane reconstructs one bounded synthetic FHIR Release 4 to large
+language model clinical-AI transaction without storing hidden chain-of-thought
+or raw protected health information in an immutable log. Independently verified
+audit reconstruction completeness is 20 of 20 required fields, all 19 labeled
+tamper cases are detected, and access-control probes pass 11 of 11 allowed or
+denied outcomes.

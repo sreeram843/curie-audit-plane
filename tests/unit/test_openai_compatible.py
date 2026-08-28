@@ -8,6 +8,8 @@ from curie_audit_plane.adapters.openai_compatible import (
     complete_openai_compatible,
     parse_rationale_content,
     resolve_chat_model,
+    sanitize_llm_endpoint,
+    validate_llm_endpoint,
 )
 from curie_audit_plane.models.manifests import StructuredRationale
 
@@ -143,3 +145,14 @@ def test_complete_reuses_recorded_decoding_params():
     assert body["top_p"] == 0.9
     assert body["response_format"] == {"type": "json_object"}
     assert body["presence_penalty"] == 0.1
+
+
+def test_validate_llm_endpoint_rejects_credentials_and_unapproved_hosts():
+    with pytest.raises(ValueError, match="userinfo"):
+        validate_llm_endpoint("http://user:secret@127.0.0.1:1234/v1")
+    with pytest.raises(ValueError, match="query"):
+        validate_llm_endpoint("http://127.0.0.1:1234/v1?api_key=secret")
+    with pytest.raises(ValueError, match="approved"):
+        validate_llm_endpoint("https://api.openai.com/v1")
+    assert validate_llm_endpoint("http://127.0.0.1:1234/v1") == "http://127.0.0.1:1234/v1"
+    assert sanitize_llm_endpoint("http://127.0.0.1:1234/v1") == "http://127.0.0.1:1234/v1"

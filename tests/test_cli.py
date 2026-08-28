@@ -14,9 +14,11 @@ def test_evaluate_writes_json_and_csv_report(tmp_path, capsys, monkeypatch):
 
     report = json.loads((output_dir / "evaluation-report.json").read_text())
     csv_text = (output_dir / "evaluation-metrics.csv").read_text()
-    assert report["schema_version"] == "curie-evaluation.v1"
+    assert report["schema_version"] == "curie-evaluation.v1.1"
     assert {metric["name"] for metric in report["metrics"]} >= {
         "audit_reconstruction_completeness",
+        "field_presence_arc",
+        "independently_verified_arc",
         "capture_overhead",
         "reviewer_task_success",
     }

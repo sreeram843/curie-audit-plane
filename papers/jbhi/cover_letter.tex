@@ -1,0 +1,59 @@
+\documentclass[10pt]{letter}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+\setstretch{1.02}
+
+\makeatletter
+\renewcommand*{\opening}[1]{\vspace*{-1.2em}{\raggedright \toname \\ \toaddress
+  \vspace{1.2em}\par}%
+  \noindent #1\par\vspace{0.6em}}
+\makeatother
+
+\signature{Satya Venkata Ranga Janaki Sriram Mentey\\
+Corresponding Author\\
+8601 Anderson Mill Rd, Apt~722, Austin, TX~78729, USA\\
+E-mail: \href{mailto:srirammentey@ieee.org}{srirammentey@ieee.org}\\
+ORCID: 0009-0007-2681-006X}
+
+\address{Satya Venkata Ranga Janaki Sriram Mentey\\
+8601 Anderson Mill Rd, Apt~722\\
+Austin, TX~78729, USA\\
+\href{mailto:srirammentey@ieee.org}{srirammentey@ieee.org}}
+
+\date{August 28, 2026}
+
+\begin{document}
+\begin{letter}{Editor-in-Chief\\
+IEEE Journal of Biomedical and Health Informatics\\
+IEEE Engineering in Medicine and Biology Society}
+
+\opening{Dear Editor-in-Chief and Editorial Office,}
+
+Please consider the enclosed manuscript, ``A Privacy-Preserving Provenance
+Plane for Reconstructable Fast Healthcare Interoperability Resources to Large
+Language Model Clinical Artificial Intelligence Transactions,'' as a Regular
+Paper in IEEE J-BHI.
+
+The work studies reconstructable provenance for one bounded synthetic
+FHIR-to-LLM clinical-AI transaction without storing hidden chain-of-thought
+or raw protected health information in an immutable log. The evaluation is an
+engineering study on synthetic fixtures, not a clinical-efficacy trial.
+
+This manuscript is original and is not under consideration elsewhere. A
+related J-BHI manuscript by the same author on retrieval-augmented FHIR
+translation addresses a different research question.
+
+No human subjects or identifiable clinical records were used.
+
+\closing{Sincerely,}
+
+\end{letter}
+\end{document}

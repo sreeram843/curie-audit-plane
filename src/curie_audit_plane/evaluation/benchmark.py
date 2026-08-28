@@ -76,11 +76,18 @@ def _verify(events, batch, public_key, content_store=None):
     return verify_transaction(events, batch, public_key, content_store=content_store)
 
 
-def _case(name: str, report, *, kind: str = "tamper") -> dict[str, object]:
+def _case(name: str, report, *, kind: str = "tamper", mutation_type: str | None = None) -> dict[str, object]:
+    detected = _detected(report.status) if kind == "tamper" else False
+    expected_detected = kind == "tamper"
     return {
         "name": name,
-        "detected": _detected(report.status) if kind == "tamper" else False,
+        "detected": detected,
         "kind": kind,
+        "mutation_type": mutation_type or name,
+        "expected_detected": expected_detected,
+        "false_positive": bool(detected and not expected_detected),
+        "false_negative": bool(expected_detected and not detected),
+        "verifier_status": report.status.value,
         "chain_ok": report.chain_ok,
         "content_ok": report.content_ok,
         "status": report.status.value,
@@ -108,8 +115,18 @@ def run_benchmark(pipeline: Pipeline) -> BenchmarkReport:
     content = pipeline.services.content
     batch = _batch_for(events, private_key, key_id)
 
-    mutated = _copy(events)
-    mutated[4] = mutated[4].model_copy(update={"payload_metadata": {"model_version": "mutated"}})
+    mutated = _replace(
+        events,
+        EventType.MODEL_REQUESTED,
+        payload_metadata={
+            **next(
+                event.payload_metadata
+                for event in events
+                if event.event_type == EventType.MODEL_REQUESTED
+            ),
+            "model_version": "mutated",
+        },
+    )
     deleted = events[:6] + events[7:]
     reordered = list(events)
     reordered[2], reordered[3] = reordered[3], reordered[2]
@@ -219,7 +236,7 @@ def run_benchmark(pipeline: Pipeline) -> BenchmarkReport:
         "proof_substitution": _verify(events, other.batch, public_key),
     }
     cases: list[dict[str, object]] = [{"name": "clean", "detected": false_flags == 0, "kind": "clean"}]
-    cases.extend(_case(name, report) for name, report in reports.items())
+    cases.extend(_case(name, report, mutation_type=name) for name, report in reports.items())
     cases.append({"name": "replay_stub", "kind": "replay", "result": replay.result, "detected": False})
     tamper_cases = [case for case in cases if case["kind"] == "tamper"]
     return BenchmarkReport(

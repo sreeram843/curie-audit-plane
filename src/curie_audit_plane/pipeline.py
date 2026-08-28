@@ -11,7 +11,7 @@ from curie_audit_plane.adapters.openai_compatible import complete_openai_compati
 from curie_audit_plane.adapters.retrieval import lookup_tool, retrieve_evidence
 from curie_audit_plane.config import settings
 from curie_audit_plane.fhir.context import apply_transformations, build_context
-from curie_audit_plane.fhir.loader import build_input_manifest, load_bundle
+from curie_audit_plane.fhir.loader import build_input_manifest, iter_resources, load_bundle
 from curie_audit_plane.guardrails.engine import evaluate_guardrails
 from curie_audit_plane.integrity.canonical import canonicalize
 from curie_audit_plane.integrity.hashing import GENESIS_HASH, hash_event
@@ -34,7 +34,7 @@ from curie_audit_plane.models.report import (
     TransactionOverview,
     VerificationReport,
 )
-from curie_audit_plane.privacy import sanitize_comment
+from curie_audit_plane.privacy import opaque_identifier, sanitize_comment
 from curie_audit_plane.replay import classify_replay_outputs, finalize_replay_result
 from curie_audit_plane.store.audit import AuditStore
 from curie_audit_plane.store.content import ProtectedContentStore
@@ -105,6 +105,51 @@ class Pipeline:
     def __exit__(self, *args: object) -> None:
         self.close()
 
+    def run_unrecorded_workflow(
+        self,
+        *,
+        prompt_version: str = "clinical-summary.v1",
+        model_id: str = "curie-stub-summary",
+        log_path: Path | None = None,
+    ) -> dict[str, object]:
+        bundle = load_bundle(self.fixture_path)
+        manifest = build_input_manifest(bundle, self.services.content)
+        transforms = apply_transformations(bundle, self.services.content)
+        context = build_context(bundle, self.services.content)
+        evidence = retrieve_evidence(bundle, self.corpus_path, self.services.content)
+        if evidence and evidence[0].chunk_id:
+            lookup_tool(evidence[0].chunk_id, self.corpus_path, self.services.content)
+        context_payload = json.loads(self.services.content.get(context.content_ref).decode("utf-8"))
+        completion = self.completer(
+            self._completion_request(
+                context.digest, context_payload, evidence, prompt_version, model_id
+            )
+        )
+        guardrails = evaluate_guardrails(
+            completion.output,
+            input_manifest=manifest,
+            context_ref=context.content_ref,
+            context_digest=context.digest,
+            evidence=evidence,
+        )
+        records = [
+            {"stage": "load", "status": "ok"},
+            {"stage": "transform", "count": len(transforms)},
+            {"stage": "context", "digest": context.digest},
+            {"stage": "retrieve", "count": len(evidence)},
+            {"stage": "complete", "model_id": completion.manifest.model_id},
+            {"stage": "guardrail", "count": len(guardrails)},
+        ]
+        payload = "\n".join(json.dumps(item) for item in records) + "\n"
+        if log_path is not None:
+            log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_path.write_text(payload, encoding="utf-8")
+        return {
+            "output": completion.output,
+            "guardrails": guardrails,
+            "log_bytes": len(payload.encode("utf-8")),
+        }
+
     def run_transaction(
         self,
         *,
@@ -123,14 +168,29 @@ class Pipeline:
             raise ValueError("PENDING is a review state, not a terminal human disposition")
         transaction_id = str(uuid4())
         started_at = datetime.now(UTC)
-        subject_ref = "Patient/TEST-00001"
-        self.services.audit.create_transaction(transaction_id, purpose, subject_ref)
         ctx = _RunContext(transaction_id=transaction_id)
+        subject_ref = opaque_identifier("Patient/UNKNOWN")
         try:
+            bundle = load_bundle(self.fixture_path)
+            patient = next(
+                (
+                    resource
+                    for resource in iter_resources(bundle)
+                    if resource.get("resourceType") == "Patient"
+                ),
+                None,
+            )
+            if patient is None or not patient.get("id"):
+                raise ValueError("FHIR Bundle must include a Patient resource")
+            raw_subject = f"Patient/{patient['id']}"
+            subject_ref = opaque_identifier(raw_subject)
+            self.services.audit.create_transaction(transaction_id, purpose, subject_ref)
             return self._run_transaction_inner(
                 ctx,
+                bundle=bundle,
                 purpose=purpose,
                 subject_ref=subject_ref,
+                raw_subject=raw_subject,
                 started_at=started_at,
                 human_action=human_action,
                 actor=actor,
@@ -143,14 +203,20 @@ class Pipeline:
                 model_id=model_id,
             )
         except Exception as exc:
+            try:
+                self.services.audit.get_transaction(transaction_id)
+            except KeyError:
+                self.services.audit.create_transaction(transaction_id, purpose, subject_ref)
             return self._fail_transaction(ctx, purpose, subject_ref, started_at, exc)
 
     def _run_transaction_inner(
         self,
         ctx: _RunContext,
         *,
+        bundle: dict[str, object],
         purpose: str,
         subject_ref: str,
+        raw_subject: str,
         started_at: datetime,
         human_action: HumanActionStatus | None,
         actor: str,
@@ -162,24 +228,43 @@ class Pipeline:
         prompt_version: str,
         model_id: str,
     ) -> TransactionResult:
-        bundle = load_bundle(self.fixture_path)
         transaction_id = ctx.transaction_id
+        manifest = build_input_manifest(bundle, self.services.content)
+        identity = {
+            "subject_raw": raw_subject,
+            "subject_opaque": subject_ref,
+            "resources": [
+                {
+                    "resource_type": item.resource_type,
+                    "raw": item.resource_id,
+                    "opaque": opaque_identifier(item.resource_id),
+                }
+                for item in manifest
+            ],
+        }
+        identity_bytes = canonicalize(identity)
+        identity_ref = self.services.content.put(identity_bytes, "application/json")
+        opaque_ids = [item["opaque"] for item in identity["resources"]]
         self._emit(
             ctx,
             EventType.TRANSACTION_STARTED,
-            {"purpose": purpose, "subject_ref": subject_ref, "source_system": "curie-fhir-fixture"},
+            {
+                "purpose": purpose,
+                "subject_ref": subject_ref,
+                "identity_ref": identity_ref,
+                "source_system": "curie-fhir-fixture",
+            },
         )
         self.services.audit.set_status(transaction_id, TransactionStatus.RUNNING)
 
-        manifest = build_input_manifest(bundle, self.services.content)
         self._emit(
             ctx,
             EventType.INPUT_MANIFEST_CREATED,
             {
                 "item_count": len(manifest),
-                "resource_ids": [item.resource_id for item in manifest],
+                "resource_ids": opaque_ids,
                 "resources": [
-                    {"resource_type": item.resource_type, "resource_id": item.resource_id}
+                    {"resource_type": item.resource_type, "resource_id": opaque_identifier(item.resource_id)}
                     for item in manifest
                 ],
                 "source_system": "curie-fhir-fixture",
@@ -415,7 +500,7 @@ class Pipeline:
             blocked=blocked,
             started_at=datetime.fromisoformat(row["created_at"] or datetime.now(UTC).isoformat()),
             purpose=row["purpose"] or "synthetic-encounter-summary",
-            subject_ref=row["subject_ref"] or "Patient/TEST-00001",
+            subject_ref=row["subject_ref"] or opaque_identifier("Patient/UNKNOWN"),
             output=output,
         )
 
@@ -497,7 +582,15 @@ class Pipeline:
             modified_bytes = canonicalize(modified_output.model_dump(mode="json"))
             final_ref = self.services.content.put(modified_bytes, "application/json")
             final_digest = self.services.content.digest_of(modified_bytes)
-        sanitized = sanitize_comment(comment)
+        category = "policy_override" if override_policy_version else {
+            HumanActionStatus.ACCEPT: "accept_as_recorded",
+            HumanActionStatus.MODIFY: "modify_for_accuracy",
+            HumanActionStatus.REJECT: "reject_insufficient_evidence",
+        }.get(human_action, "unspecified")
+        sanitized = sanitize_comment(comment, category=category)
+        if sanitized["comment_present"]:
+            comment_bytes = canonicalize({"comment": comment})
+            sanitized["comment_ref"] = self.services.content.put(comment_bytes, "text/plain")
         self._emit(
             ctx,
             EventType.HUMAN_ACTION_RECORDED,
@@ -641,7 +734,15 @@ class Pipeline:
             output=output,
         )
 
-    def replay(self, transaction_id: str, *, actor: str = "investigator@curie.local", role: str = "investigator") -> ReplayClassification:
+    def replay(
+        self,
+        transaction_id: str,
+        *,
+        actor: str = "investigator@curie.local",
+        role: str = "investigator",
+        prompt_version: str | None = None,
+        model_id: str | None = None,
+    ) -> ReplayClassification:
         events = self.services.audit.list_events(transaction_id)
         context_event = next(
             event for event in events if event.event_type == EventType.CONTEXT_MANIFEST_CREATED
@@ -654,8 +755,12 @@ class Pipeline:
             (event for event in events if event.event_type == EventType.RETRIEVAL_COMPLETED),
             None,
         )
-        prompt_version = str(model_event.payload_metadata.get("prompt_version") or "clinical-summary.v1")
-        model_id = str(model_event.payload_metadata.get("model_id") or "curie-stub-summary")
+        if prompt_version is None:
+            prompt_version = str(
+                model_event.payload_metadata.get("prompt_version") or "clinical-summary.v1"
+            )
+        if model_id is None:
+            model_id = str(model_event.payload_metadata.get("model_id") or "curie-stub-summary")
         decoding_params = model_event.payload_metadata.get("decoding_params")
         tool_policy = model_event.payload_metadata.get("tool_policy")
         runtime = str(model_event.payload_metadata.get("runtime") or "")
@@ -819,11 +924,13 @@ class Pipeline:
     ) -> TransactionResult:
         ended_at = datetime.now(UTC)
         error_code = type(exc).__name__
-        message = str(exc)[:200]
         self._emit(
             ctx,
             EventType.TRANSACTION_FAILED,
-            {"error_code": error_code, "message": message},
+            {
+                "error_code": error_code,
+                "message": "",
+            },
             status=EventStatus.FAILED,
         )
         self.services.audit.set_status(ctx.transaction_id, TransactionStatus.FAILED, ended_at=ended_at)
@@ -885,14 +992,13 @@ class Pipeline:
             return complete_stub
         if runtime == "openai-compatible":
             endpoint = str(model_event.payload_metadata.get("endpoint") or "")
-            model_id = str(model_event.payload_metadata.get("model_id") or "")
             recorded_endpoint = endpoint
 
             def _complete(request: CompletionRequest):
                 return complete_openai_compatible(
                     request,
                     base_url=recorded_endpoint,
-                    model=model_id,
+                    model=request.model_id,
                     api_key=settings.llm_api_key,
                     timeout_seconds=settings.llm_timeout_seconds,
                 )

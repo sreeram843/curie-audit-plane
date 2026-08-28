@@ -34,10 +34,11 @@
 | 20 | Evaluation report emits versioned JSON/CSV metrics, case outcomes, denominators, and explicit scripted-study status | `tests/evaluation/test_report.py`, `tests/test_cli.py` | evaluation/integration | PASS |
 | 21 | Synthetic cohort generation is deterministic, bounded to 1–1,000 encounters, and rewrites identifiers, references, and timestamps without changing the fixture shape | `tests/evaluation/test_cohort.py` | evaluation | PASS |
 | 22 | Repeated cohort study runs the real pipeline plus an independent verifier and emits mean, median, 95% CI, CSV rows, and a vector figure | `tests/evaluation/test_study.py`, `tests/evaluation/test_figure.py`, `tests/test_cli.py` | evaluation/integration | PASS |
+| 23 | Scenario matrix covers two-step review, override ACCEPT, natural WARN/BLOCK, provider failure, sparse encounter, Synthea slices, evidence MODIFY, replay substitution, and access-audit | `tests/evaluation/test_scenarios.py` | evaluation | PASS |
 
 ## Coverage
 
-`pytest` with `--cov=curie_audit_plane --cov-fail-under=80` reported **94.50%** on 2026-08-27 (112 tests). The reproducible evaluation command is `curie-audit-plane evaluate --output-dir evaluation-results --encounters 50 --repetitions 1`; it writes `evaluation-report.json`, `evaluation-metrics.csv`, and `evaluation-cohort-metrics.svg`. Console Vitest covers view-model stage mapping plus App selection, ACCEPT/MODIFY/REJECT, verify, replay, filters, JSON modes, downloads, Sankey, evidence, and keyboard timeline controls.
+`pytest` with `--cov=curie_audit_plane --cov-fail-under=80` reported **94.56%** on 2026-08-28 (128 tests). The reproducible evaluation command is `curie-audit-plane evaluate --output-dir evaluation-results --encounters 50 --repetitions 1`; it writes `evaluation-report.json`, `evaluation-metrics.csv`, and `evaluation-cohort-metrics.svg`. Console Vitest covers view-model stage mapping plus App selection, ACCEPT/MODIFY/REJECT, verify, replay, filters, JSON modes, downloads, Sankey, evidence, and keyboard timeline controls.
 
 The evaluation report marks scripted reviewer reconstruction as `SCRIPTED_PROXY`; it is not a human-subject usability result. Baseline, overhead, replay, and integrity results are prototype measurements over synthetic fixtures and must be rerun with fixed experiment configurations before a paper submission.
 

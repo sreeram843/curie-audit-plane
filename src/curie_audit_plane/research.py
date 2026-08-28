@@ -8,6 +8,34 @@ from curie_audit_plane.models.enums import EventType
 from curie_audit_plane.pipeline import TransactionResult
 
 _ID_RE = re.compile(r"TEST-\d{5}")
+_UUID_RE = re.compile(
+    r"(?i)[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+)
+_FHIR_REF_RE = re.compile(
+    r"\b(?:Patient|Encounter|Condition|Observation|MedicationRequest|DiagnosticReport)/[A-Za-z0-9._-]+"
+)
+_PHONE_RE = re.compile(r"\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b")
+_DATE_ONLY_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_PERSON_NAME_RE = re.compile(r"\b[A-Z][a-z]+ [A-Z][a-z]+\b")
+_IDENTIFIER_KEYS = frozenset(
+    {
+        "actor",
+        "comment",
+        "display",
+        "name",
+        "patient_id",
+        "payload_ref",
+        "phone",
+        "reference",
+        "resource_id",
+        "resource_ids",
+        "source_output_id",
+        "subject_ref",
+        "telecom",
+        "transaction_id",
+        "who",
+    }
+)
 _SALT = b"curie-audit-plane-research-v1"
 
 
@@ -16,20 +44,44 @@ def _pseudo(value: str, prefix: str) -> str:
     return f"{prefix}_{digest}"
 
 
-def _scrub(value: Any, tx_id: str) -> Any:
+def _is_identifier_key(key: str) -> bool:
+    return (
+        key in _IDENTIFIER_KEYS
+        or key.endswith("_id")
+        or key.endswith("_ids")
+        or key.endswith("_ref")
+    )
+
+
+def _scrub_string(value: str, tx_id: str, key: str) -> str:
+    if value == tx_id:
+        return _pseudo(tx_id, "tx")
+    if _is_identifier_key(key):
+        return _pseudo(value, "id")
+    if (
+        _ID_RE.search(value)
+        or _UUID_RE.search(value)
+        or _FHIR_REF_RE.search(value)
+        or _PHONE_RE.search(value)
+        or _DATE_ONLY_RE.fullmatch(value)
+        or _PERSON_NAME_RE.search(value)
+    ):
+        return _pseudo(value, "id")
+    return value
+
+
+def _scrub(value: Any, tx_id: str, key: str = "") -> Any:
     if isinstance(value, str):
-        if value == tx_id:
-            return _pseudo(tx_id, "tx")
-        if _ID_RE.search(value):
-            return _ID_RE.sub("REDACTED", value)
-        return value
+        return _scrub_string(value, tx_id, key)
     if isinstance(value, list):
-        return [_scrub(item, tx_id) for item in value]
+        if _is_identifier_key(key):
+            return [_pseudo(str(item), "id") for item in value]
+        return [_scrub(item, tx_id, key) for item in value]
     if isinstance(value, dict):
         return {
-            key: _scrub(item, tx_id)
-            for key, item in value.items()
-            if key not in {"payload", "bytes", "content"}
+            nested_key: _scrub(item, tx_id, nested_key)
+            for nested_key, item in value.items()
+            if nested_key not in {"payload", "bytes", "content", "comment"}
         }
     return value
 

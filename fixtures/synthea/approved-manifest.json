@@ -1,0 +1,10 @@
+{
+  "schema_version": "curie-synthea-manifest.v1",
+  "license": "CC-BY 4.0",
+  "source": "https://github.com/synthetichealth/synthea",
+  "synthea_identifier_system": "https://github.com/synthetichealth/synthea",
+  "version": "documented-in-docs/evaluation/synthea-provenance.md",
+  "approved_roots": [
+    "../curie-prediction-pipeline/data/synthea/fhir"
+  ]
+}

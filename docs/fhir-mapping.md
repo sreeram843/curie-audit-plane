@@ -32,6 +32,8 @@ Provenance source entities use `resource_type`/`resource_id` pairs from the inpu
 
 ## Limitations
 
-- Projections are not claimed to satisfy a specific Implementation Guide profile beyond required R4 fields.
+- Projections are documented FHIR R4 mapping rules, not a conformance claim against a
+  specific Implementation Guide or StructureDefinition profile. The paper is limited
+  to these mapping rules.
 - Cryptographic chain, Merkle proof, and signature material stay in the internal event model.
 - Hashes and identifiers in these resources are sensitive metadata, not anonymizers.

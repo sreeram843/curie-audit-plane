@@ -1,0 +1,60 @@
+COVER LETTER — IEEE Journal of Biomedical and Health Informatics (J-BHI)
+=======================================================================
+Paste into the IEEE Author Portal cover-letter text box.
+
+---
+
+Dear Editor-in-Chief and Editorial Office,
+
+Please consider our manuscript entitled:
+
+“A Privacy-Preserving Provenance Plane for Reconstructable Fast Healthcare
+Interoperability Resources to Large Language Model Clinical Artificial
+Intelligence Transactions”
+
+for publication as a **Regular Paper** in IEEE J-BHI.
+
+Innovation and significance relative to J-BHI scope
+---------------------------------------------------
+This work sits at the intersection of health information technology and
+clinical artificial intelligence auditability. It studies a provenance plane
+that reconstructs one bounded synthetic FHIR Release 4 to large language
+model transaction—inputs, transformations, model configuration, evidence,
+safeguards, and human ACCEPT/MODIFY/REJECT disposition—without storing hidden
+chain-of-thought or raw protected health information in an immutable log.
+The contribution is an engineering evaluation on synthetic fixtures:
+independently verified reconstructability, tamper detection, role-based
+access outcomes, ablations of provenance classes, and capture overhead
+versus an identical unrecorded clinical workflow. The results are relevant to
+biomedical and health informatics practice: they quantify what must be
+recorded for a reconstructable clinical-AI handoff, and they keep FHIR
+Provenance/AuditEvent as projections rather than a claimed Implementation
+Guide profile.
+
+Originality
+-----------
+This manuscript is entirely original. It has not been copyrighted,
+published, submitted, or accepted for publication elsewhere. No preliminary
+conference version of this work has been published. A related IEEE J-BHI
+manuscript by the same author on retrieval-augmented FHIR translation is a
+separate engineering study with a different research question and evaluation.
+
+Human subjects / data
+---------------------
+No human subjects and no identifiable clinical records were used. The
+reported evaluation uses synthetic FHIR fixtures and optional external
+Synthea bundles that are not committed to the public repository.
+
+Suggested article type: Regular Paper
+Open access preference: Traditional submission (or state Open Access if you
+commit to the 2026 APC).
+
+Thank you for your consideration.
+
+Sincerely,
+Satya Venkata Ranga Janaki Sriram Mentey
+Corresponding author
+8601 Anderson Mill Rd, Apt 722
+Austin, TX 78729, USA
+E-mail: srirammentey@ieee.org
+ORCID: 0009-0007-2681-006X
