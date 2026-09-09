@@ -1,0 +1,22 @@
+name: Bug report
+description: Report a defect in the synthetic FHIR-to-LLM audit plane
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not include secrets, API keys, or real patient data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What failed, and what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Command, fixture alias, and schema version. Use synthetic data only.
+    validations:
+      required: true

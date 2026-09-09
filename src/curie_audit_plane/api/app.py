@@ -5,7 +5,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from curie_audit_plane.auth import (
     GLOBAL_ACCESS_SCOPE,
@@ -20,6 +20,7 @@ from curie_audit_plane.integrity.chain import per_event_hash_statuses
 from curie_audit_plane.models.enums import HumanActionStatus
 from curie_audit_plane.models.manifests import StructuredRationale
 from curie_audit_plane.pipeline import Pipeline, TransactionResult
+from curie_audit_plane.privacy import sanitize_override_policy_version, sanitize_prompt_version
 from curie_audit_plane.research import research_export
 from curie_audit_plane.store.content import CONTENT_REF_PATTERN
 from curie_audit_plane.views import sankey_view
@@ -32,12 +33,22 @@ class RunRequest(BaseModel):
     comment: str = ""
     prompt_version: str = "clinical-summary.v1"
 
+    @field_validator("prompt_version")
+    @classmethod
+    def _prompt_version(cls, value: str) -> str:
+        return sanitize_prompt_version(value)
+
 
 class ReviewRequest(BaseModel):
     action: TerminalAction
     comment: str = ""
     modified_output: StructuredRationale | None = None
     override_policy_version: str | None = None
+
+    @field_validator("override_policy_version")
+    @classmethod
+    def _override_policy_version(cls, value: str | None) -> str | None:
+        return sanitize_override_policy_version(value)
 
 
 def _serialize(result: TransactionResult) -> dict[str, object]:
