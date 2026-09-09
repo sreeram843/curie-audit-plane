@@ -1,6 +1,7 @@
 import json
+from types import SimpleNamespace
 
-from curie_audit_plane.evaluation.report import build_evaluation_report
+from curie_audit_plane.evaluation.report import _git_dirty, build_evaluation_report
 from curie_audit_plane.integrity.signing import generate_keypair
 from curie_audit_plane.pipeline import Pipeline, PipelineServices
 from curie_audit_plane.store.audit import AuditStore
@@ -18,6 +19,24 @@ def _pipeline(tmp_path):
             key_id="test-key",
         )
     )
+
+
+def test_git_dirty_is_unknown_when_git_status_fails(monkeypatch):
+    monkeypatch.setattr(
+        "curie_audit_plane.evaluation.report.subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(returncode=128, stdout="", stderr="fatal"),
+    )
+
+    assert _git_dirty() is None
+
+
+def test_git_dirty_is_unknown_when_git_cannot_run(monkeypatch):
+    def unavailable(*args, **kwargs):
+        raise OSError("git unavailable")
+
+    monkeypatch.setattr("curie_audit_plane.evaluation.report.subprocess.run", unavailable)
+
+    assert _git_dirty() is None
 
 
 def test_evaluation_report_contains_numeric_metrics_and_explicit_study_gaps(tmp_path):

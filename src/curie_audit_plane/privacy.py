@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 
 COMMENT_CATEGORIES = frozenset(
     {
@@ -16,6 +17,7 @@ ALLOWED_PROMPT_VERSIONS = frozenset({"clinical-summary.v1", "clinical-summary.v2
 ALLOWED_OVERRIDE_POLICIES = frozenset({"override.v1"})
 MAX_VERSION_LEN = 64
 _OPAQUE_SALT = b"curie-audit-plane-opaque-v1"
+_OPAQUE_TOKEN_RE = re.compile(r"tok_[0-9a-f]{20}\Z")
 
 
 def opaque_identifier(value: str) -> str:
@@ -28,7 +30,7 @@ def sanitize_purpose(purpose: str) -> str:
     value = (purpose or "").strip()
     if value in ALLOWED_PURPOSES:
         return value
-    if value.startswith("tok_") and len(value) > 4 and value[4:].isalnum():
+    if _OPAQUE_TOKEN_RE.fullmatch(value):
         return value
     return opaque_identifier(value or "unspecified")
 

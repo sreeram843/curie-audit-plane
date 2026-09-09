@@ -44,6 +44,12 @@ def test_sanitize_purpose_allowlists_and_opaques_caller_text():
     assert sanitize_purpose(token) == token
 
 
+def test_sanitize_purpose_does_not_trust_malformed_opaque_token():
+    crafted = "tok_PatientName"
+
+    assert sanitize_purpose(crafted) == opaque_identifier(crafted)
+
+
 def test_sanitize_prompt_and_override_versions_are_allowlisted():
     assert sanitize_prompt_version("clinical-summary.v1") == "clinical-summary.v1"
     assert sanitize_prompt_version("clinical-summary.v2") == "clinical-summary.v2"

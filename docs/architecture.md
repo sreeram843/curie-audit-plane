@@ -91,7 +91,7 @@ Failed, blocked, incomplete, and tampered transactions remain visible with expli
 
 ## Integrity model
 
-Each event is canonically serialized before hashing. Events in one transaction link through `previous_event_hash` and a transaction root. Completed transaction roots are batched into a Merkle tree, and the batch root is signed with Ed25519. An independent verifier checks:
+Each event is canonically serialized before hashing. Events in one transaction link through `previous_event_hash` and a transaction root. The design supports Merkle trees over completed transaction roots, but the current measured pipeline places one transaction root in each Merkle envelope and signs that root with Ed25519. Multi-transaction batch assembly is not implemented end to end. An independent verifier checks:
 
 1. canonical serialization and each event hash;
 2. sequence order and previous-hash links;
@@ -126,7 +126,7 @@ The Sankey edge width must represent a declared measure such as artifact count, 
 
 - Event contract uses PRD dotted names (`transaction.started`). Architecture `TRANSACTION_STARTED` names are documentation aliases.
 - Python modular monolith: SQLite audit store, SHA-256 content store, FastAPI, deterministic stub plus optional local OpenAI-compatible adapter (LM Studio), React/Vite console.
-- Integrity: canonical JSON, event chain, RFC 6962-style Merkle promotion of unpaired nodes, Ed25519. Proof verification checks transaction IDs, roots, inclusion index, inclusion path, leaf, signature, and key identity.
+- Integrity: canonical JSON, event chain, RFC 6962-style Merkle promotion of unpaired nodes, Ed25519. Proof verification checks transaction IDs, roots, inclusion index, inclusion path, leaf, signature, and key identity. Multi-leaf proofs are unit-tested, while the measured transaction path uses a one-leaf envelope.
 - UI/export/replay access events are stored in a separate append-only access-audit stream keyed by `transaction_id`, hash-chained independently of the clinical transaction. Collection-level operations that have no transaction ID (transaction list and protected-content reads) use the documented global scope `access-scope:global`. Denied 401/403 attempts are recorded with the authenticated principal when it can be resolved, otherwise `anonymous` / `unauthenticated`. The clinical proof is not extended after `integrity.proof_committed`; appending to a sealed clinical chain is rejected.
 - Prototype authorization is fail-closed: bearer tokens are generated locally by `curie-audit-plane setup` into gitignored `.env` (`CAP_ADMIN_TOKEN`, optional `CAP_REVIEWER_TOKEN` / `CAP_INVESTIGATOR_TOKEN`, and matching `VITE_CAP_AUTH_TOKEN`). `.env.example` keeps empty placeholders. Request bodies cannot set actor or role. Protected content is admin-only. Structured output is omitted from list, detail, run, and review responses. `GET /transactions/{id}/output` requires the separately audited `output` permission (`reviewer`, `admin`). Content references are resolved under the content root and digest-checked during verification.
 - Research export includes de-identified clinical pipeline events and a verification summary. It excludes access-audit events, administrative events, raw payloads, reviewer comments, and direct identifiers. Clinical export requires `export` (`investigator`, `admin`). Export includes structured output only when the principal also has `output`; investigators receive `output: null`. When output is included, a second access-audit event with action `output` is recorded. Missing transaction reads are access-audited with result `missing` before the 404 response.
@@ -135,5 +135,4 @@ The Sankey edge width must represent a declared measure such as artifact count, 
 
 ## Deferred
 
-Hosted cloud LLM providers, `curie-prediction-pipeline` and `curie-gateway` adapters, React Flow provenance graph, playback scrubber, SSE/live updates, production HSM/key rotation, and multi-tenant access control.
-
+Hosted cloud LLM providers, `curie-prediction-pipeline` and `curie-gateway` adapters, multi-transaction Merkle batch assembly, React Flow provenance graph, playback scrubber, SSE/live updates, production HSM/key rotation, and multi-tenant access control.

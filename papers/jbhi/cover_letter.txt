@@ -31,9 +31,10 @@ logical serialized bytes are reported separately because SQLite page allocation
 confounds on-disk file size. The results are relevant to biomedical and health
 informatics practice: they quantify what must be recorded for a reconstructable
 clinical-AI handoff, and they keep FHIR Provenance/AuditEvent as projections
-rather than a claimed Implementation Guide profile. Hash chaining, Merkle
-batching, and Ed25519 are used as known primitives, not as a new cryptographic
-construction.
+rather than a claimed Implementation Guide profile. Hash chaining and Ed25519
+signing are used as known primitives, not as a new cryptographic construction.
+The measured path places one completed transaction root in each Merkle
+envelope; it does not claim multi-transaction batching.
 
 Originality
 -----------
