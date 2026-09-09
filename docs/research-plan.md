@@ -52,12 +52,12 @@ The baseline comparison should measure completeness, detection, queryability, ov
 | Audit Reconstruction Completeness (`independently_verified_arc`) | Required provenance fields reconstructed from persisted records after the in-repository verifier succeeds, divided by total required fields | At least 95% on clean benchmark; report missing fields explicitly |
 | Field-presence ARC (`field_presence_arc`) | Required provenance fields present on the in-memory transaction object divided by total required fields | Report separately; not a substitute for reload-and-verify ARC |
 | Required-event completeness | Required event types present with valid links divided by required event types | 100% for successful transactions |
-| Tamper detection rate | Tampered cases correctly flagged divided by all tampered cases | 100% for the defined mutation suite |
+| Mutation detection rate | Labeled mutations producing a non-`VERIFIED` verifier result divided by all labeled mutations; report `TAMPERED`, `INCOMPLETE`, and `FAILED` outcomes separately | 100% rejection for the defined mutation suite; do not imply perfect status classification |
 | False tamper rate | Clean cases incorrectly flagged divided by all clean cases | 0% on fixtures; report as a rate over at least three independent clean runs, not a single binary result |
 | Replay fidelity | Exact, equivalent, or divergent classification under predefined comparison rules | Report by provider and configuration |
 | Evidence attribution coverage | Output claims with valid evidence references divided by claims requiring evidence | At least 90% in structured-output benchmark |
 | Human-action capture completeness | Review runs with actor, action, time, and final-output digest divided by runs reaching review | 100% |
-| Capture overhead | Added latency and storage relative to an identical unrecorded clinical workflow | Report relative allocated overhead `(B_plane - B_base) / B_base` and total allocated multiplier `B_plane / B_base` separately; also report logical serialized bytes excluding SQLite page allocation; do not claim a 15% target unless that baseline is met |
+| Capture overhead | Added latency and storage relative to an identical unrecorded clinical workflow | Report paired relative latency overhead `(T_plane - T_base) / T_base`, relative allocated storage overhead `(B_plane - B_base) / B_base`, and total allocated multiplier `B_plane / B_base` separately; also report logical serialized bytes excluding SQLite page allocation; do not claim a 15% target unless that baseline is met |
 | Verification latency | Time to verify one transaction and one batch proof | Under one second locally for target fixture size |
 | Reviewer task success | Correct identification of source, model, evidence, guardrail, and human action | `SCRIPTED_PROXY` only in this paper; not a human-subject usability result |
 

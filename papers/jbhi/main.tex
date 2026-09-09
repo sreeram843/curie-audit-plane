@@ -7,7 +7,6 @@
 \usepackage{cite}
 \usepackage{array}
 \usepackage{multirow}
-\usepackage{balance}
 
 \begin{document}
 
@@ -33,13 +32,14 @@ presents Curie Audit Plane, a protocol and system demonstration for one
 bounded synthetic Fast Healthcare Interoperability Resources Release~4 to
 large language model transaction. The plane separates protected clinical
 content from an append-only audit chain, records typed events with content
-digests, and checks hash chaining, Merkle inclusion, and Ed25519 signatures
-with a verifier module in the same repository after persisted records are
-reloaded. Structured model output is constrained to rationale, evidence
+digests, and checks hash chaining plus an Ed25519 signature over a
+one-transaction Merkle envelope with a verifier module in the same repository
+after persisted records are reloaded. Structured model output is constrained to rationale, evidence
 references, uncertainty, assumptions, and missing data. On synthetic
 fixtures, reload-and-verify audit reconstruction completeness is $20/20$
-required fields, all $19$ labeled tamper cases are detected, and
-access-control probes pass $11/11$ allowed or denied outcomes. Capture
+required fields, and all $19$ labeled mutations produce non-\texttt{VERIFIED}
+outcomes ($18$ \texttt{TAMPERED} and one \texttt{INCOMPLETE}); access-control
+probes pass $11/11$ allowed or denied outcomes. Capture
 overhead is reported against an identical unrecorded clinical workflow, not a
 thin log shortcut. Significance for biomedical research: the method shows how
 a FHIR-to-LLM handoff can be reconstructed without placing hidden
@@ -86,9 +86,11 @@ model.
 The intended contribution is that integration: a data/proof split, typed
 events, structured rationale without hidden chain-of-thought, FHIR
 \texttt{Provenance}/\texttt{AuditEvent} projections, and reload-and-verify
-scoring against construct-dependent analytical baselines. Hash chaining,
-Merkle batching, and Ed25519 signatures are used as known primitives, not as
-new cryptographic results~\cite{haber1991timestamp,merkle1988signature,rfc8032}.
+scoring against construct-dependent analytical baselines. Hash chaining and
+Ed25519 signing are used as known primitives, not as new cryptographic
+results~\cite{haber1991timestamp,merkle1988signature,rfc8032}. The measured
+path places one completed transaction root in each Merkle envelope; it does
+not claim multi-transaction batching.
 
 \section{Related Work}
 \label{sec:related}
@@ -168,8 +170,10 @@ authorized reconstruction.
 \label{sec:events}
 
 A successful transaction emits typed events from input manifestation through
-human action and an integrity-proof commitment. Events are canonically hashed,
-chained, batched with a Merkle root, and signed. Verification reports
+human action and an integrity-proof commitment. Events are canonically hashed
+and chained. The completed transaction root is represented as a one-leaf
+Merkle envelope and signed with Ed25519; the measured pipeline does not
+aggregate multiple transaction roots into one batch. Verification reports
 \texttt{VERIFIED}, \texttt{INCOMPLETE}, \texttt{TAMPERED}, or \texttt{FAILED}.
 The verifier is a separate module in this repository. Headline reconstructability
 is computed after reloading persisted SQLite and protected-content records and
@@ -200,8 +204,9 @@ Headline audit reconstruction completeness
 reloading persisted records, counted only when the in-repository verifier
 succeeds. The identifier retains the historical metric name; in prose this
 paper calls the quantity reload-and-verify completeness. Field-presence
-completeness on the in-memory object is reported separately. Tamper detection
-uses $19$ labeled mutation cases. Replay is classified as
+completeness on the in-memory object is reported separately. Mutation detection
+uses $19$ labeled cases. A case is detected when the verifier returns any
+non-\texttt{VERIFIED} result; the specific status is reported separately. Replay is classified as
 \texttt{EXACT\_MATCH}, \texttt{EQUIVALENT}, or \texttt{DIVERGENT}. Overhead
 compares the complete plane with an identical unrecorded clinical workflow
 (load, transform, context, retrieve, complete, guardrails, and an in-memory
@@ -209,7 +214,7 @@ ACCEPT disposition written only to JSONL) on isolated stores with warmup and
 $30$ timed repeats. The unrecorded path does not emit audit events, Merkle
 proofs, or signatures.
 \begin{align}
-\mathrm{latency\_ratio} &= (T_{\mathrm{plane}}-T_{\mathrm{no\_audit}})/T_{\mathrm{no\_audit}}, \\
+\mathrm{overhead}_{\mathrm{latency}} &= (T_{\mathrm{plane}}-T_{\mathrm{no\_audit}})/T_{\mathrm{no\_audit}}, \\
 \mathrm{storage\_overhead}^{\mathrm{alloc}} &= (B_{\mathrm{plane}}^{\mathrm{alloc}}-B_{\mathrm{no\_audit}}^{\mathrm{alloc}})/B_{\mathrm{no\_audit}}^{\mathrm{alloc}}, \\
 \mathrm{storage\_total}^{\mathrm{alloc}} &= B_{\mathrm{plane}}^{\mathrm{alloc}}/B_{\mathrm{no\_audit}}^{\mathrm{alloc}}.
 \end{align}
@@ -217,7 +222,8 @@ Allocated bytes are on-disk file sizes, including SQLite page allocation.
 Logical bytes are UTF-8 octet lengths of serialized event JSON, transaction-row
 payloads, and protected-content files, excluding page padding. Relative logical
 overhead and the logical total multiplier are defined analogously. Rate metrics use Wilson
-intervals; latency ratios use paired differences. Ablations omit input
+intervals; the historical report field \texttt{latency\_ratio} contains the
+mean paired relative latency overhead. Ablations omit input
 manifests, transformations, model and prompt metadata, evidence references,
 cryptographic proofs, or human provenance. Access-control probes record
 allowed and denied HTTP outcomes for reviewer, investigator, admin, output,
@@ -258,8 +264,10 @@ Reload-and-verify audit reconstruction completeness is $20/20$ required
 fields on the clean fixture transaction after the in-repository verifier
 succeeds. Field-presence completeness on the in-memory object is also
 $20/20$. Required-event completeness is $11/11$ for a successful transaction.
-All $19$ labeled tamper cases are detected, and the false-tamper rate over
-three clean runs is $0$. On the cloned $50$-encounter cohort,
+All $19$ labeled mutations produce a non-\texttt{VERIFIED} result: $18$ are
+classified \texttt{TAMPERED}, while one substituted content reference is
+classified \texttt{INCOMPLETE} because the referenced protected content is
+absent. The false-tamper rate over three clean runs is $0$. On the cloned $50$-encounter cohort,
 reload-and-verify completeness remains $1.00$ with Wilson $95\%$ interval
 $[0.93, 1.00]$ ($n=50$) after reloading persisted records.
 
@@ -325,8 +333,9 @@ unauthenticated list denied ($401$); missing transaction reported as missing
 
 \subsection{Overhead and Replay}
 Mean plane latency is $16.13$\,ms versus $8.59$\,ms for the identical
-unrecorded workflow (paired latency ratio $1.033$, $95\%$ interval
-$[0.788, 1.278]$, $n=30$ after one warmup). Relative allocated storage
+unrecorded workflow. The mean of the $30$ paired relative latency overheads is
+$1.033$ ($+103.3\%$; $95\%$ interval $[+78.8\%, +127.8\%]$ after one
+warmup). Relative allocated storage
 overhead is $6.20$ ($70\,512$ additional bytes; $81\,885$ versus
 $11\,373$ bytes). Total allocated bytes are $7.20\times$ the baseline.
 The allocated audit file is one SQLite page ($65\,536$ bytes); logical
@@ -355,11 +364,13 @@ The default cohort rewrites one fixture; it is not $50$ independent patients
 and does not support population-style inference. Baseline ARC and tamper
 scores are construct-dependent: they measure this paper's required-field
 inventory against analytical emulations, not independently shipped logging
-products. Reload-and-verify completeness uses a verifier module in the same
-repository; it is not an external audit. Allocated storage is confounded by
-SQLite page size; logical serialized bytes are the less confounded figure,
-and multi-transaction amortization is not reported. Latency $n=30$ is a
-prototype overhead sketch, not a capacity or tail-latency study. FHIR
+products. Reload-and-verify completeness uses an in-repository verifier, not
+an external audit. Mutation detection is a non-\texttt{VERIFIED} outcome;
+$18/19$ cases were specifically \texttt{TAMPERED}. Each measured Merkle
+envelope contains one transaction; batching is unevaluated. SQLite page size
+confounds allocated storage, so logical bytes are less confounded;
+multi-transaction amortization is unreported. Latency $n=30$ is an overhead
+sketch, not a capacity or tail-latency study. FHIR
 projections are mapping rules, not Implementation Guide profile validation.
 Synthea generator version and CLI parameters are \texttt{NOT\_PINNED}; optional
 slice arms are excluded from measured evidence. A DOI for the public archive
@@ -368,10 +379,9 @@ is not assigned in this draft.
 \section{Ethics, Funding, and Disclosure}
 \label{sec:ethics}
 
-No human subjects and no identifiable clinical records were used. The reported
-evaluation uses synthetic templates and optional external Synthea
-bundles~\cite{walonoski2018synthea}. Therefore no institutional review board
-protocol was required. The author reports no specific funding and no conflict
+No human subjects or identifiable clinical records were used. Evaluation uses
+synthetic templates and optional external Synthea bundles~\cite{walonoski2018synthea};
+therefore no institutional review board protocol was required. The author reports no funding and no conflict
 of interest. Portions of software and documentation were drafted with
 assistance from coding agents; evaluation metrics are produced by the
 versioned Python harness. The author remains responsible for claims, code, and
@@ -381,17 +391,14 @@ the decision to submit.
 \label{sec:conclusion}
 
 A privacy-preserving provenance plane can reconstruct a bounded synthetic
-FHIR-to-large-language-model transaction after reloading persisted records
-and running an in-repository verifier, detect a defined mutation suite, and
+FHIR-to-large-language-model transaction from persisted records with an
+in-repository verifier, detect a defined mutation suite, and
 keep hidden reasoning and free-form reviewer text out of the immutable chain.
 The result is a protocol demonstration of known primitives under a clinical
 data/proof split, not a new integrity scheme and not a population evaluation.
-Remaining work is experimental scale on independently generated synthetic
-patients, amortized multi-transaction storage, hosted-model replay
-characterization, and IEEE Author Portal packaging (PDF Checker, signed
-consent if required).
+Remaining work is independent synthetic-patient scale, amortized batching,
+hosted-model replay characterization, and IEEE Author Portal packaging.
 
-\balance
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 

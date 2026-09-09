@@ -268,7 +268,7 @@ def _git_commit() -> str | None:
     return commit or None
 
 
-def _git_dirty() -> bool:
+def _git_dirty() -> bool | None:
     try:
         completed = subprocess.run(
             ["git", "status", "--porcelain"],
@@ -278,7 +278,9 @@ def _git_dirty() -> bool:
             timeout=2,
         )
     except (OSError, subprocess.TimeoutExpired):
-        return False
+        return None
+    if completed.returncode != 0:
+        return None
     return bool(completed.stdout.strip())
 
 

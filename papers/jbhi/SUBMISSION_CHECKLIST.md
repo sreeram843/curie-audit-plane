@@ -44,7 +44,8 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 - [ ] Run **IEEE PDF Checker**
 - [ ] Assign a public **DOI** (not invented in this repository)
 - [x] Clean-clone release proof: annotated tag `jbhi-eval-20260828`
-      (commit `27d8b6a`) regenerates headline ARC 20/20, tamper 19/19,
+      (commit `27d8b6a`) regenerates headline ARC 20/20 and mutation detection
+      19/19 (18 `TAMPERED`, one `INCOMPLETE`),
       allocated 81885/11373 bytes, and logical 39454/11373 bytes from a
       clean clone. Regenerated experiment metadata records the tag commit
       (`27d8b6a`, `git_dirty: false`); frozen campaign files record source
@@ -58,12 +59,18 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 - [x] IEEE numeric bibliography (`IEEEtran`)
 - [x] Synthetic-data ethics note (no IRB)
 - [x] Cover letter draft and conflict-of-interest statement
+- [x] Integrity claim matches the measured one-transaction Merkle envelope;
+      multi-transaction batching is not claimed
+- [x] Mutation detection and relative latency overhead use definitions that
+      match the frozen report
 
 ### Still tighten if needed after compile
 
 - [x] **Page count ≤ 14** (hard limit including supplementary) — current `main.pdf` is **4 pages**
 - [x] Prefer **≤ 8 pages** to avoid mandatory overlength charges — current `main.pdf` is **4 pages**
 - [x] Confirm abstract word count ≤ 250 in the portal field — IEEE abstract in `main.tex` is **about 221 words**
+- [ ] Capture and archive the required audit-console screenshots or short demo
+      (Sankey, event table, JSON inspector, verification panel, and replay comparison)
 
 ## Honest scope note
 
