@@ -35,9 +35,10 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 - [x] **ORCID** for every author: 0009-0007-2681-006X
 - [x] **IEEE e-mail**: srirammentey@ieee.org
 - [x] Full **mailing address** in `\thanks` and cover letter
-- [ ] **Gate C:** a second person who did not implement the verifier runs
-      `docs/evaluation/independent-exercise.md` and signs
-      `papers/jbhi/GATE_C_ATTESTATION.md`
+- [x] **Gate C:** Chanukya Lakamsani ran
+      `docs/evaluation/independent-exercise.md` on tag `jbhi-eval-20260828`
+      (`27d8b6a`) and signed `papers/jbhi/GATE_C_ATTESTATION.md`
+      (tamper 19/19, ARC 20/20, false tamper 0/3)
 - [ ] Choose **Regular Paper**
 - [ ] Choose **Traditional** vs **Open Access**
 - [ ] Suggest **4 independent reviewers** in the portal (`suggested_reviewers.md` is a draft; verify emails)
@@ -75,6 +76,7 @@ ScholarOne URL referenced by J-BHI: https://mc.manuscriptcentral.com/jbhi-embs
 ## Honest scope note
 
 This manuscript is a **protocol and system demonstration on synthetic data**.
-In-repo work cannot close IEEE PDF Checker, DOI minting, portal article/access
-selection, reviewer invitation, or Gate C (a second human must exercise the
-verifier). Those remain open on this checklist.
+Gate C is a signed independent exercise of the in-repository verifier, not an
+external audit. In-repo work cannot close IEEE PDF Checker, DOI minting, portal
+article/access selection, or reviewer invitation. Those remain open on this
+checklist.

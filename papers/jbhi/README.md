@@ -9,7 +9,7 @@ IEEEtran class, and portal checklist).
 - `manuscript.md` — pointer only; not a second scientific source
 - `cover_letter.txt` — paste into the Author Portal
 - `SUBMISSION_CHECKLIST.md` — remaining human/portal steps
-- `GATE_C_ATTESTATION.md` — unsigned until a second person exercises the verifier
+- `GATE_C_ATTESTATION.md` — signed independent exercise of the in-repository verifier at tag `jbhi-eval-20260828`
 
 Author: Satya Venkata Ranga Janaki Sriram Mentey
 ORCID: 0009-0007-2681-006X

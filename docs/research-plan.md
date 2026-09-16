@@ -113,9 +113,8 @@ for RQ3.
 This draft is positioned as a **single-workflow protocol and system
 demonstration**. Remaining gates that cannot be closed in-repo:
 
-- **Gate C:** a second person must run `docs/evaluation/independent-exercise.md`
-  and sign `papers/jbhi/GATE_C_ATTESTATION.md`.
 - IEEE PDF Checker, DOI, portal article/access selection, and reviewer invitation.
   Tagged clean-clone regeneration of headline ARC, tamper, and storage figures
-  is recorded for `jbhi-eval-20260828`.
+  is recorded for `jbhi-eval-20260828`. Gate C is signed in
+  `papers/jbhi/GATE_C_ATTESTATION.md` for that tag.
 - Recheck J-BHI author instructions immediately before submission.

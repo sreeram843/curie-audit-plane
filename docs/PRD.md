@@ -655,7 +655,7 @@ Before submission, the project should produce:
 
 - **Gate A — contribution freeze:** the event model, research questions, baselines, and primary metrics are fixed before final experiments.
 - **Gate B — reproducibility freeze:** a clean environment can regenerate the headline tables and figures from synthetic fixtures.
-- **Gate C — integrity freeze:** the verifier and tamper benchmark are independently exercised by someone who did not implement them. **Not satisfied.** The protocol is `docs/evaluation/independent-exercise.md`; `papers/jbhi/GATE_C_ATTESTATION.md` is unsigned.
+- **Gate C — integrity freeze:** the verifier and tamper benchmark are independently exercised by someone who did not implement them. **Satisfied** for tag `jbhi-eval-20260828` (`27d8b6a`) by Chanukya Lakamsani on 2026-09-15: tamper 19/19, reload-and-verify ARC 20/20, false tamper 0/3. The protocol is `docs/evaluation/independent-exercise.md`; the signed form is `papers/jbhi/GATE_C_ATTESTATION.md`. This is an independent exercise of the in-repository verifier, not a third-party audit.
 - **Gate D — venue check:** the current J-BHI author instructions, scope, originality policy, template, and artifact rules are reviewed immediately before submission; IEEE Access/EMBC are retained as fallback routes.
 
 The paper and any future commercial product should remain separate work products: the paper emphasizes novelty, evidence, and limitations; the product plan emphasizes deployment, security operations, integrations, support, and customer value.
