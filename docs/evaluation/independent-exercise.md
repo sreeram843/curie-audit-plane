@@ -32,5 +32,5 @@ CAP_LLM_PROVIDER=stub uv run curie-audit-plane evaluate --output-dir /tmp/cap-ga
 - `false_tamper_rate` is `0` over the clean cases in that report.
 
 Record the git commit, date, and a short note in
-`papers/jbhi/GATE_C_ATTESTATION.md`. Leave that file unsigned until a second
-person actually runs the commands.
+`papers/jbhi/GATE_C_ATTESTATION.md`. The form for tag `jbhi-eval-20260828` is
+signed; do not overwrite a completed signature.
