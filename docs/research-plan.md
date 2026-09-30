@@ -75,9 +75,22 @@ Before paper submission, publish or archive:
 - generated tables, figures, and UI screenshots;
 - threat model, limitations, data-handling statement, and ethics/IRB statement if human reviewers participate.
 
+## Current publication target
+
+The active manuscript format is **Computer Methods and Programs in Biomedicine
+(CMPB)** under `papers/cmpb/`. Frozen research questions, metrics, and
+synthetic-fixture claims are unchanged. The IEEE J-BHI package under
+`papers/jbhi/` is retained as an archive and is not a competing submission of
+the same paper.
+
+CMPB is the better fit for this work as a computing-methods and
+application-software demonstration (reconstructable provenance, integrity
+checks, and capture overhead), not as a clinical-efficacy or diagnostic-accuracy
+study.
+
 ## J-BHI evidence gates
 
-The J-BHI route is credible only if the manuscript:
+The J-BHI route remains credible only if a future IEEE manuscript:
 
 - frames the problem as biomedical and health-informatics provenance for EHR/FHIR workflows;
 - includes a healthcare-specific comparison, not only generic observability baselines;
@@ -86,7 +99,7 @@ The J-BHI route is credible only if the manuscript:
 - separates auditability, security, interoperability, and usability from clinical correctness;
 - includes reproducible schemas, verifier logic, benchmark cases, and limitations.
 
-If the results are primarily software-engineering or infrastructure evidence, IEEE Access or an engineering/health-informatics conference may be a better fallback than overstating J-BHI fit.
+If the results are primarily software-engineering or infrastructure evidence, CMPB is the active target; IEEE Access or an engineering/health-informatics conference remain fallbacks if CMPB is not pursued. Do not overstate J-BHI fit.
 
 ## Current prototype evaluation command
 
@@ -108,13 +121,15 @@ limitations, and measured-result interpretation are defined in
 they do not replace the mutation suite for RQ2 or fixed-configuration cohort runs
 for RQ3.
 
-## Remaining before J-BHI submission
+## Remaining before CMPB submission
 
 This draft is positioned as a **single-workflow protocol and system
 demonstration**. Remaining gates that cannot be closed in-repo:
 
-- IEEE PDF Checker, DOI, portal article/access selection, and reviewer invitation.
-  Tagged clean-clone regeneration of headline ARC, tamper, and storage figures
-  is recorded for `jbhi-eval-20260828`. Gate C is signed in
-  `papers/jbhi/GATE_C_ATTESTATION.md` for that tag.
-- Recheck J-BHI author instructions immediately before submission.
+- Elsevier Editorial Manager upload, reviewer invitation, optional DOI, and
+  live Guide-for-Authors recheck. Tagged clean-clone regeneration of headline
+  ARC, tamper, and storage figures is recorded for `jbhi-eval-20260828`.
+  Gate C is signed in `papers/jbhi/GATE_C_ATTESTATION.md` for that tag.
+- Recheck CMPB author instructions immediately before submission
+  (https://www.editorialmanager.com/cmpb/). Do not submit the same manuscript
+  simultaneously to IEEE J-BHI.

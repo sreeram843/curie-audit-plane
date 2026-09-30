@@ -9,7 +9,7 @@
 **Canonical repository:** [github.com/sreeram843/curie-audit-plane](https://github.com/sreeram843/curie-audit-plane)  
 **Audience:** Research collaborators, clinical informatics reviewers, platform engineers, security/compliance stakeholders, and potential pilot customers  
 **Primary decision:** Build a narrow, verifiable provenance prototype around one synthetic-data FHIR-to-LLM transaction before expanding into a general healthcare audit platform.
-**Primary publication target:** IEEE Journal of Biomedical and Health Informatics (J-BHI); IEEE Access and IEEE EMBC/EMBS remain fallback or companion routes.
+**Primary publication target:** Elsevier *Computer Methods and Programs in Biomedicine* (CMPB); the IEEE J-BHI package is retained under `papers/jbhi/` as an archive, not a simultaneous submission. IEEE Access and IEEE EMBC/EMBS remain fallback or companion routes.
 
 ## 1. Executive summary
 
@@ -603,16 +603,25 @@ The prototype can support a paper organized around:
 6. Limitations: synthetic data, narrow workflow, provider nondeterminism, incomplete clinical semantics, operational key management, and no clinical efficacy claim.
 7. Future work: multi-agent workflows, longitudinal monitoring, deployment pilots, policy packs, and independent third-party verification.
 
-### IEEE publication track
+### Publication track
 
-The prototype should be developed with an IEEE submission in mind. The primary target is **IEEE Journal of Biomedical and Health Informatics (J-BHI)**; venue selection should still be reconfirmed against the current author instructions after the evaluation results are known. Candidate fallback paths include:
+The active venue is **Computer Methods and Programs in Biomedicine (CMPB)**.
+That journal publishes computing methods and application-software design for
+biomedical informatics, which matches a reconstructable provenance plane,
+in-repository verification, and capture-overhead measurement on synthetic
+FHIR-to-LLM fixtures. The frozen contribution claim does not change with the
+venue. Candidate fallback paths include:
 
+- **IEEE J-BHI:** archived IEEE-format package under `papers/jbhi/`; a health-informatics framing remains available if CMPB is not pursued. Do not submit the same manuscript to both journals at once.
 - **IEEE Access:** a broad applied-research route for a complete technical prototype, quantitative evaluation, and reproducible artifact package.
 - **IEEE EMBC/EMBS conference route:** a shorter biomedical-engineering paper emphasizing healthcare relevance, system design, and initial experimental results.
 
-J-BHI is a good fit only if the manuscript frames CAP as a biomedical and health-informatics method for secure, interoperable, and reviewable clinical information systems—not merely as a generic LLM logging tool. The J-BHI scope describes work at the intersection of information and communication technologies with health, healthcare, life sciences, and biomedicine, including electronic medical records, clinical information systems, decision support, interoperability, and secure patient data. ([J-BHI scope](https://www.embs.org/jbhi/articles/jbhi/))
-
-The team must verify J-BHI’s current scope, article type, template, page limits, review model, fees, originality rules, and supplementary-material requirements before formatting the manuscript. IEEE Access remains a practical fallback because its guidance explicitly expects original work, technically sound experiments, supported conclusions, and permits supplemental code/data; its submission guidance also addresses disclosure of AI-generated text. ([IEEE Access author guidance](https://ieeeaccess.ieee.org/authors/preparing-your-article/))
+CMPB is a good fit when the manuscript frames CAP as a computing method and
+application-software demonstration for secure, interoperable, and reviewable
+clinical information systems—not as a diagnostic-accuracy or clinical-efficacy
+result. Recheck the live CMPB Guide for Authors and Editorial Manager
+checklist immediately before submission
+(https://www.editorialmanager.com/cmpb/).
 
 ### Expected paper contribution
 
@@ -628,7 +637,7 @@ The contribution should be supported by:
 4. A benchmark containing clean, incomplete, mutated, deleted, reordered, and proof-substitution cases.
 5. Quantitative results for ARC, tamper detection, replay fidelity, evidence coverage, human-action capture, latency, and storage overhead.
 
-### J-BHI-specific framing requirements
+### Venue-specific framing requirements
 
 - Tie the problem to EHR/FHIR-based clinical information systems and the human review workflow.
 - Demonstrate why provenance completeness and tamper detection matter for safe biomedical or health-informatics use, not only for software observability.
@@ -637,11 +646,11 @@ The contribution should be supported by:
 - Separate claims about auditability, security, interoperability, and usability from claims about clinical accuracy or patient outcomes.
 - Include a health-informatics discussion of how the approach could integrate with existing EHR/FHIR workflows.
 
-### IEEE-ready artifact package
+### Submission artifact package
 
 Before submission, the project should produce:
 
-- IEEE-formatted manuscript source and PDF.
+- CMPB `elsarticle` manuscript source and PDF (active); IEEE-formatted archive under `papers/jbhi/`.
 - Reproducible synthetic FHIR fixtures and versioned evidence corpus.
 - Event schemas, canonicalization rules, verifier, benchmark generator, and evaluation scripts.
 - Configuration manifests, dependency versions, model/provider details, and seeds where applicable.
@@ -649,14 +658,14 @@ Before submission, the project should produce:
 - Screenshots or a short demonstration of the Sankey, event table, JSON inspector, verification panel, and replay comparison.
 - Threat model, limitations, data-handling statement, and an explicit statement that the prototype does not establish clinical efficacy or regulatory clearance.
 - Ethics/IRB statement if human reviewers participate in the usability evaluation; no real patient data should be required for the first paper.
-- Author-contribution record and AI-assistance disclosure appropriate to the selected IEEE venue.
+- Author-contribution record and AI-assistance disclosure appropriate to the selected venue.
 
 ### Publication gates
 
 - **Gate A — contribution freeze:** the event model, research questions, baselines, and primary metrics are fixed before final experiments.
 - **Gate B — reproducibility freeze:** a clean environment can regenerate the headline tables and figures from synthetic fixtures.
 - **Gate C — integrity freeze:** the verifier and tamper benchmark are independently exercised by someone who did not implement them. **Satisfied** for tag `jbhi-eval-20260828` (`27d8b6a`) by Chanukya Lakamsani on 2026-09-15: tamper 19/19, reload-and-verify ARC 20/20, false tamper 0/3. The protocol is `docs/evaluation/independent-exercise.md`; the signed form is `papers/jbhi/GATE_C_ATTESTATION.md`. This is an independent exercise of the in-repository verifier, not a third-party audit.
-- **Gate D — venue check:** the current J-BHI author instructions, scope, originality policy, template, and artifact rules are reviewed immediately before submission; IEEE Access/EMBC are retained as fallback routes.
+- **Gate D — venue check:** the current CMPB author instructions, scope, originality policy, template, and artifact rules are reviewed immediately before submission; the J-BHI archive and IEEE Access/EMBC remain fallback routes. Do not dual-submit the same paper.
 
 The paper and any future commercial product should remain separate work products: the paper emphasizes novelty, evidence, and limitations; the product plan emphasizes deployment, security operations, integrations, support, and customer value.
 
