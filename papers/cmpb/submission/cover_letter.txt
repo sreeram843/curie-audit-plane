@@ -1,0 +1,82 @@
+COVER LETTER — Computer Methods and Programs in Biomedicine
+==========================================================
+Paste into Editorial Manager (https://www.editorialmanager.com/cmpb/).
+Article type: Original Research Manuscript.
+Publication route: subscription (no author publication fee). Open-access
+APC is approximately USD 3180 excluding taxes if that option is selected later.
+
+---
+
+Dear Editor-in-Chief and Editorial Office,
+
+Please consider my manuscript entitled:
+
+“Reconstructable, privacy-preserving provenance for FHIR-to-large language model clinical transactions: a protocol demonstration”
+
+for publication as an Original Research Manuscript in Computer Methods and
+Programs in Biomedicine.
+
+Why this journal is appropriate
+-------------------------------
+CMPB publishes computing methods and application-software design for
+biomedical informatics and medical practice. This manuscript describes a
+bounded recording and verification method: typed audit events, a data/proof
+split that keeps protected clinical payloads out of the immutable store,
+structured model output without hidden chain-of-thought, FHIR
+Provenance/AuditEvent projections, and an in-repository verifier. The
+evaluation is a synthetic-fixture protocol demonstration of reconstructability,
+tamper detection, access outcomes, and capture overhead. It is not a
+diagnostic-accuracy or clinical-efficacy study, which matches CMPB’s
+methods-and-software scope more closely than a clinical-outcomes journal.
+
+What is already known
+---------------------
+FHIR Provenance and AuditEvent, W3C PROV-DM, and IHE ATNA supply
+interoperability surfaces for agents, entities, and access trails.
+Tamper-evident logging, hash chaining, Merkle inclusion proofs, and Ed25519
+are established integrity primitives. Clinical large-language-model studies
+have focused mainly on accuracy and summarization performance. Those
+artifacts do not, by themselves, reconstruct one completed FHIR-to-LLM
+handoff—inputs, transformations, model configuration, evidence, safeguards,
+and human ACCEPT/MODIFY/REJECT disposition—without placing raw protected
+health information or hidden reasoning in an immutable log.
+
+What this study adds
+--------------------
+The paper integrates those known primitives into a reconstructable provenance
+plane and reports frozen synthetic-fixture results: reload-and-verify
+completeness 20/20 required fields; 19/19 labeled mutations non-verified
+(18 TAMPERED, 1 INCOMPLETE); 11/11 access-control probes; mean paired
+relative latency overhead 1.033 [0.788, 1.278] versus an identical
+unrecorded clinical workflow including in-memory ACCEPT (n=30); allocated
+storage 81,885 vs 11,373 bytes (relative 6.20; total 7.20×) and logical
+storage 39,454 vs 11,373 bytes (relative 2.47; total 3.47×). Hash chaining
+and Ed25519 are used as known primitives, not as a new cryptographic
+construction. The measured path places one completed transaction root in
+each Merkle envelope.
+
+Originality
+-----------
+This manuscript is entirely original. It has not been copyrighted, published,
+submitted, or accepted for publication elsewhere. No preliminary conference
+version of this work has been published. A related manuscript by the same
+author on retrieval-augmented FHIR translation is a separate engineering
+study with a different research question and evaluation.
+
+Human subjects / data
+---------------------
+No human subjects and no identifiable clinical records were used. The
+reported evaluation uses synthetic FHIR fixtures and optional external
+Synthea bundles that are not committed to the public repository.
+
+Suggested article type: Original Research Manuscript
+Open access preference: subscription (no author fee).
+
+Thank you for your consideration.
+
+Sincerely,
+Satya Venkata Ranga Janaki Sriram Mentey
+Corresponding author
+Independent researcher, Austin, TX, USA
+E-mail: srirammentey@ieee.org
+ORCID: 0009-0007-2681-006X

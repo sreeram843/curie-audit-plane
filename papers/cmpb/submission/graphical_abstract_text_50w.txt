@@ -1,0 +1,1 @@
+A provenance plane reconstructs one synthetic FHIR Release 4 to large language model transaction without storing hidden reasoning or raw protected health information in an immutable log. Reload-and-verify completeness is 20 of 20 fields; all 19 labeled mutations are detected.

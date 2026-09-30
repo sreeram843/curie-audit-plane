@@ -1,0 +1,6 @@
+Fast Healthcare Interoperability Resources
+Provenance
+Audit trail
+Large language models
+Data integrity
+Biomedical informatics

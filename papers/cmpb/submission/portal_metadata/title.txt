@@ -1,0 +1,1 @@
+Reconstructable, privacy-preserving provenance for FHIR-to-large language model clinical transactions: a protocol demonstration

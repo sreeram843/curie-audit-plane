@@ -1,0 +1,1 @@
+Source, synthetic fixtures, and versioned evaluation artifacts are available at https://github.com/sreeram843/curie-audit-plane under tag jbhi-eval-20260828. No DOI has been assigned.
