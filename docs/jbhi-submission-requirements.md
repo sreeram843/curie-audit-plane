@@ -132,7 +132,7 @@ Do not publish real patient data or credentials. If any data cannot be shared, s
 
 Do not submit until the repository can produce a blinded, reproducible evidence package showing:
 
-- The same synthetic FHIR input can be replayed or independently verified.
+- The same synthetic FHIR input can be replayed or checked with the in-repository verifier after records are reloaded.
 - Every event hash is recomputed and tamper tests fail closed.
 - Sankey/timeline/table selections resolve to authoritative event IDs.
 - Protected content access is role-controlled and itself audited.

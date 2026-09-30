@@ -1,0 +1,7 @@
+Highlights
+
+- Provenance plane reconstructs one synthetic FHIR-to-LLM transaction.
+- Protected payloads remain outside the immutable audit store.
+- Reload-and-verify completeness is 20 of 20 required fields.
+- All 19 labeled mutations produce non-verified outcomes.
+- Capture overhead is compared with an identical unrecorded workflow.

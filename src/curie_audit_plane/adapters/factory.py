@@ -5,6 +5,7 @@ from curie_audit_plane.adapters.openai_compatible import (
     complete_openai_compatible,
     normalize_base_url,
     resolve_chat_model,
+    validate_llm_endpoint,
 )
 from curie_audit_plane.config import Settings, settings
 
@@ -17,7 +18,7 @@ def completer_from_settings(cfg: Settings | None = None) -> Completer:
     def _complete(request: CompletionRequest):
         model = cfg.llm_model
         if not model or model == "curie-stub-summary":
-            endpoint = normalize_base_url(cfg.llm_base_url)
+            endpoint = validate_llm_endpoint(normalize_base_url(cfg.llm_base_url))
             with httpx.Client(timeout=cfg.llm_timeout_seconds) as client:
                 listing = client.get(f"{endpoint}/models")
                 listing.raise_for_status()

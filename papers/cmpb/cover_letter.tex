@@ -1,0 +1,65 @@
+\documentclass[10pt]{letter}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=black}
+\setlength{\parskip}{0.4em}
+\setlength{\parindent}{0pt}
+\setstretch{1.02}
+
+\makeatletter
+\renewcommand*{\opening}[1]{\vspace*{-1.2em}{\raggedright \toname \\ \toaddress
+  \vspace{1.2em}\par}%
+  \noindent #1\par\vspace{0.6em}}
+\makeatother
+
+\signature{Satya Venkata Ranga Janaki Sriram Mentey\\
+Corresponding Author\\
+Independent researcher, Austin, TX, USA\\
+E-mail: \href{mailto:srirammentey@ieee.org}{srirammentey@ieee.org}\\
+ORCID: 0009-0007-2681-006X}
+
+\address{Satya Venkata Ranga Janaki Sriram Mentey\\
+Independent researcher\\
+Austin, TX, USA\\
+\href{mailto:srirammentey@ieee.org}{srirammentey@ieee.org}}
+
+\date{September 29, 2026}
+
+\begin{document}
+\begin{letter}{Editor-in-Chief\\
+Computer Methods and Programs in Biomedicine\\
+Elsevier}
+
+\opening{Dear Editor-in-Chief and Editorial Office,}
+
+Please consider the enclosed manuscript, ``Reconstructable, privacy-preserving provenance for FHIR-to-large language model clinical transactions: a protocol demonstration,'' as an Original
+Research Manuscript in \emph{Computer Methods and Programs in Biomedicine}
+under the subscription route (no author publication fee).
+
+CMPB publishes computing methods and application-software design for
+biomedical informatics. This work describes a bounded recording and
+verification method for one synthetic FHIR-to-LLM transaction: a data/proof
+split, typed events, structured rationale without hidden chain-of-thought,
+and an in-repository verifier. What is already known includes FHIR
+Provenance/AuditEvent projections and tamper-evident logging primitives;
+clinical LLM studies have focused mainly on accuracy. What this study adds
+is reconstructability, mutation detection, access outcomes, and capture
+overhead versus an identical unrecorded clinical workflow on synthetic
+fixtures. The contribution is an integration of known primitives, not a new
+cryptographic construction.
+
+This manuscript is original and is not under consideration elsewhere. A
+related manuscript by the same author on retrieval-augmented FHIR
+translation addresses a different research question.
+
+No human subjects or identifiable clinical records were used.
+
+\closing{Sincerely,}
+
+\end{letter}
+\end{document}

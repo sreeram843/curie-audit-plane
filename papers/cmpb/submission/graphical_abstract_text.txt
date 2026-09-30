@@ -1,0 +1,7 @@
+A provenance plane reconstructs one bounded synthetic Fast Healthcare
+Interoperability Resources Release 4 to large language model transaction
+without storing hidden chain-of-thought or raw protected health information
+in an immutable log. Reload-and-verify completeness is 20 of 20 required
+fields. All 19 labeled mutations produce outcomes other than verified
+(18 tampered and one incomplete), and access-control probes pass 11 of 11
+allowed or denied outcomes.

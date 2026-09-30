@@ -1,33 +1,70 @@
+from __future__ import annotations
+
+import hashlib
 import re
 
-from curie_audit_plane.integrity.hashing import sha256_hex
+COMMENT_CATEGORIES = frozenset(
+    {
+        "unspecified",
+        "accept_as_recorded",
+        "modify_for_accuracy",
+        "reject_insufficient_evidence",
+        "policy_override",
+    }
+)
+ALLOWED_PURPOSES = frozenset({"synthetic-encounter-summary"})
+ALLOWED_PROMPT_VERSIONS = frozenset({"clinical-summary.v1", "clinical-summary.v2"})
+ALLOWED_OVERRIDE_POLICIES = frozenset({"override.v1"})
+MAX_VERSION_LEN = 64
+_OPAQUE_SALT = b"curie-audit-plane-opaque-v1"
+_OPAQUE_TOKEN_RE = re.compile(r"tok_[0-9a-f]{20}\Z")
 
-COMMENT_MAX_LENGTH = 500
-_MRN_RE = re.compile(r"TEST-\d{5}")
-_SSN_RE = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
+
+def opaque_identifier(value: str) -> str:
+    digest = hashlib.sha256(_OPAQUE_SALT + value.encode("utf-8")).hexdigest()[:20]
+    return f"tok_{digest}"
 
 
-def sanitize_comment(comment: str) -> dict[str, object]:
+def sanitize_purpose(purpose: str) -> str:
+    """Keep only an allowlisted purpose or an opaque token on the audit chain."""
+    value = (purpose or "").strip()
+    if value in ALLOWED_PURPOSES:
+        return value
+    if _OPAQUE_TOKEN_RE.fullmatch(value):
+        return value
+    return opaque_identifier(value or "unspecified")
+
+
+def sanitize_prompt_version(prompt_version: str) -> str:
+    value = (prompt_version or "").strip()
+    if len(value) > MAX_VERSION_LEN or value not in ALLOWED_PROMPT_VERSIONS:
+        raise ValueError("prompt_version is not allowlisted")
+    return value
+
+
+def sanitize_override_policy_version(override_policy_version: str | None) -> str | None:
+    if override_policy_version is None:
+        return None
+    value = override_policy_version.strip()
+    if not value:
+        return None
+    if len(value) > MAX_VERSION_LEN or value not in ALLOWED_OVERRIDE_POLICIES:
+        raise ValueError("override_policy_version is not allowlisted")
+    return value
+
+
+def sanitize_comment(comment: str, category: str = "unspecified") -> dict[str, object]:
+    """Keep only a controlled category in immutable metadata.
+
+    Detailed reviewer text must be stored in the protected-content store, not
+    on the audit chain. No digest of the free-text comment is recorded in
+    metadata because a digest can leak low-entropy PHI.
+    """
     raw = comment or ""
-    digest = sha256_hex(raw.encode("utf-8")) if raw else ""
-    if not raw:
-        return {
-            "comment": "",
-            "comment_present": False,
-            "comment_redacted": False,
-            "comment_digest": "",
-        }
-    if _MRN_RE.search(raw) or _SSN_RE.search(raw):
-        return {
-            "comment": "",
-            "comment_present": True,
-            "comment_redacted": True,
-            "comment_digest": digest,
-        }
-    truncated = raw[:COMMENT_MAX_LENGTH]
+    selected = category if category in COMMENT_CATEGORIES else "unspecified"
     return {
-        "comment": truncated,
-        "comment_present": True,
-        "comment_redacted": len(raw) > COMMENT_MAX_LENGTH,
-        "comment_digest": digest,
+        "comment": "",
+        "comment_category": selected,
+        "comment_present": bool(raw.strip()),
+        "comment_redacted": True,
     }

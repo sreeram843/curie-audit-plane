@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from curie_audit_plane.adapters.completion import complete_stub
 from curie_audit_plane.integrity.signing import generate_keypair
 from curie_audit_plane.models.enums import (
     EventType,
@@ -152,6 +153,26 @@ def test_replay_uses_recorded_stub_runtime_not_current_completer(tmp_path):
     assert replay.result == "EXACT_MATCH"
 
 
+def test_replay_with_prompt_v2_is_divergent_on_stub(tmp_path):
+    pipeline = _pipeline(tmp_path)
+    result = pipeline.run_transaction(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+        prompt_version="clinical-summary.v1",
+    )
+    replayed = pipeline.replay(
+        result.transaction.transaction_id,
+        prompt_version="clinical-summary.v2",
+    )
+    assert replayed.result == "DIVERGENT"
+    assert "summary differs" in replayed.reasons
+    access = pipeline.services.audit.list_access_events(result.transaction.transaction_id)
+    assert any(event.event_type == EventType.REPLAY_RECORDED for event in access)
+    loaded = pipeline.load_result(result.transaction.transaction_id)
+    assert loaded.verification.status == VerificationStatus.VERIFIED
+    pipeline.close()
+
+
 def test_pipeline_rejects_pending_as_terminal_disposition(tmp_path):
     pipeline = _pipeline(tmp_path)
     with pytest.raises(ValueError, match="PENDING"):
@@ -203,6 +224,25 @@ def test_forced_adapter_failure_does_not_leave_running(tmp_path):
     assert result.events[-1].event_hash
 
 
+def test_adapter_exception_text_is_not_stored_on_the_audit_chain(tmp_path):
+    pipeline = _pipeline(tmp_path)
+
+    def boom(_request):
+        raise RuntimeError("provider echoed Patient TEST-00001 and 123-45-6789")
+
+    pipeline.completer = boom
+    result = pipeline.run_transaction(actor="reviewer@curie.local")
+    assert result.transaction.status == TransactionStatus.FAILED
+    failed = next(event for event in result.events if event.event_type == EventType.TRANSACTION_FAILED)
+    meta = json.dumps(failed.payload_metadata)
+    assert failed.payload_metadata["error_code"] == "RuntimeError"
+    assert "TEST-00001" not in meta
+    assert "123-45-6789" not in meta
+    assert "provider echoed" not in meta
+    assert failed.payload_metadata.get("message") in {"", None}
+    assert "message_digest" not in failed.payload_metadata
+
+
 def test_transformation_events_include_full_record(tmp_path):
     pipeline = _pipeline(tmp_path)
     result = pipeline.run_transaction(human_action=HumanActionStatus.ACCEPT, actor="reviewer@curie.local")
@@ -229,3 +269,61 @@ def test_sealed_transaction_rejects_clinical_append(tmp_path):
     extra = result.events[-1].model_copy(update={"event_id": "extra", "sequence_number": 99})
     with pytest.raises(ValueError, match="sealed"):
         pipeline.services.audit.append_event(extra)
+
+
+def test_recorded_and_unrecorded_share_one_clinical_completion_request(tmp_path):
+    requests = []
+
+    def tracking_completer(request):
+        requests.append(request)
+        return complete_stub(request)
+
+    private_key, public_key = generate_keypair()
+    pipeline = Pipeline(
+        PipelineServices(
+            audit=AuditStore(tmp_path / "audit.sqlite"),
+            content=ProtectedContentStore(tmp_path / "protected"),
+            private_key=private_key,
+            public_key=public_key,
+            key_id="test-key",
+        ),
+        completer=tracking_completer,
+    )
+    unrecorded = pipeline.run_unrecorded_workflow(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+    recorded = pipeline.run_transaction(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+
+    assert len(requests) == 2
+    assert requests[0].context_digest == requests[1].context_digest
+    assert requests[0].prompt_version == requests[1].prompt_version
+    assert requests[0].model_id == requests[1].model_id
+    assert requests[0].evidence_ids == requests[1].evidence_ids
+    assert unrecorded["output"].model_dump() == recorded.output.model_dump()
+
+
+def test_unrecorded_workflow_includes_in_memory_accept_without_audit_events(tmp_path):
+    pipeline = _pipeline(tmp_path)
+    result = pipeline.run_unrecorded_workflow(
+        human_action=HumanActionStatus.ACCEPT,
+        actor="reviewer@curie.local",
+    )
+    stages = [record["stage"] for record in result["records"]]
+    assert stages == [
+        "load",
+        "transform",
+        "context",
+        "retrieve",
+        "complete",
+        "guardrail",
+        "review",
+    ]
+    review = result["records"][-1]
+    assert review["action"] == HumanActionStatus.ACCEPT.value
+    assert review["actor"] == "reviewer@curie.local"
+    assert review["final_output_digest"]
+    assert pipeline.services.audit.list_transactions() == []

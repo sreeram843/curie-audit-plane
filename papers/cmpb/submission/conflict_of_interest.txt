@@ -1,0 +1,17 @@
+Conflict of Interest Disclosure
+Computer Methods and Programs in Biomedicine
+
+Manuscript title:
+Reconstructable, privacy-preserving provenance for FHIR-to-large language model clinical transactions: a protocol demonstration
+
+Author:
+Satya Venkata Ranga Janaki Sriram Mentey
+Affiliation: Independent researcher, Austin, TX, USA
+
+Statement:
+The author has no conflict of interest to disclose.
+
+Date: ________________
+
+Signature: ________________
+Name (print): Satya Venkata Ranga Janaki Sriram Mentey

@@ -5,6 +5,7 @@ import re
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 from pydantic import ValidationError
@@ -15,6 +16,32 @@ from curie_audit_plane.integrity.hashing import sha256_hex
 from curie_audit_plane.models.manifests import ModelManifest, StructuredRationale
 
 _FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.IGNORECASE)
+APPROVED_LLM_HOSTS = frozenset({"127.0.0.1", "localhost", "::1"})
+APPROVED_LLM_SCHEMES = frozenset({"http", "https"})
+
+
+def sanitize_llm_endpoint(url: str) -> str:
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    netloc = f"{host}:{parsed.port}" if parsed.port else host
+    path = parsed.path.rstrip("/")
+    return f"{parsed.scheme}://{netloc}{path}"
+
+
+def validate_llm_endpoint(url: str) -> str:
+    parsed = urlparse(url)
+    if parsed.username or parsed.password:
+        raise ValueError("LLM endpoint must not include userinfo")
+    if parsed.query:
+        raise ValueError("LLM endpoint must not include query")
+    if parsed.fragment:
+        raise ValueError("LLM endpoint must not include fragment")
+    if parsed.scheme not in APPROVED_LLM_SCHEMES:
+        raise ValueError("LLM endpoint scheme is not approved")
+    host = parsed.hostname or ""
+    if host not in APPROVED_LLM_HOSTS:
+        raise ValueError("LLM endpoint host is not approved")
+    return sanitize_llm_endpoint(url)
 
 
 def normalize_base_url(url: str) -> str:
@@ -53,6 +80,18 @@ def parse_rationale_content(content: str) -> StructuredRationale:
         raise ValueError("model response did not match structured rationale schema") from exc
 
 
+def _choice_message_content(choice: object) -> str:
+    if not isinstance(choice, dict):
+        raise ValueError("OpenAI-compatible endpoint returned an invalid choice")
+    message = choice.get("message")
+    if not isinstance(message, dict):
+        raise ValueError("OpenAI-compatible endpoint returned no message")
+    content = message.get("content")
+    if not isinstance(content, str) or not content.strip():
+        raise ValueError("OpenAI-compatible endpoint returned no message content")
+    return content
+
+
 def _system_prompt(evidence_ids: list[str], prompt_version: str) -> str:
     allowed = ", ".join(evidence_ids) if evidence_ids else "(none provided)"
     return (
@@ -76,7 +115,7 @@ def complete_openai_compatible(
     timeout_seconds: float = 120,
     client: httpx.Client | None = None,
 ) -> CompletionResult:
-    endpoint = normalize_base_url(base_url)
+    endpoint = validate_llm_endpoint(normalize_base_url(base_url))
     messages = [
         {"role": "system", "content": _system_prompt(request.evidence_ids, request.prompt_version)},
         {
@@ -129,7 +168,7 @@ def complete_openai_compatible(
     choices = payload.get("choices") or []
     if not choices:
         raise ValueError("OpenAI-compatible endpoint returned no choices")
-    content = str(choices[0].get("message", {}).get("content") or "")
+    content = _choice_message_content(choices[0])
     # Ignore provider reasoning_content; it is not part of the audit contract.
     output = parse_rationale_content(content)
     usage = payload.get("usage") or {}
@@ -143,7 +182,7 @@ def complete_openai_compatible(
     manifest = ModelManifest(
         model_id=returned_model,
         provider_id="lmstudio",
-        endpoint=endpoint,
+        endpoint=sanitize_llm_endpoint(endpoint),
         model_version=returned_model,
         prompt_version=request.prompt_version,
         decoding_params={
